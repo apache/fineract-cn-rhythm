@@ -1,0 +1,33 @@
+--
+-- Copyright 2017 The Mifos Initiative.
+--
+-- Licensed under the Apache License, Version 2.0 (the "License");
+-- you may not use this file except in compliance with the License.
+-- You may obtain a copy of the License at
+--
+--    http://www.apache.org/licenses/LICENSE-2.0
+--
+-- Unless required by applicable law or agreed to in writing, software
+-- distributed under the License is distributed on an "AS IS" BASIS,
+-- WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+-- See the License for the specific language governing permissions and
+-- limitations under the License.
+--
+
+# noinspection SqlNoDataSourceInspectionForFile
+
+CREATE TABLE rhythm_applications (
+  id BIGINT NOT NULL AUTO_INCREMENT,
+  application_name VARCHAR(64) NOT NULL,
+  CONSTRAINT rhythm_applications_uq UNIQUE (application_name),
+  CONSTRAINT rhythm_applications_pk PRIMARY KEY (id)
+);
+
+CREATE TABLE rhythm_beats (
+  id BIGINT NOT NULL AUTO_INCREMENT,
+  identifier               VARCHAR(32) NOT NULL,
+  application_name         VARCHAR(32) NOT NULL,
+  alignment_hour           INT         NOT NULL,
+  CONSTRAINT rhythm_beats_uq UNIQUE (identifier, application_name),
+  CONSTRAINT rhythm_beats_pk PRIMARY KEY (id)
+);

@@ -1,0 +1,56 @@
+/*
+ * Copyright 2017 The Mifos Initiative.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package io.mifos.rhythm.api.v1.domain;
+
+import io.mifos.core.test.domain.ValidationTest;
+import io.mifos.core.test.domain.ValidationTestCase;
+import org.junit.runners.Parameterized;
+
+import java.util.ArrayList;
+import java.util.Collection;
+
+/**
+ * @author Myrle Krantz
+ */
+public class ApplicationTest extends ValidationTest<Application> {
+
+  public ApplicationTest(ValidationTestCase<Application> testCase) {
+    super(testCase);
+  }
+
+  @Override
+  protected Application createValidTestSubject() {
+    return new Application("plop-v35");
+  }
+
+  @Parameterized.Parameters
+  public static Collection testCases() {
+    final Collection<ValidationTestCase> ret = new ArrayList<>();
+    ret.add(new ValidationTestCase<Application>("basicCase")
+            .adjustment(x -> {})
+            .valid(true));
+    ret.add(new ValidationTestCase<Application>("nullApplicationName")
+            .adjustment(x -> x.setApplicationName(null))
+            .valid(false));
+    ret.add(new ValidationTestCase<Application>("tooShortApplicationName")
+            .adjustment(x -> x.setApplicationName("z"))
+            .valid(false));
+    ret.add(new ValidationTestCase<Application>("invalidApplicationName")
+            .adjustment(x -> x.setApplicationName("x-x-v-y"))
+            .valid(false));
+    return ret;
+  }
+}
