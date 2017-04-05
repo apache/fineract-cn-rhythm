@@ -23,7 +23,7 @@ import java.util.Objects;
  */
 @SuppressWarnings({"unused", "WeakerAccess"})
 @Entity
-@Table(name = "rhythm_beats")
+@Table(name = "khepri_beats")
 public class BeatEntity {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
