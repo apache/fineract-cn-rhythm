@@ -22,7 +22,7 @@ import javax.persistence.*;
  */
 @SuppressWarnings({"unused", "WeakerAccess"})
 @Entity
-@Table(name = "rhythm_applications")
+@Table(name = "khepri_applications")
 public class ApplicationEntity {
 
   @Id

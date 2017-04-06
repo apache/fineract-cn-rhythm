@@ -1,3 +1,4 @@
+-- noinspection SqlNoDataSourceInspectionForFile
 --
 -- Copyright 2017 The Mifos Initiative.
 --
@@ -16,18 +17,18 @@
 
 # noinspection SqlNoDataSourceInspectionForFile
 
-CREATE TABLE rhythm_applications (
+CREATE TABLE khepri_applications (
   id BIGINT NOT NULL AUTO_INCREMENT,
   application_name VARCHAR(64) NOT NULL,
-  CONSTRAINT rhythm_applications_uq UNIQUE (application_name),
-  CONSTRAINT rhythm_applications_pk PRIMARY KEY (id)
+  CONSTRAINT khepri_applications_uq UNIQUE (application_name),
+  CONSTRAINT khepri_applications_pk PRIMARY KEY (id)
 );
 
-CREATE TABLE rhythm_beats (
+CREATE TABLE khepri_beats (
   id BIGINT NOT NULL AUTO_INCREMENT,
   identifier               VARCHAR(32) NOT NULL,
   application_name         VARCHAR(32) NOT NULL,
   alignment_hour           INT         NOT NULL,
-  CONSTRAINT rhythm_beats_uq UNIQUE (identifier, application_name),
-  CONSTRAINT rhythm_beats_pk PRIMARY KEY (id)
+  CONSTRAINT khepri_beats_uq UNIQUE (identifier, application_name),
+  CONSTRAINT khepri_beats_pk PRIMARY KEY (id)
 );
