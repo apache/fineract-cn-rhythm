@@ -42,7 +42,7 @@ dependencies {
     )
 }
 
-publishToMavenLocal.dependsOn bootRepackage
+// publishToMavenLocal.dependsOn bootRepackage
 
 publishing {
     publications {
