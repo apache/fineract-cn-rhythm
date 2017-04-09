@@ -52,6 +52,7 @@ publishing {
             artifactId project.name
             version project.version
         }
+        /*
         bootService(MavenPublication) {
             // "boot" jar
             artifact ("$buildDir/libs/$project.name-$version-boot.jar")
@@ -59,5 +60,6 @@ publishing {
             artifactId ("$project.name-boot")
             version project.version
         }
+        */
     }
 }
