@@ -30,6 +30,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
+import org.springframework.scheduling.annotation.EnableScheduling;
 
 /**
  * @author Myrle Krantz
@@ -45,8 +46,10 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 @EnableCommandProcessing
 @EnableAnubis
 @EnableServiceException
+@EnableScheduling
 @ComponentScan({
     "io.mifos.rhythm.service.rest",
+    "io.mifos.rhythm.service.config",
     "io.mifos.rhythm.service.internal.service",
     "io.mifos.rhythm.service.internal.repository",
     "io.mifos.rhythm.service.internal.command.handler"

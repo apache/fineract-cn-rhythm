@@ -50,7 +50,9 @@ import org.springframework.test.context.junit4.SpringRunner;
  */
 @RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT,
-        classes = {AbstractRhythmTest.TestConfiguration.class})
+        classes = {AbstractRhythmTest.TestConfiguration.class},
+        properties = "rhythm.user=homer"
+)
 public class AbstractRhythmTest {
 
   private static final String APP_NAME = "rhythm-v1";
