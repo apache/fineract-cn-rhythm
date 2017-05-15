@@ -20,6 +20,7 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 /**
  * @author Myrle Krantz
@@ -29,4 +30,5 @@ public interface BeatRepository extends JpaRepository<BeatEntity, Long> {
   void deleteByTenantIdentifierAndApplicationName(String tenantIdentifier, String applicationName);
   List<BeatEntity> findByTenantIdentifierAndApplicationName(String tenantIdentifier, String applicationName);
   Optional<BeatEntity> findByTenantIdentifierAndApplicationNameAndBeatIdentifier(String tenantIdentifier, String applicationName, String identifier);
+  Stream<BeatEntity> findByAlignmentHour(int alignmentHour);
 }
