@@ -24,6 +24,8 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import static io.mifos.core.lang.config.TenantHeaderFilter.TENANT_HEADER;
+
 /**
  * @author Myrle Krantz
  */
@@ -49,8 +51,10 @@ public class ApplicationRestController {
   )
   public
   @ResponseBody
-  ResponseEntity<Void> deleteApplication(@PathVariable("applicationname") final String applicationName) throws InterruptedException {
-    this.commandGateway.process(new DeleteApplicationCommand(applicationName));
+  ResponseEntity<Void> deleteApplication(
+          @RequestHeader(TENANT_HEADER) final String tenantIdentifier,
+          @PathVariable("applicationname") final String applicationName) throws InterruptedException {
+    this.commandGateway.process(new DeleteApplicationCommand(tenantIdentifier, applicationName));
     return ResponseEntity.accepted().build();
   }
 }

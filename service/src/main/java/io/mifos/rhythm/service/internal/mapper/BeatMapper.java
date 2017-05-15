@@ -15,7 +15,6 @@
  */
 package io.mifos.rhythm.service.internal.mapper;
 
-import io.mifos.core.lang.TenantContextHolder;
 import io.mifos.rhythm.api.v1.domain.Beat;
 import io.mifos.rhythm.service.internal.repository.BeatEntity;
 
@@ -29,7 +28,7 @@ import java.util.stream.Collectors;
 public interface BeatMapper {
   static Beat map(final BeatEntity entity) {
     final Beat ret = new Beat();
-    ret.setIdentifier(entity.getIdentifier());
+    ret.setIdentifier(entity.getBeatIdentifier());
     ret.setAlignmentHour(entity.getAlignmentHour());
     return ret;
   }
@@ -40,10 +39,10 @@ public interface BeatMapper {
     return ret;
   }
 
-  static BeatEntity map(final String applicationName, final Beat instance) {
+  static BeatEntity map(final String tenantIdentifier, final String applicationName, final Beat instance) {
     final BeatEntity ret = new BeatEntity();
-    ret.setIdentifier(instance.getIdentifier());
-    ret.setTenantIdentifier(TenantContextHolder.checkedGetIdentifier());
+    ret.setBeatIdentifier(instance.getIdentifier());
+    ret.setTenantIdentifier(tenantIdentifier);
     ret.setApplicationName(applicationName);
     ret.setAlignmentHour(instance.getAlignmentHour());
     return ret;

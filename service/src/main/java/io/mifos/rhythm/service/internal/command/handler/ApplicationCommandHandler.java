@@ -17,7 +17,6 @@ package io.mifos.rhythm.service.internal.command.handler;
 
 import io.mifos.core.command.annotation.Aggregate;
 import io.mifos.core.command.annotation.CommandHandler;
-import io.mifos.core.command.annotation.EventEmitter;
 import io.mifos.rhythm.api.v1.events.EventConstants;
 import io.mifos.rhythm.service.internal.command.DeleteApplicationCommand;
 import io.mifos.rhythm.service.internal.repository.BeatRepository;
@@ -31,18 +30,19 @@ import org.springframework.transaction.annotation.Transactional;
 @Aggregate
 public class ApplicationCommandHandler {
   private final BeatRepository beatRepository;
+  private final EventHelper eventHelper;
 
   @Autowired
-  public ApplicationCommandHandler(final BeatRepository beatRepository) {
+  public ApplicationCommandHandler(final BeatRepository beatRepository, final EventHelper eventHelper) {
     super();
     this.beatRepository = beatRepository;
+    this.eventHelper = eventHelper;
   }
 
   @CommandHandler
   @Transactional
-  @EventEmitter(selectorName = EventConstants.SELECTOR_NAME, selectorValue = EventConstants.DELETE_APPLICATION)
-  public String process(final DeleteApplicationCommand deleteApplicationCommand) {
-    this.beatRepository.deleteByApplicationName(deleteApplicationCommand.getApplicationName());
-    return deleteApplicationCommand.getApplicationName();
+  public void process(final DeleteApplicationCommand deleteApplicationCommand) {
+    this.beatRepository.deleteByTenantIdentifierAndApplicationName(deleteApplicationCommand.getTenantIdentifier(), deleteApplicationCommand.getApplicationName());
+    eventHelper.sendEvent(EventConstants.DELETE_APPLICATION, deleteApplicationCommand.getTenantIdentifier(), deleteApplicationCommand.getApplicationName());
   }
 }

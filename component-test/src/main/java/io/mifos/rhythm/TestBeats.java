@@ -62,7 +62,7 @@ public class TestBeats extends AbstractRhythmTest {
   @Test
   public void shouldDeleteApplication() throws InterruptedException {
     final String appName = "funnybusiness-v3";
-    final Beat beat = createBeat(appName, "bebopthedowop");
+    createBeat(appName, "bebopthedowop");
 
     this.testSubject.deleteApplication(appName);
     Assert.assertTrue(this.eventRecorder.wait(EventConstants.DELETE_APPLICATION, appName));

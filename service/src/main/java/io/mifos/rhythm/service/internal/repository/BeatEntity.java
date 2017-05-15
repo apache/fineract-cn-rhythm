@@ -30,8 +30,8 @@ public class BeatEntity {
   @Column(name = "id")
   private Long id;
 
-  @Column(name = "identifier")
-  private String identifier;
+  @Column(name = "beat_identifier")
+  private String beatIdentifier;
 
   @Column(name = "tenant_identifier")
   private String tenantIdentifier;
@@ -54,12 +54,12 @@ public class BeatEntity {
     this.id = id;
   }
 
-  public String getIdentifier() {
-    return identifier;
+  public String getBeatIdentifier() {
+    return beatIdentifier;
   }
 
-  public void setIdentifier(String identifier) {
-    this.identifier = identifier;
+  public void setBeatIdentifier(String beatIdentifier) {
+    this.beatIdentifier = beatIdentifier;
   }
 
   public String getTenantIdentifier() {
@@ -91,12 +91,12 @@ public class BeatEntity {
     if (this == o) return true;
     if (o == null || !(o instanceof BeatEntity)) return false;
     BeatEntity that = (BeatEntity) o;
-    return Objects.equals(getIdentifier(), that.getIdentifier()) &&
+    return Objects.equals(getBeatIdentifier(), that.getBeatIdentifier()) &&
             Objects.equals(getApplicationName(), that.getApplicationName());
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(getIdentifier(), getApplicationName());
+    return Objects.hash(getBeatIdentifier(), getApplicationName());
   }
 }

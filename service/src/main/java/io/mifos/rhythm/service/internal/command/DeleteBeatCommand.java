@@ -20,14 +20,21 @@ package io.mifos.rhythm.service.internal.command;
  */
 public class DeleteBeatCommand {
 
+  private final String tenantIdentifier;
+
   private final String applicationName;
 
   private final String identifier;
 
-  public DeleteBeatCommand(final String applicationName, final String identifier) {
+  public DeleteBeatCommand(final String tenantIdentifier, final String applicationName, final String identifier) {
     super();
+    this.tenantIdentifier = tenantIdentifier;
     this.applicationName = applicationName;
     this.identifier = identifier;
+  }
+
+  public String getTenantIdentifier() {
+    return tenantIdentifier;
   }
 
   public String getApplicationName() {
@@ -37,4 +44,5 @@ public class DeleteBeatCommand {
   public String getIdentifier() {
     return identifier;
   }
+
 }

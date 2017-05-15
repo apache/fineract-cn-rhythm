@@ -31,6 +31,8 @@ import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 import java.util.List;
 
+import static io.mifos.core.lang.config.TenantHeaderFilter.TENANT_HEADER;
+
 /**
  * @author Myrle Krantz
  */
@@ -58,8 +60,10 @@ public class BeatRestController {
   )
   public
   @ResponseBody
-  List<Beat> getAllBeatsForApplication(@PathVariable("applicationname") final String applicationName) {
-    return this.beatService.findAllEntities(applicationName);
+  List<Beat> getAllBeatsForApplication(
+          @RequestHeader(TENANT_HEADER) final String tenantIdentifier,
+          @PathVariable("applicationname") final String applicationName) {
+    return this.beatService.findAllEntities(tenantIdentifier, applicationName);
   }
 
   @Permittable(value = AcceptedTokenType.SYSTEM)
@@ -71,8 +75,11 @@ public class BeatRestController {
   )
   public
   @ResponseBody
-  ResponseEntity<Beat> getBeat(@PathVariable("applicationname") final String applicationName, @PathVariable("beatidentifier") final String beatIdentifier) {
-    return this.beatService.findByIdentifier(applicationName, beatIdentifier)
+  ResponseEntity<Beat> getBeat(
+          @RequestHeader(TENANT_HEADER) final String tenantIdentifier,
+          @PathVariable("applicationname") final String applicationName,
+          @PathVariable("beatidentifier") final String beatIdentifier) {
+    return this.beatService.findByIdentifier(tenantIdentifier, applicationName, beatIdentifier)
             .map(ResponseEntity::ok)
             .orElseThrow(() -> ServiceException.notFound("Instance with identifier " + applicationName + " doesn't exist."));
   }
@@ -85,8 +92,11 @@ public class BeatRestController {
   )
   public
   @ResponseBody
-  ResponseEntity<Void> createBeat(@PathVariable("applicationname") final String applicationName, @RequestBody @Valid final Beat instance) throws InterruptedException {
-    this.commandGateway.process(new CreateBeatCommand(applicationName, instance));
+  ResponseEntity<Void> createBeat(
+          @RequestHeader(TENANT_HEADER) final String tenantIdentifier,
+          @PathVariable("applicationname") final String applicationName,
+          @RequestBody @Valid final Beat instance) throws InterruptedException {
+    this.commandGateway.process(new CreateBeatCommand(tenantIdentifier, applicationName, instance));
     return ResponseEntity.accepted().build();
   }
 
@@ -99,8 +109,11 @@ public class BeatRestController {
   )
   public
   @ResponseBody
-  ResponseEntity<Void> deleteBeat(@PathVariable("applicationname") final String applicationName, @PathVariable("beatidentifier") final String beatIdentifier) throws InterruptedException {
-    this.commandGateway.process(new DeleteBeatCommand(applicationName, beatIdentifier));
+  ResponseEntity<Void> deleteBeat(
+          @RequestHeader(TENANT_HEADER) final String tenantIdentifier,
+          @PathVariable("applicationname") final String applicationName,
+          @PathVariable("beatidentifier") final String beatIdentifier) throws InterruptedException {
+    this.commandGateway.process(new DeleteBeatCommand(tenantIdentifier, applicationName, beatIdentifier));
     return ResponseEntity.accepted().build();
   }
 }

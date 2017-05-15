@@ -20,7 +20,6 @@ import io.mifos.core.async.config.EnableAsync;
 import io.mifos.core.cassandra.config.EnableCassandra;
 import io.mifos.core.command.config.EnableCommandProcessing;
 import io.mifos.core.lang.config.EnableServiceException;
-import io.mifos.core.lang.config.EnableTenantContext;
 import io.mifos.core.mariadb.config.EnableMariaDB;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,7 +39,6 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @EnableAutoConfiguration
 @EnableDiscoveryClient
 @EnableAsync
-@EnableTenantContext
 @EnableCassandra
 @EnableMariaDB
 @EnableCommandProcessing
