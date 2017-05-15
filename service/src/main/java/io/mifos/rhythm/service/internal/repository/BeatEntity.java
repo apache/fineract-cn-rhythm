@@ -33,6 +33,9 @@ public class BeatEntity {
   @Column(name = "identifier")
   private String identifier;
 
+  @Column(name = "tenant_identifier")
+  private String tenantIdentifier;
+
   @Column(name = "application_name")
   private String applicationName;
 
@@ -57,6 +60,14 @@ public class BeatEntity {
 
   public void setIdentifier(String identifier) {
     this.identifier = identifier;
+  }
+
+  public String getTenantIdentifier() {
+    return tenantIdentifier;
+  }
+
+  public void setTenantIdentifier(String tenantIdentifier) {
+    this.tenantIdentifier = tenantIdentifier;
   }
 
   public String getApplicationName() {

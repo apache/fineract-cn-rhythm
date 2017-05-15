@@ -18,18 +18,11 @@ package io.mifos.rhythm.service.rest;
 import io.mifos.anubis.annotation.AcceptedTokenType;
 import io.mifos.anubis.annotation.Permittable;
 import io.mifos.core.command.gateway.CommandGateway;
-import io.mifos.core.lang.ServiceException;
-import io.mifos.rhythm.api.v1.domain.Application;
-import io.mifos.rhythm.service.internal.command.CreateApplicationCommand;
 import io.mifos.rhythm.service.internal.command.DeleteApplicationCommand;
-import io.mifos.rhythm.service.internal.service.ApplicationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import javax.validation.Valid;
-import java.util.List;
 
 /**
  * @author Myrle Krantz
@@ -40,54 +33,11 @@ import java.util.List;
 public class ApplicationRestController {
 
   private final CommandGateway commandGateway;
-  private final ApplicationService applicationService;
 
   @Autowired
-  public ApplicationRestController(final CommandGateway commandGateway,
-                                   final ApplicationService applicationService) {
+  public ApplicationRestController(final CommandGateway commandGateway) {
     super();
     this.commandGateway = commandGateway;
-    this.applicationService = applicationService;
-  }
-
-  @Permittable(value = AcceptedTokenType.SYSTEM)
-  @RequestMapping(
-          method = RequestMethod.GET,
-          consumes = MediaType.ALL_VALUE,
-          produces = MediaType.APPLICATION_JSON_VALUE
-  )
-  public
-  @ResponseBody
-  List<Application> getAllApplications() {
-    return this.applicationService.findAllEntities();
-  }
-
-  @Permittable(value = AcceptedTokenType.SYSTEM)
-  @RequestMapping(
-          value = "/{applicationname}",
-          method = RequestMethod.GET,
-          consumes = MediaType.ALL_VALUE,
-          produces = MediaType.APPLICATION_JSON_VALUE
-  )
-  public
-  @ResponseBody
-  ResponseEntity<Application> getApplication(@PathVariable("applicationname") final String applicationName) {
-    return this.applicationService.findByIdentifier(applicationName)
-            .map(ResponseEntity::ok)
-            .orElseThrow(() -> ServiceException.notFound("Instance with identifier " + applicationName + " doesn't exist."));
-  }
-
-  @Permittable(value = AcceptedTokenType.SYSTEM)
-  @RequestMapping(
-          method = RequestMethod.POST,
-          consumes = MediaType.APPLICATION_JSON_VALUE,
-          produces = MediaType.APPLICATION_JSON_VALUE
-  )
-  public
-  @ResponseBody
-  ResponseEntity<Void> createApplication(@RequestBody @Valid final Application instance) throws InterruptedException {
-    this.commandGateway.process(new CreateApplicationCommand(instance));
-    return ResponseEntity.accepted().build();
   }
 
   @Permittable(value = AcceptedTokenType.SYSTEM)

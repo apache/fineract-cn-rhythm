@@ -26,6 +26,7 @@ import java.util.Optional;
  */
 @Repository
 public interface BeatRepository extends JpaRepository<BeatEntity, Long> {
+  void deleteByApplicationName(String applicationName);
   List<BeatEntity> findByApplicationName(String applicationName);
   Optional<BeatEntity> findByApplicationNameAndIdentifier(String applicationName, String identifier);
 }

@@ -24,7 +24,6 @@ import io.mifos.core.test.fixture.mariadb.MariaDBInitializer;
 import io.mifos.core.test.listener.EnableEventRecording;
 import io.mifos.core.test.listener.EventRecorder;
 import io.mifos.rhythm.api.v1.client.RhythmManager;
-import io.mifos.rhythm.api.v1.domain.Application;
 import io.mifos.rhythm.api.v1.domain.Beat;
 import io.mifos.rhythm.api.v1.events.BeatEvent;
 import io.mifos.rhythm.api.v1.events.EventConstants;
@@ -118,21 +117,13 @@ public class AbstractRhythmTest {
     }
   }
 
-  Application createApplication(final String name) throws InterruptedException {
-    final Application application = new Application(name);
-    this.testSubject.createApplication(application);
-
-    Assert.assertTrue(this.eventRecorder.wait(EventConstants.POST_APPLICATION, application.getApplicationName()));
-    return application;
-  }
-
-  Beat createBeat(final Application application, final String beatIdentifier) throws InterruptedException {
+  Beat createBeat(final String applicationName, final String beatIdentifier) throws InterruptedException {
     final Beat beat = new Beat();
     beat.setIdentifier(beatIdentifier);
     beat.setAlignmentHour(0);
-    this.testSubject.createBeat(application.getApplicationName(), beat);
+    this.testSubject.createBeat(applicationName, beat);
 
-    Assert.assertTrue(this.eventRecorder.wait(EventConstants.POST_BEAT, new BeatEvent(application.getApplicationName(), beat.getIdentifier())));
+    Assert.assertTrue(this.eventRecorder.wait(EventConstants.POST_BEAT, new BeatEvent(applicationName, beat.getIdentifier())));
     return beat;
   }
 }

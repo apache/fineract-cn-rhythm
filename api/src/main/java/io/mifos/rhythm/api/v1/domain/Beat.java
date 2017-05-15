@@ -32,6 +32,11 @@ public class Beat {
   public Beat() {
   }
 
+  public Beat(String identifier, Integer alignmentHour) {
+    this.identifier = identifier;
+    this.alignmentHour = alignmentHour;
+  }
+
   public Beat(String identifier) {
     this.identifier = identifier;
   }

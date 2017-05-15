@@ -33,7 +33,7 @@ public class BeatTest extends ValidationTest<Beat> {
 
   @Override
   protected Beat createValidTestSubject() {
-    return new Beat();
+    return new Beat("boop", 0);
   }
 
   @Parameterized.Parameters

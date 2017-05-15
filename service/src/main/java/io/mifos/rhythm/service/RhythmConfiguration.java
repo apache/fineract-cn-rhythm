@@ -52,6 +52,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
     "io.mifos.rhythm.service.config",
     "io.mifos.rhythm.service.internal.service",
     "io.mifos.rhythm.service.internal.repository",
+    "io.mifos.rhythm.service.internal.scheduler",
     "io.mifos.rhythm.service.internal.command.handler"
 })
 @EnableJpaRepositories({
