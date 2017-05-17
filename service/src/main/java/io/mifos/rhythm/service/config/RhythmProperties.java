@@ -18,6 +18,8 @@ package io.mifos.rhythm.service.config;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 
+import java.util.concurrent.TimeUnit;
+
 /**
  * @author Myrle Krantz
  */
@@ -25,6 +27,7 @@ import org.springframework.stereotype.Component;
 @ConfigurationProperties(prefix="rhythm")
 public class RhythmProperties {
   private String user;
+  private Long beatCheckRate = TimeUnit.MINUTES.toMillis(5);
 
   public RhythmProperties() {
   }
@@ -35,5 +38,13 @@ public class RhythmProperties {
 
   public String getUser() {
     return user;
+  }
+
+  public Long getBeatCheckRate() {
+    return beatCheckRate;
+  }
+
+  public void setBeatCheckRate(Long beatCheckRate) {
+    this.beatCheckRate = beatCheckRate;
   }
 }

@@ -51,8 +51,7 @@ public class Drummer {
     this.logger = logger;
   }
 
-  //@Scheduled(initialDelay = 300_000, fixedRate = 300_000) //TimeUnit.MINUTES.toMillis(5)
-  @Scheduled(initialDelay = 4_000, fixedRate = 4_000)
+  @Scheduled(initialDelayString = "${rhythm.beatCheckRate}", fixedRateString = "${rhythm.beatCheckRate}")
   public void checkForBeatsNeeded() {
     try {
       final LocalDateTime now = LocalDateTime.now(ZoneId.of("UTC"));
