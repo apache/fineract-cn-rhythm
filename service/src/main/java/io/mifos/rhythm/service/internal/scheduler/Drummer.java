@@ -56,7 +56,10 @@ public class Drummer {
     try {
       final LocalDateTime now = LocalDateTime.now(ZoneId.of("UTC"));
       int alignmentHour = now.getHour();
-      final Stream<BeatEntity> beats = beatRepository.findByAlignmentHour(alignmentHour);
+      //Get beats from the last two hours in case restart/start happens close to hour begin.
+      final Stream<BeatEntity> beats =
+              Stream.concat(beatRepository.findByAlignmentHour(alignmentHour),
+                      beatRepository.findByAlignmentHour(minus1(alignmentHour)));
       beats.forEach((beat) -> publishBeat(beat, now));
     }
     catch (final InvalidDataAccessResourceUsageException e) {
@@ -65,10 +68,16 @@ public class Drummer {
     }
   }
 
+  private int minus1(int alignmentHour) {
+    return alignmentHour != 0 ? alignmentHour-1 : 23;
+  }
+
   private void publishBeat(final BeatEntity beat, final LocalDateTime now) {
-    final LocalDateTime topOfToday = now.truncatedTo(ChronoUnit.DAYS);
-    final LocalDateTime publishedSince = topOfToday.plusHours(beat.getAlignmentHour());
-    commandGateway.process(
-            new CheckPublishBeatCommand(beat.getTenantIdentifier(), beat.getApplicationName(), beat.getBeatIdentifier(), publishedSince));
+    try (final AutoTenantContext ignored = new AutoTenantContext((beat.getTenantIdentifier()))) {
+      final LocalDateTime topOfToday = now.truncatedTo(ChronoUnit.DAYS);
+      final LocalDateTime publishedSince = topOfToday.plusHours(beat.getAlignmentHour());
+      commandGateway.process(
+              new CheckPublishBeatCommand(beat.getTenantIdentifier(), beat.getApplicationName(), beat.getBeatIdentifier(), publishedSince));
+    }
   }
 }

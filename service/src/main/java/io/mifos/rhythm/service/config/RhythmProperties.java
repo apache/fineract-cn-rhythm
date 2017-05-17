@@ -27,7 +27,7 @@ import java.util.concurrent.TimeUnit;
 @ConfigurationProperties(prefix="rhythm")
 public class RhythmProperties {
   private String user;
-  private Long beatCheckRate = TimeUnit.MINUTES.toMillis(5);
+  private Long beatCheckRate = TimeUnit.MINUTES.toMillis(10);
 
   public RhythmProperties() {
   }

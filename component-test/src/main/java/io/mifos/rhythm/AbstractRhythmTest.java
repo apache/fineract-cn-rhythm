@@ -28,6 +28,8 @@ import io.mifos.rhythm.api.v1.domain.Beat;
 import io.mifos.rhythm.api.v1.events.BeatEvent;
 import io.mifos.rhythm.api.v1.events.EventConstants;
 import io.mifos.rhythm.service.RhythmConfiguration;
+import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 import org.junit.*;
 import org.junit.rules.RuleChain;
 import org.junit.rules.TestRule;
@@ -50,7 +52,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 @RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT,
         classes = {AbstractRhythmTest.TestConfiguration.class},
-        properties = {"rhythm.user=homer", "rhythm.beatCheckRate=4000"}
+        properties = {"rhythm.user=homer", "rhythm.beatCheckRate=2000"}
 )
 public class AbstractRhythmTest {
 
@@ -118,9 +120,11 @@ public class AbstractRhythmTest {
   }
 
   Beat createBeat(final String applicationName, final String beatIdentifier) throws InterruptedException {
+    final DateTime now = DateTime.now(DateTimeZone.UTC);
+
     final Beat beat = new Beat();
     beat.setIdentifier(beatIdentifier);
-    beat.setAlignmentHour(0);
+    beat.setAlignmentHour(now.getHourOfDay());
     this.testSubject.createBeat(applicationName, beat);
 
     Assert.assertTrue(this.eventRecorder.wait(EventConstants.POST_BEAT, new BeatEvent(applicationName, beat.getIdentifier())));

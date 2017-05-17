@@ -64,6 +64,7 @@ public class PublishBeatCommandHandler {
                             checkPublishBeatCommand.getTenantIdentifier(),
                             checkPublishBeatCommand.getApplicationName(),
                             checkPublishBeatCommand.getBeatIdentifier()));
+    logger.info("Checking if beat {} should be published under user {}.", beat, properties.getUser());
 
 
     getTimesNeedingEvents(beat.getLastPublishedOn(), checkPublishBeatCommand.getPublishedSince(), beat.getAlignmentHour())
