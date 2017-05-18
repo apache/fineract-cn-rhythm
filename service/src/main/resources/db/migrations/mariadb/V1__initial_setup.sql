@@ -23,7 +23,7 @@ CREATE TABLE khepri_beats (
   application_name         VARCHAR(64) NOT NULL,
   beat_identifier          VARCHAR(32) NOT NULL,
   alignment_hour           INT         NOT NULL,
-  last_published_for      TIMESTAMP(3) NULL,
+  next_beat               TIMESTAMP(3) NOT NULL,
   CONSTRAINT khepri_beats_uq UNIQUE (tenant_identifier, application_name, beat_identifier),
   CONSTRAINT khepri_beats_pk PRIMARY KEY (id)
 );

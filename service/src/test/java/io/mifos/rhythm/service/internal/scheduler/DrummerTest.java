@@ -40,13 +40,14 @@ public class DrummerTest {
   @Test
   public void getTimesNeedingEvents() {
     final LocalDateTime now = LocalDateTime.now(ZoneId.of("UTC"));
-    final Stream<LocalDateTime> noStartTime = Drummer.getTimesNeedingEvents(null, now.plus(3, ChronoUnit.DAYS), 0);
-    Assert.assertEquals(1, noStartTime.count());
 
     final Stream<LocalDateTime> threeDaysStartTime = Drummer.getTimesNeedingEvents(now, now.plus(3, ChronoUnit.DAYS), 0);
-    Assert.assertEquals(3, threeDaysStartTime.count());
+    Assert.assertEquals(4, threeDaysStartTime.count());
 
     final Stream<LocalDateTime> eventsAlreadyDone = Drummer.getTimesNeedingEvents(now, now.minus(1, ChronoUnit.DAYS), 0);
-    Assert.assertEquals(0, eventsAlreadyDone.count());
+    Assert.assertEquals(1, eventsAlreadyDone.count());
+
+    final Stream<LocalDateTime> eventsNow = Drummer.getTimesNeedingEvents(now, now, 0);
+    Assert.assertEquals(1, eventsNow.count());
   }
 }

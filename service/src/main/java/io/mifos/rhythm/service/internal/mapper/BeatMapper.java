@@ -18,6 +18,9 @@ package io.mifos.rhythm.service.internal.mapper;
 import io.mifos.rhythm.api.v1.domain.Beat;
 import io.mifos.rhythm.service.internal.repository.BeatEntity;
 
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -45,6 +48,8 @@ public interface BeatMapper {
     ret.setTenantIdentifier(tenantIdentifier);
     ret.setApplicationName(applicationName);
     ret.setAlignmentHour(instance.getAlignmentHour());
+    //First beat is today.  If it's in the past, it will be created nearly immediately.
+    ret.setNextBeat(LocalDateTime.now(ZoneId.of("UTC")).truncatedTo(ChronoUnit.DAYS).plusHours(instance.getAlignmentHour()));
     return ret;
   }
 }

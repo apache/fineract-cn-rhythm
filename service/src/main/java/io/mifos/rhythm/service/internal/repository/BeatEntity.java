@@ -45,9 +45,9 @@ public class BeatEntity {
   @Column(name = "alignment_hour", nullable = false)
   private Integer alignmentHour;
 
-  @Column(name = "last_published_for")
+  @Column(name = "next_beat")
   @Convert(converter = LocalDateTimeConverter.class)
-  private LocalDateTime lastPublishedFor;
+  private LocalDateTime nextBeat;
 
   public BeatEntity() {
     super();
@@ -93,12 +93,12 @@ public class BeatEntity {
     this.alignmentHour = alignmentHour;
   }
 
-  public LocalDateTime getLastPublishedFor() {
-    return lastPublishedFor;
+  public LocalDateTime getNextBeat() {
+    return nextBeat;
   }
 
-  public void setLastPublishedFor(LocalDateTime lastPublishedFor) {
-    this.lastPublishedFor = lastPublishedFor;
+  public void setNextBeat(LocalDateTime nextBeat) {
+    this.nextBeat = nextBeat;
   }
 
   @Override
@@ -124,7 +124,7 @@ public class BeatEntity {
             ", tenantIdentifier='" + tenantIdentifier + '\'' +
             ", applicationName='" + applicationName + '\'' +
             ", alignmentHour=" + alignmentHour +
-            ", lastPublishedFor=" + lastPublishedFor +
+            ", nextBeat=" + nextBeat +
             '}';
   }
 }
