@@ -28,16 +28,17 @@ import io.mifos.rhythm.api.v1.domain.Beat;
 import io.mifos.rhythm.api.v1.events.BeatEvent;
 import io.mifos.rhythm.api.v1.events.EventConstants;
 import io.mifos.rhythm.service.RhythmConfiguration;
-import org.joda.time.DateTime;
-import org.joda.time.DateTimeZone;
+import io.mifos.rhythm.service.internal.service.BeatPublisherService;
 import org.junit.*;
 import org.junit.rules.RuleChain;
 import org.junit.rules.TestRule;
 import org.junit.runner.RunWith;
+import org.mockito.Mockito;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.cloud.netflix.feign.EnableFeignClients;
 import org.springframework.cloud.netflix.ribbon.RibbonClient;
 import org.springframework.context.annotation.Bean;
@@ -46,13 +47,18 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.temporal.ChronoUnit;
+import java.util.concurrent.TimeUnit;
+
 /**
  * @author Myrle Krantz
  */
 @RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT,
         classes = {AbstractRhythmTest.TestConfiguration.class},
-        properties = {"rhythm.user=homer", "rhythm.beatCheckRate=2000"}
+        properties = {"rhythm.user=homer", "rhythm.beatCheckRate=1000"}
 )
 public class AbstractRhythmTest {
 
@@ -100,6 +106,9 @@ public class AbstractRhythmTest {
   @Autowired
   EventRecorder eventRecorder;
 
+  @MockBean
+  BeatPublisherService beatPublisherService;
+
   @Before
   public void prepTest() {
     userContext = tenantApplicationSecurityEnvironment.createAutoUserContext(TEST_USER);
@@ -120,14 +129,33 @@ public class AbstractRhythmTest {
   }
 
   Beat createBeat(final String applicationName, final String beatIdentifier) throws InterruptedException {
-    final DateTime now = DateTime.now(DateTimeZone.UTC);
+    final LocalDateTime now = LocalDateTime.now(ZoneId.of("UTC"));
 
     final Beat beat = new Beat();
     beat.setIdentifier(beatIdentifier);
-    beat.setAlignmentHour(now.getHourOfDay());
+    beat.setAlignmentHour(now.getHour());
+
+    final LocalDateTime expectedBeatTimestamp = getExpectedBeatTimestamp(now, beat.getAlignmentHour());
+    Mockito.when(beatPublisherService.publishBeat(applicationName, beatIdentifier, expectedBeatTimestamp)).thenReturn(true);
+    Mockito.when(beatPublisherService.publishBeat(applicationName, beatIdentifier, getNextTimeStamp(expectedBeatTimestamp))).thenReturn(true);
+
     this.testSubject.createBeat(applicationName, beat);
 
     Assert.assertTrue(this.eventRecorder.wait(EventConstants.POST_BEAT, new BeatEvent(applicationName, beat.getIdentifier())));
+
+    TimeUnit.SECONDS.sleep(2);
+
+    Mockito.verify(beatPublisherService, Mockito.times(1)).publishBeat(applicationName, beatIdentifier, expectedBeatTimestamp);
+
     return beat;
+  }
+
+  LocalDateTime getExpectedBeatTimestamp(final LocalDateTime fromTime, final Integer alignmentHour) {
+    final LocalDateTime midnight = fromTime.truncatedTo(ChronoUnit.DAYS);
+    return midnight.plusHours(alignmentHour);
+  }
+
+  LocalDateTime getNextTimeStamp(final LocalDateTime fromTime) {
+    return fromTime.plusDays(1);
   }
 }

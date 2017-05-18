@@ -31,6 +31,7 @@ dependencies {
             [group: 'org.springframework.cloud', name: 'spring-cloud-starter-eureka'],
             [group: 'org.springframework.boot', name: 'spring-boot-starter-jetty'],
             [group: 'io.mifos.rhythm', name: 'api', version: project.version],
+            [group: 'io.mifos.rhythm', name: 'spi', version: project.version],
             [group: 'io.mifos.anubis', name: 'library', version: versions.frameworkanubis],
             [group: 'com.google.code.gson', name: 'gson'],
             [group: 'io.mifos.core', name: 'lang', version: versions.frameworklang],

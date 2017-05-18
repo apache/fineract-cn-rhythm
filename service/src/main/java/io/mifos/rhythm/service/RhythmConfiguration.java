@@ -16,6 +16,7 @@
 package io.mifos.rhythm.service;
 
 import io.mifos.anubis.config.EnableAnubis;
+import io.mifos.core.api.config.EnableApiFactory;
 import io.mifos.core.async.config.EnableAsync;
 import io.mifos.core.cassandra.config.EnableCassandra;
 import io.mifos.core.command.config.EnableCommandProcessing;
@@ -39,6 +40,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @Configuration
 @EnableAutoConfiguration
 @EnableDiscoveryClient
+@EnableApiFactory
 @EnableAsync
 @EnableCassandra
 @EnableMariaDB(forTenantContext = false)

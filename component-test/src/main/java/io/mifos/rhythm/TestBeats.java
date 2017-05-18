@@ -21,8 +21,16 @@ import io.mifos.rhythm.api.v1.events.BeatEvent;
 import io.mifos.rhythm.api.v1.events.EventConstants;
 import org.junit.Assert;
 import org.junit.Test;
+import org.mockito.Mockito;
 
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
+
+import static org.mockito.Matchers.anyObject;
+import static org.mockito.Matchers.anyString;
 
 /**
  * @author Myrle Krantz
@@ -70,14 +78,4 @@ public class TestBeats extends AbstractRhythmTest {
     final List<Beat> allEntities = this.testSubject.getAllBeatsForApplication(appName);
     Assert.assertTrue(allEntities.isEmpty());
   }
-
-  /*
-  @Test
-  public void shouldExecuteBeat() throws InterruptedException {
-    final Application application = createApplication("funnybusiness-v2");
-
-    final Beat beat = createBeat(application, "bebopthedowop");
-
-    TimeUnit.MINUTES.sleep(5);
-  }*/
 }

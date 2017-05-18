@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.mifos.rhythm.service.internal.command.handler;
+package io.mifos.rhythm.service.internal.scheduler;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -26,11 +26,12 @@ import java.util.stream.Stream;
 /**
  * @author Myrle Krantz
  */
-public class PublishBeatCommandHandlerTest {
+public class DrummerTest {
+
   @Test
   public void incrementToAlignment() {
     final LocalDateTime now = LocalDateTime.now(ZoneId.of("UTC"));
-    final LocalDateTime tomorrow = PublishBeatCommandHandler.incrementToAlignment(now, 3);
+    final LocalDateTime tomorrow = Drummer.incrementToAlignment(now, 3);
 
     Assert.assertEquals(tomorrow.minusDays(1).truncatedTo(ChronoUnit.DAYS), now.truncatedTo(ChronoUnit.DAYS));
     Assert.assertEquals(3, tomorrow.getHour());
@@ -39,13 +40,13 @@ public class PublishBeatCommandHandlerTest {
   @Test
   public void getTimesNeedingEvents() {
     final LocalDateTime now = LocalDateTime.now(ZoneId.of("UTC"));
-    final Stream<LocalDateTime> noStartTime = PublishBeatCommandHandler.getTimesNeedingEvents(null, now.plus(3, ChronoUnit.DAYS), 0);
+    final Stream<LocalDateTime> noStartTime = Drummer.getTimesNeedingEvents(null, now.plus(3, ChronoUnit.DAYS), 0);
     Assert.assertEquals(1, noStartTime.count());
 
-    final Stream<LocalDateTime> threeDaysStartTime = PublishBeatCommandHandler.getTimesNeedingEvents(now, now.plus(3, ChronoUnit.DAYS), 0);
+    final Stream<LocalDateTime> threeDaysStartTime = Drummer.getTimesNeedingEvents(now, now.plus(3, ChronoUnit.DAYS), 0);
     Assert.assertEquals(3, threeDaysStartTime.count());
 
-    final Stream<LocalDateTime> eventsAlreadyDone = PublishBeatCommandHandler.getTimesNeedingEvents(now, now.minus(1, ChronoUnit.DAYS), 0);
+    final Stream<LocalDateTime> eventsAlreadyDone = Drummer.getTimesNeedingEvents(now, now.minus(1, ChronoUnit.DAYS), 0);
     Assert.assertEquals(0, eventsAlreadyDone.count());
   }
 }
