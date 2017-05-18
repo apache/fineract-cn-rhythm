@@ -33,6 +33,8 @@ import org.junit.*;
 import org.junit.rules.RuleChain;
 import org.junit.rules.TestRule;
 import org.junit.runner.RunWith;
+import org.mockito.AdditionalMatchers;
+import org.mockito.Matchers;
 import org.mockito.Mockito;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -136,8 +138,9 @@ public class AbstractRhythmTest {
     beat.setAlignmentHour(now.getHour());
 
     final LocalDateTime expectedBeatTimestamp = getExpectedBeatTimestamp(now, beat.getAlignmentHour());
-    Mockito.when(beatPublisherService.publishBeat(applicationName, beatIdentifier, expectedBeatTimestamp)).thenReturn(true);
-    Mockito.when(beatPublisherService.publishBeat(applicationName, beatIdentifier, getNextTimeStamp(expectedBeatTimestamp))).thenReturn(true);
+    Mockito.when(beatPublisherService.publishBeat(Matchers.eq(applicationName), Matchers.eq(beatIdentifier),
+                    AdditionalMatchers.or(Matchers.eq(expectedBeatTimestamp), Matchers.eq(getNextTimeStamp(expectedBeatTimestamp)))))
+            .thenReturn(true);
 
     this.testSubject.createBeat(applicationName, beat);
 
@@ -155,7 +158,7 @@ public class AbstractRhythmTest {
     return midnight.plusHours(alignmentHour);
   }
 
-  LocalDateTime getNextTimeStamp(final LocalDateTime fromTime) {
+  private LocalDateTime getNextTimeStamp(final LocalDateTime fromTime) {
     return fromTime.plusDays(1);
   }
 }

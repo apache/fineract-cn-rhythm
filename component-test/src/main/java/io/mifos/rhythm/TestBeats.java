@@ -25,12 +25,8 @@ import org.mockito.Mockito;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
-
-import static org.mockito.Matchers.anyObject;
-import static org.mockito.Matchers.anyString;
 
 /**
  * @author Myrle Krantz
@@ -67,6 +63,7 @@ public class TestBeats extends AbstractRhythmTest {
     }
     catch (final NotFoundException ignored) { }
   }
+
   @Test
   public void shouldDeleteApplication() throws InterruptedException {
     final String appName = "funnybusiness-v3";
@@ -77,5 +74,29 @@ public class TestBeats extends AbstractRhythmTest {
 
     final List<Beat> allEntities = this.testSubject.getAllBeatsForApplication(appName);
     Assert.assertTrue(allEntities.isEmpty());
+  }
+
+  @Test
+  public void shouldRetryBeatPublishIfFirstAttemptFails() throws InterruptedException {
+    final String appName = "funnybusiness-v4";
+    final String beatId = "bebopthedowop";
+
+    final LocalDateTime now = LocalDateTime.now(ZoneId.of("UTC"));
+
+    final Beat beat = new Beat();
+    beat.setIdentifier(beatId);
+    beat.setAlignmentHour(now.getHour());
+
+    final LocalDateTime expectedBeatTimestamp = getExpectedBeatTimestamp(now, beat.getAlignmentHour());
+
+    Mockito.when(beatPublisherService.publishBeat(appName, beatId, expectedBeatTimestamp)).thenReturn(false, false, true);
+
+    this.testSubject.createBeat(appName, beat);
+
+    Assert.assertTrue(this.eventRecorder.wait(EventConstants.POST_BEAT, new BeatEvent(appName, beat.getIdentifier())));
+
+    TimeUnit.SECONDS.sleep(8);
+
+    Mockito.verify(beatPublisherService, Mockito.times(3)).publishBeat(appName, beatId, expectedBeatTimestamp);
   }
 }

@@ -75,7 +75,7 @@ public class Drummer {
     return alignmentHour != 0 ? alignmentHour-1 : 23;
   }
 
-  private void checkBeatForPublish(final BeatEntity beat, final LocalDateTime now) {
+  public void checkBeatForPublish(final BeatEntity beat, final LocalDateTime now) {
     try (final AutoTenantContext ignored = new AutoTenantContext((beat.getTenantIdentifier()))) {
       final LocalDateTime topOfToday = now.truncatedTo(ChronoUnit.DAYS);
       final LocalDateTime mostRecentEventRequired = topOfToday.plusHours(beat.getAlignmentHour());
@@ -87,6 +87,7 @@ public class Drummer {
               .filter(x -> {
                 if (beatPublisherService.publishBeat(beat.getApplicationName(), beat.getBeatIdentifier(), x)) {
                   beat.setLastPublishedFor(x);
+                  beatRepository.save(beat);
                   return false;
                 }
                 return true;
