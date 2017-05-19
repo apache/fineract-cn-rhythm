@@ -17,11 +17,13 @@ package io.mifos.rhythm.service.internal.service;
 
 import org.junit.Assert;
 import org.junit.Test;
+import org.mockito.Mockito;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
-import java.util.stream.Stream;
+import java.util.Optional;
+import java.util.function.Predicate;
 
 /**
  * @author Myrle Krantz
@@ -40,13 +42,50 @@ public class BeatPublisherServiceTest {
   @Test
   public void getNumberOfBeatPublishesNeeded() {
     final LocalDateTime now = LocalDateTime.now(ZoneId.of("UTC"));
-    final long eventsNeeded3 = BeatPublisherService.getNumberOfBeatPublishesNeeded(now.minus(3, ChronoUnit.DAYS), now);
+    final long eventsNeeded3 = BeatPublisherService.getNumberOfBeatPublishesNeeded(now, now.minus(3, ChronoUnit.DAYS));
     Assert.assertEquals(3, eventsNeeded3);
 
-    final long eventsNeededPast = BeatPublisherService.getNumberOfBeatPublishesNeeded(now.plus(1, ChronoUnit.DAYS), now);
+    final long eventsNeededPast = BeatPublisherService.getNumberOfBeatPublishesNeeded(now, now.plus(1, ChronoUnit.DAYS));
     Assert.assertEquals(0, eventsNeededPast);
 
-    final long eventsNeededNow = BeatPublisherService.getNumberOfBeatPublishesNeeded(now.minus(2, ChronoUnit.MINUTES), now);
+    final long eventsNeededNow = BeatPublisherService.getNumberOfBeatPublishesNeeded(now, now.minus(2, ChronoUnit.MINUTES));
     Assert.assertEquals(1, eventsNeededNow);
+  }
+
+  @Test
+  public void checkBeatForPublishAllBeatsSucceed() {
+    final LocalDateTime now = LocalDateTime.now(ZoneId.of("UTC"));
+    final Optional<LocalDateTime> ret = BeatPublisherService.checkBeatForPublishHelper(now, 0, now.minus(3, ChronoUnit.DAYS), x -> true);
+    Assert.assertEquals(Optional.of(BeatPublisherService.incrementToAlignment(now, 0)), ret);
+  }
+
+  @Test
+  public void checkBeatForPublishFirstFails() {
+    final LocalDateTime now = LocalDateTime.now(ZoneId.of("UTC"));
+    final LocalDateTime nextBeat = now.minus(3, ChronoUnit.DAYS);
+    @SuppressWarnings("unchecked") final Predicate<LocalDateTime> produceBeatsMock = Mockito.mock(Predicate.class);
+    Mockito.when(produceBeatsMock.test(nextBeat)).thenReturn(false);
+    final Optional<LocalDateTime> ret = BeatPublisherService.checkBeatForPublishHelper(now, 0, nextBeat, produceBeatsMock);
+    Assert.assertEquals(Optional.of(nextBeat), ret);
+  }
+
+  @Test
+  public void checkBeatForPublishSecondFails() {
+    final LocalDateTime now = LocalDateTime.now(ZoneId.of("UTC"));
+    final LocalDateTime nextBeat = now.minus(3, ChronoUnit.DAYS);
+    final LocalDateTime secondBeat = BeatPublisherService.incrementToAlignment(nextBeat, 0);
+    @SuppressWarnings("unchecked") final Predicate<LocalDateTime> produceBeatsMock = Mockito.mock(Predicate.class);
+    Mockito.when(produceBeatsMock.test(nextBeat)).thenReturn(true);
+    Mockito.when(produceBeatsMock.test(secondBeat)).thenReturn(false);
+    final Optional<LocalDateTime> ret = BeatPublisherService.checkBeatForPublishHelper(now, 0, nextBeat, produceBeatsMock);
+    Assert.assertEquals(Optional.of(secondBeat), ret);
+  }
+
+  @Test
+  public void checkBeatForPublishNoneNeeded() {
+    final LocalDateTime now = LocalDateTime.now(ZoneId.of("UTC"));
+    final Optional<LocalDateTime> ret = BeatPublisherService.checkBeatForPublishHelper(now, 0, now.plus(1, ChronoUnit.DAYS),
+            x -> { Assert.fail("Pubish shouldn't be called"); return true; });
+    Assert.assertEquals(Optional.empty(), ret);
   }
 }

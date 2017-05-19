@@ -33,6 +33,7 @@ import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Predicate;
 import java.util.stream.Stream;
 
 import static io.mifos.rhythm.service.ServiceConstants.LOGGER_NAME;
@@ -87,23 +88,32 @@ public class BeatPublisherService {
           final String applicationName,
           final Integer alignmentHour,
           final LocalDateTime nextBeat) {
-    final long numberOfBeatPublishesNeeded = getNumberOfBeatPublishesNeeded(nextBeat, now);
+    return checkBeatForPublishHelper(now, alignmentHour, nextBeat, x -> publishBeat(beatIdentifier, tenantIdentifier, applicationName, x));
+  }
+
+  //Helper is separated from original function so that it can be unit-tested separately from publishBeat.
+  static Optional<LocalDateTime> checkBeatForPublishHelper(
+          final LocalDateTime now,
+          final Integer alignmentHour,
+          final LocalDateTime nextBeat,
+          final Predicate<LocalDateTime> publishSucceeded) {
+    final long numberOfBeatPublishesNeeded = getNumberOfBeatPublishesNeeded(now, nextBeat);
     if (numberOfBeatPublishesNeeded == 0)
       return Optional.empty();
 
     final Optional<LocalDateTime> firstFailedBeat = Stream.iterate(nextBeat,
             x -> incrementToAlignment(x, alignmentHour))
             .limit(numberOfBeatPublishesNeeded)
-            .filter(x ->!publishBeat(beatIdentifier, tenantIdentifier, applicationName, x))
+            .filter(x -> !publishSucceeded.test(x))
             .findFirst();
 
     if (firstFailedBeat.isPresent())
       return firstFailedBeat;
     else
-      return Optional.of(incrementToAlignment(nextBeat, alignmentHour));
+      return Optional.of(incrementToAlignment(now, alignmentHour));
   }
 
-  static long getNumberOfBeatPublishesNeeded(final @Nonnull LocalDateTime nextBeat, final LocalDateTime now) {
+  static long getNumberOfBeatPublishesNeeded(final LocalDateTime now, final @Nonnull LocalDateTime nextBeat) {
     if (nextBeat.isAfter(now))
       return 0;
 
@@ -114,4 +124,5 @@ public class BeatPublisherService {
   {
     return toIncrement.plusDays(1).truncatedTo(ChronoUnit.DAYS).plusHours(alignmentHour);
   }
+
 }

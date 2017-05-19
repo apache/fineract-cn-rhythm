@@ -146,10 +146,7 @@ public class AbstractRhythmTest {
 
     Assert.assertTrue(this.eventRecorder.wait(EventConstants.POST_BEAT, new BeatEvent(applicationName, beat.getIdentifier())));
 
-    Mockito.verify(beatPublisherServiceSpy, Mockito.timeout(2_000).atLeastOnce())
-            .checkBeatForPublish(anyObject(), eq(beatIdentifier), anyString(), eq(applicationName), eq(beat.getAlignmentHour()), anyObject());
-
-    Mockito.verify(beatPublisherServiceSpy, Mockito.times(1)).publishBeat(beatIdentifier, tenantDataStoreContext.getTenantName(), applicationName, expectedBeatTimestamp);
+    Mockito.verify(beatPublisherServiceSpy, Mockito.timeout(2_000).times(1)).publishBeat(beatIdentifier, tenantDataStoreContext.getTenantName(), applicationName, expectedBeatTimestamp);
 
     return beat;
   }
