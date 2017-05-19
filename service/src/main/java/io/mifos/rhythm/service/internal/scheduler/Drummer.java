@@ -57,11 +57,8 @@ public class Drummer {
   public void checkForBeatsNeeded() {
     try {
       final LocalDateTime now = LocalDateTime.now(ZoneId.of("UTC"));
-      int alignmentHour = now.getHour();
       //Get beats from the last two hours in case restart/start happens close to hour begin.
-      final Stream<BeatEntity> beats =
-              Stream.concat(beatRepository.findByAlignmentHour(alignmentHour),
-                      beatRepository.findByAlignmentHour(minus1(alignmentHour)));
+      final Stream<BeatEntity> beats = beatRepository.findByNextBeatBefore(now);
       beats.forEach((beat) -> {
         logger.info("Checking if beat {} needs publishing.", beat);
         final Optional<LocalDateTime> nextBeat = beatPublisherService.checkBeatForPublish(now, beat.getBeatIdentifier(), beat.getTenantIdentifier(), beat.getApplicationName(), beat.getAlignmentHour(), beat.getNextBeat());
@@ -76,9 +73,5 @@ public class Drummer {
       logger.info("InvalidDataAccessResourceUsageException in check for scheduled beats, probably " +
               "because initialize hasn't been called yet. {}", e);
     }
-  }
-
-  static private int minus1(int alignmentHour) {
-    return alignmentHour != 0 ? alignmentHour-1 : 23;
   }
 }

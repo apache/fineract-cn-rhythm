@@ -96,7 +96,7 @@ public class TestBeats extends AbstractRhythmTest {
 
     Assert.assertTrue(this.eventRecorder.wait(EventConstants.POST_BEAT, new BeatEvent(appName, beat.getIdentifier())));
 
-    Mockito.verify(super.beatPublisherServiceSpy, Mockito.timeout(10_000).atLeast(4))
+    Mockito.verify(super.beatPublisherServiceSpy, Mockito.timeout(10_000).atLeast(3))
             .checkBeatForPublish(anyObject(), eq(beatId), anyString(), eq(appName), eq(beat.getAlignmentHour()), anyObject());
 
     Mockito.verify(beatPublisherServiceSpy, Mockito.times(3)).publishBeat(appName, beatId, expectedBeatTimestamp);
