@@ -40,7 +40,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.cloud.netflix.feign.EnableFeignClients;
 import org.springframework.cloud.netflix.ribbon.RibbonClient;
 import org.springframework.context.annotation.Bean;
@@ -52,7 +52,8 @@ import org.springframework.test.context.junit4.SpringRunner;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
-import java.util.concurrent.TimeUnit;
+
+import static org.mockito.Matchers.*;
 
 /**
  * @author Myrle Krantz
@@ -60,7 +61,7 @@ import java.util.concurrent.TimeUnit;
 @RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT,
         classes = {AbstractRhythmTest.TestConfiguration.class},
-        properties = {"rhythm.user=homer", "rhythm.beatCheckRate=1000"}
+        properties = {"rhythm.user=homer", "rhythm.beatCheckRate=500"}
 )
 public class AbstractRhythmTest {
 
@@ -108,8 +109,8 @@ public class AbstractRhythmTest {
   @Autowired
   EventRecorder eventRecorder;
 
-  @MockBean
-  BeatPublisherService beatPublisherService;
+  @SpyBean
+  BeatPublisherService beatPublisherServiceSpy;
 
   @Before
   public void prepTest() {
@@ -138,17 +139,17 @@ public class AbstractRhythmTest {
     beat.setAlignmentHour(now.getHour());
 
     final LocalDateTime expectedBeatTimestamp = getExpectedBeatTimestamp(now, beat.getAlignmentHour());
-    Mockito.when(beatPublisherService.publishBeat(Matchers.eq(applicationName), Matchers.eq(beatIdentifier),
-                    AdditionalMatchers.or(Matchers.eq(expectedBeatTimestamp), Matchers.eq(getNextTimeStamp(expectedBeatTimestamp)))))
-            .thenReturn(true);
+    Mockito.doReturn(true).when(beatPublisherServiceSpy).publishBeat(Matchers.eq(applicationName), Matchers.eq(beatIdentifier),
+                    AdditionalMatchers.or(Matchers.eq(expectedBeatTimestamp), Matchers.eq(getNextTimeStamp(expectedBeatTimestamp))));
 
     this.testSubject.createBeat(applicationName, beat);
 
     Assert.assertTrue(this.eventRecorder.wait(EventConstants.POST_BEAT, new BeatEvent(applicationName, beat.getIdentifier())));
 
-    TimeUnit.SECONDS.sleep(2);
+    Mockito.verify(beatPublisherServiceSpy, Mockito.timeout(2_000).atLeastOnce())
+            .checkBeatForPublish(anyObject(), eq(beatIdentifier), anyString(), eq(applicationName), eq(beat.getAlignmentHour()), anyObject());
 
-    Mockito.verify(beatPublisherService, Mockito.times(1)).publishBeat(applicationName, beatIdentifier, expectedBeatTimestamp);
+    Mockito.verify(beatPublisherServiceSpy, Mockito.times(1)).publishBeat(applicationName, beatIdentifier, expectedBeatTimestamp);
 
     return beat;
   }

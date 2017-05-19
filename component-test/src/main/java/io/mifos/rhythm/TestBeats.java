@@ -26,7 +26,8 @@ import org.mockito.Mockito;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
+
+import static org.mockito.Matchers.*;
 
 /**
  * @author Myrle Krantz
@@ -89,15 +90,15 @@ public class TestBeats extends AbstractRhythmTest {
 
     final LocalDateTime expectedBeatTimestamp = getExpectedBeatTimestamp(now, beat.getAlignmentHour());
 
-    Mockito.when(beatPublisherService.publishBeat(appName, beatId, expectedBeatTimestamp)).thenReturn(false, false, true);
+    Mockito.when(beatPublisherServiceSpy.publishBeat(appName, beatId, expectedBeatTimestamp)).thenReturn(false, false, true);
 
     this.testSubject.createBeat(appName, beat);
 
     Assert.assertTrue(this.eventRecorder.wait(EventConstants.POST_BEAT, new BeatEvent(appName, beat.getIdentifier())));
 
-    TimeUnit.SECONDS.sleep(8);
-    //Mockito.verify(drummerSpy, Mockito.timeout(10_000).times(4)).checkBeatForPublish(anyObject(), anyObject());
+    Mockito.verify(super.beatPublisherServiceSpy, Mockito.timeout(10_000).atLeast(4))
+            .checkBeatForPublish(anyObject(), eq(beatId), anyString(), eq(appName), eq(beat.getAlignmentHour()), anyObject());
 
-    Mockito.verify(beatPublisherService, Mockito.times(3)).publishBeat(appName, beatId, expectedBeatTimestamp);
+    Mockito.verify(beatPublisherServiceSpy, Mockito.times(3)).publishBeat(appName, beatId, expectedBeatTimestamp);
   }
 }
