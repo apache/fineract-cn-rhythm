@@ -33,6 +33,8 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.web.servlet.config.annotation.PathMatchConfigurer;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 
 /**
  * @author Myrle Krantz
@@ -62,7 +64,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @EnableJpaRepositories({
     "io.mifos.rhythm.service.internal.repository"
 })
-public class RhythmConfiguration {
+public class RhythmConfiguration extends WebMvcConfigurerAdapter {
 
   public RhythmConfiguration() {
     super();
@@ -71,5 +73,10 @@ public class RhythmConfiguration {
   @Bean(name = ServiceConstants.LOGGER_NAME)
   public Logger logger() {
     return LoggerFactory.getLogger(ServiceConstants.LOGGER_NAME);
+  }
+
+  @Override
+  public void configurePathMatch(final PathMatchConfigurer configurer) {
+    configurer.setUseSuffixPatternMatch(Boolean.FALSE);
   }
 }
