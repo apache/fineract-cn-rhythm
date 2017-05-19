@@ -23,6 +23,7 @@ import io.mifos.core.command.config.EnableCommandProcessing;
 import io.mifos.core.lang.config.EnableServiceException;
 import io.mifos.core.lang.config.EnableTenantContext;
 import io.mifos.core.mariadb.config.EnableMariaDB;
+import io.mifos.permittedfeignclient.config.EnablePermissionRequestingFeignClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
@@ -49,6 +50,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @EnableServiceException
 @EnableScheduling
 @EnableTenantContext
+@EnablePermissionRequestingFeignClient
 @ComponentScan({
     "io.mifos.rhythm.service.rest",
     "io.mifos.rhythm.service.config",

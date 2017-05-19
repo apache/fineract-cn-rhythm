@@ -15,9 +15,11 @@
  */
 package io.mifos.rhythm.service.internal.service;
 
+import io.mifos.core.api.context.AutoUserContext;
 import io.mifos.core.api.util.ApiFactory;
 import io.mifos.core.lang.AutoTenantContext;
 import io.mifos.core.lang.DateConverter;
+import io.mifos.permittedfeignclient.service.ApplicationAccessTokenService;
 import io.mifos.rhythm.service.config.RhythmProperties;
 import io.mifos.rhythm.spi.v1.client.BeatListener;
 import io.mifos.rhythm.spi.v1.domain.BeatPublish;
@@ -44,6 +46,7 @@ import static io.mifos.rhythm.service.ServiceConstants.LOGGER_NAME;
 @Service
 public class BeatPublisherService {
   private final DiscoveryClient discoveryClient;
+  private final ApplicationAccessTokenService applicationAccessTokenService;
   private final ApiFactory apiFactory;
   private final RhythmProperties properties;
   private final Logger logger;
@@ -51,17 +54,34 @@ public class BeatPublisherService {
   @Autowired
   public BeatPublisherService(
           @SuppressWarnings("SpringJavaAutowiringInspection") final DiscoveryClient discoveryClient,
+          @SuppressWarnings("SpringJavaAutowiringInspection") final ApplicationAccessTokenService applicationAccessTokenService,
           final ApiFactory apiFactory,
           final RhythmProperties properties,
           @Qualifier(LOGGER_NAME) final Logger logger) {
     this.discoveryClient = discoveryClient;
+    this.applicationAccessTokenService = applicationAccessTokenService;
     this.apiFactory = apiFactory;
     this.properties = properties;
     this.logger = logger;
   }
 
+  /**
+   * Authenticate with identity and publish the beat to the application.  This function performs all the internal
+   * interprocess communication in rhythm, and therefore most be mocked in unit and component tests.
+   *
+   * @param beatIdentifier The identifier of the beat as provided when the beat was created.
+   * @param tenantIdentifier The tenant identifier as provided via the tenant header when the beat was created.
+   * @param applicationName The name of the application the beat should be sent to.
+   * @param timestamp The publication time for the beat.  If rhythm has been down for a while this could be in the past.
+   *
+   * @return true if the beat was published.  false if the beat was not published, or we just don't know.
+   */
   @SuppressWarnings("WeakerAccess") //Access is public for spying in component test.
-  public boolean publishBeat(final String beatIdentifier, final String tenantIdentifier, final String applicationName, final LocalDateTime timestamp) {
+  public boolean publishBeat(
+          final String beatIdentifier,
+          final String tenantIdentifier,
+          final String applicationName,
+          final LocalDateTime timestamp) {
     final BeatPublish beatPublish = new BeatPublish(beatIdentifier, DateConverter.toIsoString(timestamp));
     logger.info("Attempting publish {} with timestamp {} under user {}.", beatPublish, timestamp, properties.getUser());
 
@@ -72,13 +92,21 @@ public class BeatPublisherService {
     final ServiceInstance beatListenerService = applicationsByName.get(0);
     final BeatListener beatListener = apiFactory.create(BeatListener.class, beatListenerService.getUri().toString());
 
-    try (final AutoTenantContext ignored = new AutoTenantContext(tenantIdentifier)) {
-      beatListener.publishBeat(beatPublish);
-      return true;
+    final String accessToken = applicationAccessTokenService.getAccessToken(
+            properties.getUser(), getEndointSetIdentifier(applicationName));
+    try (final AutoUserContext ignored2 = new AutoUserContext(properties.getUser(), accessToken)) {
+      try (final AutoTenantContext ignored = new AutoTenantContext(tenantIdentifier)) {
+        beatListener.publishBeat(beatPublish);
+        return true;
+      }
     }
     catch (final Throwable e) {
       return false;
     }
+  }
+
+  private static String getEndointSetIdentifier(final String applicationName) {
+    return applicationName.replace("-", "__") + "__khepri";
   }
 
   public Optional<LocalDateTime> checkBeatForPublish(
@@ -124,5 +152,4 @@ public class BeatPublisherService {
   {
     return toIncrement.plusDays(1).truncatedTo(ChronoUnit.DAYS).plusHours(alignmentHour);
   }
-
 }
