@@ -90,7 +90,7 @@ public class TestBeats extends AbstractRhythmTest {
 
     final LocalDateTime expectedBeatTimestamp = getExpectedBeatTimestamp(now, beat.getAlignmentHour());
 
-    Mockito.when(beatPublisherServiceSpy.publishBeat(appName, beatId, expectedBeatTimestamp)).thenReturn(false, false, true);
+    Mockito.when(beatPublisherServiceSpy.publishBeat(beatId, tenantDataStoreContext.getTenantName(), appName, expectedBeatTimestamp)).thenReturn(false, false, true);
 
     this.testSubject.createBeat(appName, beat);
 
@@ -99,6 +99,6 @@ public class TestBeats extends AbstractRhythmTest {
     Mockito.verify(super.beatPublisherServiceSpy, Mockito.timeout(10_000).atLeast(3))
             .checkBeatForPublish(anyObject(), eq(beatId), anyString(), eq(appName), eq(beat.getAlignmentHour()), anyObject());
 
-    Mockito.verify(beatPublisherServiceSpy, Mockito.times(3)).publishBeat(appName, beatId, expectedBeatTimestamp);
+    Mockito.verify(beatPublisherServiceSpy, Mockito.times(3)).publishBeat(beatId, tenantDataStoreContext.getTenantName(), appName, expectedBeatTimestamp);
   }
 }

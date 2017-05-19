@@ -88,7 +88,7 @@ public class AbstractRhythmTest {
   private final static TestEnvironment testEnvironment = new TestEnvironment(APP_NAME);
   private final static CassandraInitializer cassandraInitializer = new CassandraInitializer();
   private final static MariaDBInitializer mariaDBInitializer = new MariaDBInitializer();
-  private final static TenantDataStoreContextTestRule tenantDataStoreContext = TenantDataStoreContextTestRule.forRandomTenantName(cassandraInitializer, mariaDBInitializer);
+  final static TenantDataStoreContextTestRule tenantDataStoreContext = TenantDataStoreContextTestRule.forRandomTenantName(cassandraInitializer, mariaDBInitializer);
 
   @ClassRule
   public static TestRule orderClassRules = RuleChain
@@ -139,7 +139,7 @@ public class AbstractRhythmTest {
     beat.setAlignmentHour(now.getHour());
 
     final LocalDateTime expectedBeatTimestamp = getExpectedBeatTimestamp(now, beat.getAlignmentHour());
-    Mockito.doReturn(true).when(beatPublisherServiceSpy).publishBeat(Matchers.eq(applicationName), Matchers.eq(beatIdentifier),
+    Mockito.doReturn(true).when(beatPublisherServiceSpy).publishBeat(Matchers.eq(beatIdentifier), Matchers.eq(tenantDataStoreContext.getTenantName()), Matchers.eq(applicationName),
                     AdditionalMatchers.or(Matchers.eq(expectedBeatTimestamp), Matchers.eq(getNextTimeStamp(expectedBeatTimestamp))));
 
     this.testSubject.createBeat(applicationName, beat);
@@ -149,7 +149,7 @@ public class AbstractRhythmTest {
     Mockito.verify(beatPublisherServiceSpy, Mockito.timeout(2_000).atLeastOnce())
             .checkBeatForPublish(anyObject(), eq(beatIdentifier), anyString(), eq(applicationName), eq(beat.getAlignmentHour()), anyObject());
 
-    Mockito.verify(beatPublisherServiceSpy, Mockito.times(1)).publishBeat(applicationName, beatIdentifier, expectedBeatTimestamp);
+    Mockito.verify(beatPublisherServiceSpy, Mockito.times(1)).publishBeat(beatIdentifier, tenantDataStoreContext.getTenantName(), applicationName, expectedBeatTimestamp);
 
     return beat;
   }

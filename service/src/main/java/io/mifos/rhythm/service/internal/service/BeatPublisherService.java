@@ -60,7 +60,7 @@ public class BeatPublisherService {
   }
 
   @SuppressWarnings("WeakerAccess") //Access is public for spying in component test.
-  public boolean publishBeat(final String applicationName, final String beatIdentifier, final LocalDateTime timestamp) {
+  public boolean publishBeat(final String beatIdentifier, final String tenantIdentifier, final String applicationName, final LocalDateTime timestamp) {
     final BeatPublish beatPublish = new BeatPublish(beatIdentifier, DateConverter.toIsoString(timestamp));
     logger.info("Attempting publish {} with timestamp {} under user {}.", beatPublish, timestamp, properties.getUser());
 
@@ -71,7 +71,7 @@ public class BeatPublisherService {
     final ServiceInstance beatListenerService = applicationsByName.get(0);
     final BeatListener beatListener = apiFactory.create(BeatListener.class, beatListenerService.getUri().toString());
 
-    try {
+    try (final AutoTenantContext ignored = new AutoTenantContext(tenantIdentifier)) {
       beatListener.publishBeat(beatPublish);
       return true;
     }
@@ -87,14 +87,12 @@ public class BeatPublisherService {
           final String applicationName,
           final Integer alignmentHour,
           final LocalDateTime nextBeat) {
-    try (final AutoTenantContext ignored = new AutoTenantContext(tenantIdentifier)) {
 
       return getTimesNeedingEvents(nextBeat, now, alignmentHour)
               .filter(x ->
                       x.isAfter(now)
-                              || !publishBeat(applicationName, beatIdentifier, x))
+                              || !publishBeat(beatIdentifier, tenantIdentifier, applicationName, x))
               .findFirst();
-    }
   }
 
   static Stream<LocalDateTime> getTimesNeedingEvents(
