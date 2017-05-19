@@ -38,16 +38,15 @@ public class BeatPublisherServiceTest {
   }
 
   @Test
-  public void getTimesNeedingEvents() {
+  public void getNumberOfBeatPublishesNeeded() {
     final LocalDateTime now = LocalDateTime.now(ZoneId.of("UTC"));
+    final long eventsNeeded3 = BeatPublisherService.getNumberOfBeatPublishesNeeded(now.minus(3, ChronoUnit.DAYS), now);
+    Assert.assertEquals(3, eventsNeeded3);
 
-    final Stream<LocalDateTime> threeDaysStartTime = BeatPublisherService.getTimesNeedingEvents(now, now.plus(3, ChronoUnit.DAYS), 0);
-    Assert.assertEquals(5, threeDaysStartTime.count());
+    final long eventsNeededPast = BeatPublisherService.getNumberOfBeatPublishesNeeded(now.plus(1, ChronoUnit.DAYS), now);
+    Assert.assertEquals(0, eventsNeededPast);
 
-    final Stream<LocalDateTime> eventsAlreadyDone = BeatPublisherService.getTimesNeedingEvents(now, now.minus(1, ChronoUnit.DAYS), 0);
-    Assert.assertEquals(1, eventsAlreadyDone.count());
-
-    final Stream<LocalDateTime> eventsNow = BeatPublisherService.getTimesNeedingEvents(now, now, 0);
-    Assert.assertEquals(2, eventsNow.count());
+    final long eventsNeededNow = BeatPublisherService.getNumberOfBeatPublishesNeeded(now.minus(2, ChronoUnit.MINUTES), now);
+    Assert.assertEquals(1, eventsNeededNow);
   }
 }

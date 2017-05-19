@@ -87,26 +87,27 @@ public class BeatPublisherService {
           final String applicationName,
           final Integer alignmentHour,
           final LocalDateTime nextBeat) {
+    final long numberOfBeatPublishesNeeded = getNumberOfBeatPublishesNeeded(nextBeat, now);
+    if (numberOfBeatPublishesNeeded == 0)
+      return Optional.empty();
 
-      return getTimesNeedingEvents(nextBeat, now, alignmentHour)
-              .filter(x ->
-                      x.isAfter(now)
-                              || !publishBeat(beatIdentifier, tenantIdentifier, applicationName, x))
-              .findFirst();
+    final Optional<LocalDateTime> firstFailedBeat = Stream.iterate(nextBeat,
+            x -> incrementToAlignment(x, alignmentHour))
+            .limit(numberOfBeatPublishesNeeded)
+            .filter(x ->!publishBeat(beatIdentifier, tenantIdentifier, applicationName, x))
+            .findFirst();
+
+    if (firstFailedBeat.isPresent())
+      return firstFailedBeat;
+    else
+      return Optional.of(incrementToAlignment(nextBeat, alignmentHour));
   }
 
-  static Stream<LocalDateTime> getTimesNeedingEvents(
-          final @Nonnull LocalDateTime nextBeat,
-          final LocalDateTime now,
-          final Integer alignmentHour) {
-    if (nextBeat.isAfter(now)) {
-      return Stream.of(nextBeat);
-    }
+  static long getNumberOfBeatPublishesNeeded(final @Nonnull LocalDateTime nextBeat, final LocalDateTime now) {
+    if (nextBeat.isAfter(now))
+      return 0;
 
-    final long days = nextBeat.until(now, ChronoUnit.DAYS) + 2;
-    return Stream.iterate(nextBeat,
-            x -> incrementToAlignment(x, alignmentHour))
-            .limit(days);
+    return Math.max(1, nextBeat.until(now, ChronoUnit.DAYS));
   }
 
   static LocalDateTime incrementToAlignment(final LocalDateTime toIncrement, final Integer alignmentHour)
