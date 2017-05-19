@@ -16,12 +16,14 @@
 package io.mifos.rhythm.service;
 
 import io.mifos.anubis.config.EnableAnubis;
+import io.mifos.core.api.config.EnableApiFactory;
 import io.mifos.core.async.config.EnableAsync;
 import io.mifos.core.cassandra.config.EnableCassandra;
 import io.mifos.core.command.config.EnableCommandProcessing;
 import io.mifos.core.lang.config.EnableServiceException;
 import io.mifos.core.lang.config.EnableTenantContext;
 import io.mifos.core.mariadb.config.EnableMariaDB;
+import io.mifos.permittedfeignclient.config.EnablePermissionRequestingFeignClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
@@ -30,6 +32,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
+import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.web.servlet.config.annotation.PathMatchConfigurer;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 
@@ -40,17 +43,22 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter
 @Configuration
 @EnableAutoConfiguration
 @EnableDiscoveryClient
+@EnableApiFactory
 @EnableAsync
-@EnableTenantContext
 @EnableCassandra
-@EnableMariaDB
+@EnableMariaDB(forTenantContext = false)
 @EnableCommandProcessing
 @EnableAnubis
 @EnableServiceException
+@EnableScheduling
+@EnableTenantContext
+@EnablePermissionRequestingFeignClient
 @ComponentScan({
     "io.mifos.rhythm.service.rest",
+    "io.mifos.rhythm.service.config",
     "io.mifos.rhythm.service.internal.service",
     "io.mifos.rhythm.service.internal.repository",
+    "io.mifos.rhythm.service.internal.scheduler",
     "io.mifos.rhythm.service.internal.command.handler"
 })
 @EnableJpaRepositories({

@@ -16,48 +16,86 @@
 package io.mifos.rhythm;
 
 import io.mifos.core.api.util.NotFoundException;
-import io.mifos.rhythm.api.v1.domain.Application;
 import io.mifos.rhythm.api.v1.domain.Beat;
 import io.mifos.rhythm.api.v1.events.BeatEvent;
 import io.mifos.rhythm.api.v1.events.EventConstants;
 import org.junit.Assert;
 import org.junit.Test;
+import org.mockito.Mockito;
 
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.List;
+
+import static org.mockito.Matchers.*;
 
 /**
  * @author Myrle Krantz
  */
 public class TestBeats extends AbstractRhythmTest {
+
   @Test
   public void shouldCreateBeat() throws InterruptedException {
-    final Application application = createApplication("funnybusiness-v1");
+    final String appName = "funnybusiness-v1";
+    final Beat beat = createBeat(appName, "bebopthedowop");
 
-    final Beat beat = createBeat(application, "bebopthedowop");
-
-    final Beat createdBeat = this.testSubject.getBeat(application.getApplicationName(), beat.getIdentifier());
+    final Beat createdBeat = this.testSubject.getBeat(appName, beat.getIdentifier());
     Assert.assertEquals(beat, createdBeat);
 
-    final List<Beat> allEntities = this.testSubject.getAllBeatsForApplication(application.getApplicationName());
+    final List<Beat> allEntities = this.testSubject.getAllBeatsForApplication(appName);
     Assert.assertTrue(allEntities.contains(beat));
   }
 
   @Test
   public void shouldDeleteBeat() throws InterruptedException {
-    final Application application = createApplication("funnybusiness-v2");
+    final String appName = "funnybusiness-v2";
 
-    final Beat beat = createBeat(application, "bebopthedowop");
+    final Beat beat = createBeat(appName, "bebopthedowop");
 
-    testSubject.deleteBeat(application.getApplicationName(), beat.getIdentifier());
-    Assert.assertTrue(this.eventRecorder.wait(EventConstants.DELETE_BEAT, new BeatEvent(application.getApplicationName(), beat.getIdentifier())));
+    testSubject.deleteBeat(appName, beat.getIdentifier());
+    Assert.assertTrue(this.eventRecorder.wait(EventConstants.DELETE_BEAT, new BeatEvent(appName, beat.getIdentifier())));
 
-    final List<Beat> allEntities = this.testSubject.getAllBeatsForApplication(application.getApplicationName());
+    final List<Beat> allEntities = this.testSubject.getAllBeatsForApplication(appName);
     Assert.assertFalse(allEntities.contains(beat));
 
     try {
-      this.testSubject.getBeat(application.getApplicationName(), beat.getIdentifier());
+      this.testSubject.getBeat(appName, beat.getIdentifier());
       Assert.fail("NotFoundException should be thrown.");
     }
     catch (final NotFoundException ignored) { }
+  }
+
+  @Test
+  public void shouldDeleteApplication() throws InterruptedException {
+    final String appName = "funnybusiness-v3";
+    createBeat(appName, "bebopthedowop");
+
+    this.testSubject.deleteApplication(appName);
+    Assert.assertTrue(this.eventRecorder.wait(EventConstants.DELETE_APPLICATION, appName));
+
+    final List<Beat> allEntities = this.testSubject.getAllBeatsForApplication(appName);
+    Assert.assertTrue(allEntities.isEmpty());
+  }
+
+  @Test
+  public void shouldRetryBeatPublishIfFirstAttemptFails() throws InterruptedException {
+    final String appName = "funnybusiness-v4";
+    final String beatId = "bebopthedowop";
+
+    final LocalDateTime now = LocalDateTime.now(ZoneId.of("UTC"));
+
+    final Beat beat = new Beat();
+    beat.setIdentifier(beatId);
+    beat.setAlignmentHour(now.getHour());
+
+    final LocalDateTime expectedBeatTimestamp = getExpectedBeatTimestamp(now, beat.getAlignmentHour());
+
+    Mockito.when(beatPublisherServiceSpy.publishBeat(beatId, tenantDataStoreContext.getTenantName(), appName, expectedBeatTimestamp)).thenReturn(false, false, true);
+
+    this.testSubject.createBeat(appName, beat);
+
+    Assert.assertTrue(this.eventRecorder.wait(EventConstants.POST_BEAT, new BeatEvent(appName, beat.getIdentifier())));
+
+    Mockito.verify(beatPublisherServiceSpy, Mockito.timeout(10_000).times(3)).publishBeat(beatId, tenantDataStoreContext.getTenantName(), appName, expectedBeatTimestamp);
   }
 }

@@ -38,11 +38,11 @@ public class BeatService {
     this.beatRepository = beatRepository;
   }
 
-  public List<Beat> findAllEntities(final String applicationName) {
-    return BeatMapper.map(this.beatRepository.findByApplicationName(applicationName));
+  public List<Beat> findAllEntities(final String tenantIdentifier, final String applicationName) {
+    return BeatMapper.map(this.beatRepository.findByTenantIdentifierAndApplicationName(tenantIdentifier, applicationName));
   }
 
-  public Optional<Beat> findByIdentifier(final String applicationName, final String identifier) {
-    return this.beatRepository.findByApplicationNameAndIdentifier(applicationName, identifier).map(BeatMapper::map);
+  public Optional<Beat> findByIdentifier(final String tenantIdentifier, final String applicationName, final String identifier) {
+    return this.beatRepository.findByTenantIdentifierAndApplicationNameAndBeatIdentifier(tenantIdentifier, applicationName, identifier).map(BeatMapper::map);
   }
 }

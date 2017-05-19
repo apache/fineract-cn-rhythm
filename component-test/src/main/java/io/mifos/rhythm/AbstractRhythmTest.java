@@ -24,19 +24,23 @@ import io.mifos.core.test.fixture.mariadb.MariaDBInitializer;
 import io.mifos.core.test.listener.EnableEventRecording;
 import io.mifos.core.test.listener.EventRecorder;
 import io.mifos.rhythm.api.v1.client.RhythmManager;
-import io.mifos.rhythm.api.v1.domain.Application;
 import io.mifos.rhythm.api.v1.domain.Beat;
 import io.mifos.rhythm.api.v1.events.BeatEvent;
 import io.mifos.rhythm.api.v1.events.EventConstants;
 import io.mifos.rhythm.service.RhythmConfiguration;
+import io.mifos.rhythm.service.internal.service.BeatPublisherService;
 import org.junit.*;
 import org.junit.rules.RuleChain;
 import org.junit.rules.TestRule;
 import org.junit.runner.RunWith;
+import org.mockito.AdditionalMatchers;
+import org.mockito.Matchers;
+import org.mockito.Mockito;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.cloud.netflix.feign.EnableFeignClients;
 import org.springframework.cloud.netflix.ribbon.RibbonClient;
 import org.springframework.context.annotation.Bean;
@@ -45,12 +49,20 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.temporal.ChronoUnit;
+
+import static org.mockito.Matchers.*;
+
 /**
  * @author Myrle Krantz
  */
 @RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT,
-        classes = {AbstractRhythmTest.TestConfiguration.class})
+        classes = {AbstractRhythmTest.TestConfiguration.class},
+        properties = {"rhythm.user=homer", "rhythm.beatCheckRate=500"}
+)
 public class AbstractRhythmTest {
 
   private static final String APP_NAME = "rhythm-v1";
@@ -76,7 +88,7 @@ public class AbstractRhythmTest {
   private final static TestEnvironment testEnvironment = new TestEnvironment(APP_NAME);
   private final static CassandraInitializer cassandraInitializer = new CassandraInitializer();
   private final static MariaDBInitializer mariaDBInitializer = new MariaDBInitializer();
-  private final static TenantDataStoreContextTestRule tenantDataStoreContext = TenantDataStoreContextTestRule.forRandomTenantName(cassandraInitializer, mariaDBInitializer);
+  final static TenantDataStoreContextTestRule tenantDataStoreContext = TenantDataStoreContextTestRule.forRandomTenantName(cassandraInitializer, mariaDBInitializer);
 
   @ClassRule
   public static TestRule orderClassRules = RuleChain
@@ -97,6 +109,9 @@ public class AbstractRhythmTest {
   @Autowired
   EventRecorder eventRecorder;
 
+  @SpyBean
+  BeatPublisherService beatPublisherServiceSpy;
+
   @Before
   public void prepTest() {
     userContext = tenantApplicationSecurityEnvironment.createAutoUserContext(TEST_USER);
@@ -116,21 +131,32 @@ public class AbstractRhythmTest {
     }
   }
 
-  Application createApplication(final String name) throws InterruptedException {
-    final Application application = new Application(name);
-    this.testSubject.createApplication(application);
+  Beat createBeat(final String applicationName, final String beatIdentifier) throws InterruptedException {
+    final LocalDateTime now = LocalDateTime.now(ZoneId.of("UTC"));
 
-    Assert.assertTrue(this.eventRecorder.wait(EventConstants.POST_APPLICATION, application.getApplicationName()));
-    return application;
-  }
-
-  Beat createBeat(final Application application, final String beatIdentifier) throws InterruptedException {
     final Beat beat = new Beat();
     beat.setIdentifier(beatIdentifier);
-    beat.setAlignmentHour(0);
-    this.testSubject.createBeat(application.getApplicationName(), beat);
+    beat.setAlignmentHour(now.getHour());
 
-    Assert.assertTrue(this.eventRecorder.wait(EventConstants.POST_BEAT, new BeatEvent(application.getApplicationName(), beat.getIdentifier())));
+    final LocalDateTime expectedBeatTimestamp = getExpectedBeatTimestamp(now, beat.getAlignmentHour());
+    Mockito.doReturn(true).when(beatPublisherServiceSpy).publishBeat(Matchers.eq(beatIdentifier), Matchers.eq(tenantDataStoreContext.getTenantName()), Matchers.eq(applicationName),
+                    AdditionalMatchers.or(Matchers.eq(expectedBeatTimestamp), Matchers.eq(getNextTimeStamp(expectedBeatTimestamp))));
+
+    this.testSubject.createBeat(applicationName, beat);
+
+    Assert.assertTrue(this.eventRecorder.wait(EventConstants.POST_BEAT, new BeatEvent(applicationName, beat.getIdentifier())));
+
+    Mockito.verify(beatPublisherServiceSpy, Mockito.timeout(2_000).times(1)).publishBeat(beatIdentifier, tenantDataStoreContext.getTenantName(), applicationName, expectedBeatTimestamp);
+
     return beat;
+  }
+
+  LocalDateTime getExpectedBeatTimestamp(final LocalDateTime fromTime, final Integer alignmentHour) {
+    final LocalDateTime midnight = fromTime.truncatedTo(ChronoUnit.DAYS);
+    return midnight.plusHours(alignmentHour);
+  }
+
+  private LocalDateTime getNextTimeStamp(final LocalDateTime fromTime) {
+    return fromTime.plusDays(1);
   }
 }

@@ -21,14 +21,21 @@ import io.mifos.rhythm.api.v1.domain.Beat;
  * @author Myrle Krantz
  */
 public class CreateBeatCommand {
+  private final String tenantIdentifier;
+
   private final String applicationName;
 
   private final Beat instance;
 
-  public CreateBeatCommand(final String applicationName, final Beat instance) {
+  public CreateBeatCommand(final String tenantIdentifier, final String applicationName, final Beat instance) {
     super();
+    this.tenantIdentifier = tenantIdentifier;
     this.applicationName = applicationName;
     this.instance = instance;
+  }
+
+  public String getTenantIdentifier() {
+    return tenantIdentifier;
   }
 
   public String getApplicationName() {

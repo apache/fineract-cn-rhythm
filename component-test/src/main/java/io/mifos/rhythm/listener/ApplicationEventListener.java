@@ -41,16 +41,6 @@ public class ApplicationEventListener {
   @JmsListener(
           subscription = EventConstants.DESTINATION,
           destination = EventConstants.DESTINATION,
-          selector = EventConstants.SELECTOR_POST_APPLICATION
-  )
-  public void onCreateApplication(@Header(TenantHeaderFilter.TENANT_HEADER) final String tenant,
-                                  final String payload) {
-    this.eventRecorder.event(tenant, EventConstants.POST_APPLICATION, payload, String.class);
-  }
-
-  @JmsListener(
-          subscription = EventConstants.DESTINATION,
-          destination = EventConstants.DESTINATION,
           selector = EventConstants.SELECTOR_DELETE_APPLICATION
   )
   public void onDeleteApplication(@Header(TenantHeaderFilter.TENANT_HEADER) final String tenant,

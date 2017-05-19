@@ -15,7 +15,10 @@
  */
 package io.mifos.rhythm.service.internal.repository;
 
+import io.mifos.core.mariadb.util.LocalDateTimeConverter;
+
 import javax.persistence.*;
+import java.time.LocalDateTime;
 import java.util.Objects;
 
 /**
@@ -30,14 +33,21 @@ public class BeatEntity {
   @Column(name = "id")
   private Long id;
 
-  @Column(name = "identifier")
-  private String identifier;
+  @Column(name = "beat_identifier", nullable = false)
+  private String beatIdentifier;
 
-  @Column(name = "application_name")
+  @Column(name = "tenant_identifier", nullable = false)
+  private String tenantIdentifier;
+
+  @Column(name = "application_name", nullable = false)
   private String applicationName;
 
-  @Column(name = "alignment_hour")
+  @Column(name = "alignment_hour", nullable = false)
   private Integer alignmentHour;
+
+  @Column(name = "next_beat")
+  @Convert(converter = LocalDateTimeConverter.class)
+  private LocalDateTime nextBeat;
 
   public BeatEntity() {
     super();
@@ -51,12 +61,20 @@ public class BeatEntity {
     this.id = id;
   }
 
-  public String getIdentifier() {
-    return identifier;
+  public String getBeatIdentifier() {
+    return beatIdentifier;
   }
 
-  public void setIdentifier(String identifier) {
-    this.identifier = identifier;
+  public void setBeatIdentifier(String beatIdentifier) {
+    this.beatIdentifier = beatIdentifier;
+  }
+
+  public String getTenantIdentifier() {
+    return tenantIdentifier;
+  }
+
+  public void setTenantIdentifier(String tenantIdentifier) {
+    this.tenantIdentifier = tenantIdentifier;
   }
 
   public String getApplicationName() {
@@ -75,17 +93,38 @@ public class BeatEntity {
     this.alignmentHour = alignmentHour;
   }
 
+  public LocalDateTime getNextBeat() {
+    return nextBeat;
+  }
+
+  public void setNextBeat(LocalDateTime nextBeat) {
+    this.nextBeat = nextBeat;
+  }
+
   @Override
   public boolean equals(Object o) {
     if (this == o) return true;
-    if (o == null || !(o instanceof BeatEntity)) return false;
+    if (o == null || getClass() != o.getClass()) return false;
     BeatEntity that = (BeatEntity) o;
-    return Objects.equals(getIdentifier(), that.getIdentifier()) &&
-            Objects.equals(getApplicationName(), that.getApplicationName());
+    return Objects.equals(beatIdentifier, that.beatIdentifier) &&
+            Objects.equals(tenantIdentifier, that.tenantIdentifier) &&
+            Objects.equals(applicationName, that.applicationName);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(getIdentifier(), getApplicationName());
+    return Objects.hash(beatIdentifier, tenantIdentifier, applicationName);
+  }
+
+  @Override
+  public String toString() {
+    return "BeatEntity{" +
+            "id=" + id +
+            ", beatIdentifier='" + beatIdentifier + '\'' +
+            ", tenantIdentifier='" + tenantIdentifier + '\'' +
+            ", applicationName='" + applicationName + '\'' +
+            ", alignmentHour=" + alignmentHour +
+            ", nextBeat=" + nextBeat +
+            '}';
   }
 }

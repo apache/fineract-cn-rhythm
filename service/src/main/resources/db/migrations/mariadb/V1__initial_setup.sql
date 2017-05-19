@@ -17,18 +17,13 @@
 
 # noinspection SqlNoDataSourceInspectionForFile
 
-CREATE TABLE khepri_applications (
-  id BIGINT NOT NULL AUTO_INCREMENT,
-  application_name VARCHAR(64) NOT NULL,
-  CONSTRAINT khepri_applications_uq UNIQUE (application_name),
-  CONSTRAINT khepri_applications_pk PRIMARY KEY (id)
-);
-
 CREATE TABLE khepri_beats (
   id BIGINT NOT NULL AUTO_INCREMENT,
-  identifier               VARCHAR(32) NOT NULL,
-  application_name         VARCHAR(32) NOT NULL,
+  tenant_identifier        VARCHAR(64) NOT NULL,
+  application_name         VARCHAR(64) NOT NULL,
+  beat_identifier          VARCHAR(32) NOT NULL,
   alignment_hour           INT         NOT NULL,
-  CONSTRAINT khepri_beats_uq UNIQUE (identifier, application_name),
+  next_beat               TIMESTAMP(3) NOT NULL,
+  CONSTRAINT khepri_beats_uq UNIQUE (tenant_identifier, application_name, beat_identifier),
   CONSTRAINT khepri_beats_pk PRIMARY KEY (id)
 );

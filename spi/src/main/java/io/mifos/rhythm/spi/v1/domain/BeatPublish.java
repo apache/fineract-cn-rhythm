@@ -13,32 +13,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.mifos.rhythm.api.v1.domain;
+package io.mifos.rhythm.spi.v1.domain;
 
 import io.mifos.core.lang.validation.constraints.ValidIdentifier;
-import org.hibernate.validator.constraints.Range;
+
+import java.util.Objects;
 
 /**
  * @author Myrle Krantz
  */
-@SuppressWarnings({"WeakerAccess", "unused"})
-public class Beat {
+public class BeatPublish {
   @ValidIdentifier
   private String identifier;
 
-  @Range(min = 0, max = 23)
-  private Integer alignmentHour;
+  private String forTime;
 
-  public Beat() {
+  public BeatPublish() {
   }
 
-  public Beat(String identifier, Integer alignmentHour) {
+  public BeatPublish(String identifier, String forTime) {
     this.identifier = identifier;
-    this.alignmentHour = alignmentHour;
-  }
-
-  public Beat(String identifier) {
-    this.identifier = identifier;
+    this.forTime = forTime;
   }
 
   public String getIdentifier() {
@@ -49,39 +44,33 @@ public class Beat {
     this.identifier = identifier;
   }
 
-  public Integer getAlignmentHour() {
-    return alignmentHour;
+  public String getForTime() {
+    return forTime;
   }
 
-  public void setAlignmentHour(Integer alignmentHour) {
-    this.alignmentHour = alignmentHour;
+  public void setForTime(String forTime) {
+    this.forTime = forTime;
   }
 
-  @SuppressWarnings("SimplifiableIfStatement")
   @Override
   public boolean equals(Object o) {
     if (this == o) return true;
     if (o == null || getClass() != o.getClass()) return false;
-
-    Beat beat = (Beat) o;
-
-    if (identifier != null ? !identifier.equals(beat.identifier) : beat.identifier != null) return false;
-    return alignmentHour != null ? alignmentHour.equals(beat.alignmentHour) : beat.alignmentHour == null;
-
+    BeatPublish beatPublish = (BeatPublish) o;
+    return Objects.equals(identifier, beatPublish.identifier) &&
+            Objects.equals(forTime, beatPublish.forTime);
   }
 
   @Override
   public int hashCode() {
-    int result = identifier != null ? identifier.hashCode() : 0;
-    result = 31 * result + (alignmentHour != null ? alignmentHour.hashCode() : 0);
-    return result;
+    return Objects.hash(identifier, forTime);
   }
 
   @Override
   public String toString() {
-    return "Beat{" +
+    return "BeatPublish{" +
             "identifier='" + identifier + '\'' +
-            ", alignmentHour=" + alignmentHour +
+            ", forTime='" + forTime + '\'' +
             '}';
   }
 }

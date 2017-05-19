@@ -16,7 +16,6 @@
 package io.mifos.rhythm.api.v1.client;
 
 import io.mifos.core.api.util.CustomFeignClientsConfiguration;
-import io.mifos.rhythm.api.v1.domain.Application;
 import io.mifos.rhythm.api.v1.domain.Beat;
 import org.springframework.cloud.netflix.feign.FeignClient;
 import org.springframework.http.MediaType;
@@ -32,29 +31,6 @@ import java.util.List;
 @SuppressWarnings("unused")
 @FeignClient(value="rhythm-v1", path="/rhythm/v1", configuration = CustomFeignClientsConfiguration.class)
 public interface RhythmManager {
-
-  @RequestMapping(
-          value = "/applications",
-          method = RequestMethod.GET,
-          produces = MediaType.ALL_VALUE,
-          consumes = MediaType.APPLICATION_JSON_VALUE
-  )
-  List<Application> getAllApplications();
-
-  @RequestMapping(
-          value = "/applications/{applicationname}",
-          method = RequestMethod.GET,
-          produces = MediaType.ALL_VALUE,
-          consumes = MediaType.APPLICATION_JSON_VALUE)
-  Application getApplication(@PathVariable("applicationname") final String applicationName);
-
-  @RequestMapping(
-          value = "/applications",
-          method = RequestMethod.POST,
-          produces = MediaType.APPLICATION_JSON_VALUE,
-          consumes = MediaType.APPLICATION_JSON_VALUE
-  )
-  void createApplication(final Application application);
 
   @RequestMapping(
           value = "/applications/{applicationname}",

@@ -64,3 +64,6 @@ async:
 
 flyway:
   enabled: false
+
+rhythm:
+  user: scheduler

@@ -17,18 +17,11 @@ package io.mifos.rhythm.service.internal.command.handler;
 
 import io.mifos.core.command.annotation.Aggregate;
 import io.mifos.core.command.annotation.CommandHandler;
-import io.mifos.core.command.annotation.EventEmitter;
-import io.mifos.core.lang.ServiceException;
 import io.mifos.rhythm.api.v1.events.EventConstants;
-import io.mifos.rhythm.service.internal.command.CreateApplicationCommand;
 import io.mifos.rhythm.service.internal.command.DeleteApplicationCommand;
-import io.mifos.rhythm.service.internal.mapper.ApplicationMapper;
-import io.mifos.rhythm.service.internal.repository.ApplicationEntity;
-import io.mifos.rhythm.service.internal.repository.ApplicationRepository;
+import io.mifos.rhythm.service.internal.repository.BeatRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.Optional;
 
 /**
  * @author Myrle Krantz
@@ -36,38 +29,20 @@ import java.util.Optional;
 @SuppressWarnings("unused")
 @Aggregate
 public class ApplicationCommandHandler {
-
-  private final ApplicationRepository applicationRepository;
+  private final BeatRepository beatRepository;
+  private final EventHelper eventHelper;
 
   @Autowired
-  public ApplicationCommandHandler(final ApplicationRepository applicationRepository) {
+  public ApplicationCommandHandler(final BeatRepository beatRepository, final EventHelper eventHelper) {
     super();
-    this.applicationRepository = applicationRepository;
+    this.beatRepository = beatRepository;
+    this.eventHelper = eventHelper;
   }
 
   @CommandHandler
   @Transactional
-  @EventEmitter(selectorName = EventConstants.SELECTOR_NAME, selectorValue = EventConstants.POST_APPLICATION)
-  public String process(final CreateApplicationCommand createApplicationCommand) {
-
-    final ApplicationEntity entity = ApplicationMapper.map(createApplicationCommand.getInstance());
-    this.applicationRepository.save(entity);
-
-    return createApplicationCommand.getInstance().getApplicationName();
-  }
-
-  @CommandHandler
-  @Transactional
-  @EventEmitter(selectorName = EventConstants.SELECTOR_NAME, selectorValue = EventConstants.DELETE_APPLICATION)
-  public String process(final DeleteApplicationCommand deleteApplicationCommand) {
-
-    final Optional<ApplicationEntity> toDelete
-            = this.applicationRepository.findByApplicationName(deleteApplicationCommand.getApplicationName());
-    final ApplicationEntity toDeleteForReal
-            = toDelete.orElseThrow(() -> ServiceException.notFound("Application with the name " + deleteApplicationCommand.getApplicationName() + " not found."));
-
-    this.applicationRepository.delete(toDeleteForReal);
-
-    return deleteApplicationCommand.getApplicationName();
+  public void process(final DeleteApplicationCommand deleteApplicationCommand) {
+    this.beatRepository.deleteByTenantIdentifierAndApplicationName(deleteApplicationCommand.getTenantIdentifier(), deleteApplicationCommand.getApplicationName());
+    eventHelper.sendEvent(EventConstants.DELETE_APPLICATION, deleteApplicationCommand.getTenantIdentifier(), deleteApplicationCommand.getApplicationName());
   }
 }

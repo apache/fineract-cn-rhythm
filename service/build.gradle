@@ -31,7 +31,9 @@ dependencies {
             [group: 'org.springframework.cloud', name: 'spring-cloud-starter-eureka'],
             [group: 'org.springframework.boot', name: 'spring-boot-starter-jetty'],
             [group: 'io.mifos.rhythm', name: 'api', version: project.version],
+            [group: 'io.mifos.rhythm', name: 'spi', version: project.version],
             [group: 'io.mifos.anubis', name: 'library', version: versions.frameworkanubis],
+            [group: 'io.mifos.permitted-feign-client', name: 'library', version: versions.frameworkpermittedfeignclient],
             [group: 'com.google.code.gson', name: 'gson'],
             [group: 'io.mifos.core', name: 'lang', version: versions.frameworklang],
             [group: 'io.mifos.core', name: 'async', version: versions.frameworkasync],
@@ -42,7 +44,7 @@ dependencies {
     )
 }
 
-// publishToMavenLocal.dependsOn bootRepackage
+publishToMavenLocal.dependsOn bootRepackage
 
 publishing {
     publications {
@@ -52,7 +54,6 @@ publishing {
             artifactId project.name
             version project.version
         }
-        /*
         bootService(MavenPublication) {
             // "boot" jar
             artifact ("$buildDir/libs/$project.name-$version-boot.jar")
@@ -60,6 +61,5 @@ publishing {
             artifactId ("$project.name-boot")
             version project.version
         }
-        */
     }
 }

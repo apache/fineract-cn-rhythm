@@ -18,14 +18,18 @@ package io.mifos.rhythm.service.internal.repository;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 /**
  * @author Myrle Krantz
  */
 @Repository
 public interface BeatRepository extends JpaRepository<BeatEntity, Long> {
-  List<BeatEntity> findByApplicationName(String applicationName);
-  Optional<BeatEntity> findByApplicationNameAndIdentifier(String applicationName, String identifier);
+  void deleteByTenantIdentifierAndApplicationName(String tenantIdentifier, String applicationName);
+  List<BeatEntity> findByTenantIdentifierAndApplicationName(String tenantIdentifier, String applicationName);
+  Optional<BeatEntity> findByTenantIdentifierAndApplicationNameAndBeatIdentifier(String tenantIdentifier, String applicationName, String identifier);
+  Stream<BeatEntity> findByNextBeatBefore(LocalDateTime currentTime);
 }

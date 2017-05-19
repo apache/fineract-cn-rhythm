@@ -19,5 +19,5 @@ package io.mifos.rhythm.service;
  * @author Myrle Krantz
  */
 public interface ServiceConstants {
-  String LOGGER_NAME = "rest-logger";
+  String LOGGER_NAME = "rhythm-logger";
 }

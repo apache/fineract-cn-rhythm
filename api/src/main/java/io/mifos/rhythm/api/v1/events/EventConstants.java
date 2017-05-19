@@ -24,12 +24,10 @@ public interface EventConstants {
   String DESTINATION = "rhythm-v1";
   String SELECTOR_NAME = "action";
   String INITIALIZE = "initialize";
-  String POST_APPLICATION = "post-application";
   String POST_BEAT = "post-beat";
   String DELETE_APPLICATION = "delete-application";
   String DELETE_BEAT = "delete-beat";
   String SELECTOR_INITIALIZE = SELECTOR_NAME + " = '" + INITIALIZE + "'";
-  String SELECTOR_POST_APPLICATION = SELECTOR_NAME + " = '" + POST_APPLICATION + "'";
   String SELECTOR_POST_BEAT = SELECTOR_NAME + " = '" + POST_BEAT + "'";
   String SELECTOR_DELETE_APPLICATION = SELECTOR_NAME + " = '" + DELETE_APPLICATION + "'";
   String SELECTOR_DELETE_BEAT = SELECTOR_NAME + " = '" + DELETE_BEAT + "'";
