@@ -23,6 +23,7 @@ import io.mifos.core.test.fixture.cassandra.CassandraInitializer;
 import io.mifos.core.test.fixture.mariadb.MariaDBInitializer;
 import io.mifos.core.test.listener.EnableEventRecording;
 import io.mifos.core.test.listener.EventRecorder;
+import io.mifos.identity.api.v1.client.IdentityManager;
 import io.mifos.rhythm.api.v1.client.RhythmManager;
 import io.mifos.rhythm.api.v1.domain.Beat;
 import io.mifos.rhythm.api.v1.events.BeatEvent;
@@ -110,6 +111,9 @@ public class AbstractRhythmTest {
 
   @MockBean
   BeatPublisherService beatPublisherServiceSpy;
+
+  @MockBean
+  IdentityManager identityManager;
 
   @Before
   public void prepTest() {

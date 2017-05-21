@@ -31,6 +31,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 import org.springframework.cloud.netflix.feign.EnableFeignClients;
+import org.springframework.cloud.netflix.ribbon.RibbonClient;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
@@ -55,7 +56,8 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter
 @EnableServiceException
 @EnableScheduling
 @EnableTenantContext
-@EnablePermissionRequestingFeignClient
+@EnablePermissionRequestingFeignClient(feignClasses = {ApplicationPermissionRequestCreator.class})
+@RibbonClient(name = "rhythm-v1")
 @EnableApplicationName
 @EnableFeignClients(clients = {ApplicationPermissionRequestCreator.class})
 @ComponentScan({
