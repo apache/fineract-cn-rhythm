@@ -18,14 +18,14 @@ package io.mifos.rhythm.service.internal.service;
 import io.mifos.anubis.api.v1.domain.AllowedOperation;
 import io.mifos.core.api.context.AutoUserContext;
 import io.mifos.core.api.util.ApiFactory;
-import io.mifos.core.api.util.NotFoundException;
 import io.mifos.core.lang.ApplicationName;
 import io.mifos.core.lang.AutoTenantContext;
 import io.mifos.core.lang.DateConverter;
-import io.mifos.identity.api.v1.client.IdentityManager;
+import io.mifos.identity.api.v1.client.ApplicationPermissionAlreadyExistsException;
 import io.mifos.identity.api.v1.domain.Permission;
 import io.mifos.permittedfeignclient.service.ApplicationAccessTokenService;
 import io.mifos.rhythm.service.config.RhythmProperties;
+import io.mifos.rhythm.service.internal.identity.ApplicationPermissionRequestCreator;
 import io.mifos.rhythm.spi.v1.client.BeatListener;
 import io.mifos.rhythm.spi.v1.domain.BeatPublish;
 import org.slf4j.Logger;
@@ -49,7 +49,7 @@ import static io.mifos.rhythm.service.ServiceConstants.LOGGER_NAME;
 @Service
 public class BeatPublisherService {
   private final DiscoveryClient discoveryClient;
-  private final IdentityManager identityManager;
+  private final ApplicationPermissionRequestCreator applicationPermissionRequestCreator;
   private final ApplicationAccessTokenService applicationAccessTokenService;
   private final ApplicationName rhythmApplicationName;
   private final ApiFactory apiFactory;
@@ -59,14 +59,14 @@ public class BeatPublisherService {
   @Autowired
   public BeatPublisherService(
           @SuppressWarnings("SpringJavaAutowiringInspection") final DiscoveryClient discoveryClient,
-          @SuppressWarnings("SpringJavaAutowiringInspection") final IdentityManager identityManager,
+          @SuppressWarnings("SpringJavaAutowiringInspection") final ApplicationPermissionRequestCreator applicationPermissionRequestCreator,
           @SuppressWarnings("SpringJavaAutowiringInspection") final ApplicationAccessTokenService applicationAccessTokenService,
           final ApplicationName rhythmApplicationName,
           final ApiFactory apiFactory,
           final RhythmProperties properties,
           @Qualifier(LOGGER_NAME) final Logger logger) {
     this.discoveryClient = discoveryClient;
-    this.identityManager = identityManager;
+    this.applicationPermissionRequestCreator = applicationPermissionRequestCreator;
     this.applicationAccessTokenService = applicationAccessTokenService;
     this.rhythmApplicationName = rhythmApplicationName;
     this.apiFactory = apiFactory;
@@ -87,22 +87,17 @@ public class BeatPublisherService {
   @SuppressWarnings("WeakerAccess") //Access is public for mocking in component test.
   public Optional<String> requestPermissionForBeats(final String tenantIdentifier, final String applicationName) {
     try (final AutoTenantContext ignored = new AutoTenantContext(tenantIdentifier)) {
-      final String accessToken = applicationAccessTokenService.getAccessToken(
-              properties.getUser(), io.mifos.identity.api.v1.PermittableGroupIds.APPLICATION_SELF_MANAGEMENT);
-      try (final AutoUserContext ignored2 = new AutoUserContext(properties.getUser(), accessToken)) {
+      try (final AutoUserContext ignored2 = new AutoUserContext(properties.getUser(), "")) {
         final String consumerPermittableGroupIdentifier = getPermittableGroupIdentifier(applicationName);
         final Permission publishBeatPermission = new Permission();
         publishBeatPermission.setAllowedOperations(Collections.singleton(AllowedOperation.CHANGE));
         publishBeatPermission.setPermittableEndpointGroupIdentifier(consumerPermittableGroupIdentifier);
         try {
-          final Permission applicationPermission = identityManager
-                  .getApplicationPermission(rhythmApplicationName.toString(), consumerPermittableGroupIdentifier);
-          return Optional.of(applicationPermission.getPermittableEndpointGroupIdentifier());
+          applicationPermissionRequestCreator.createApplicationPermission(rhythmApplicationName.toString(), publishBeatPermission);
         }
-        catch (final NotFoundException e) {
-          identityManager.createApplicationPermission(rhythmApplicationName.toString(), publishBeatPermission);
-          return Optional.of(consumerPermittableGroupIdentifier);
-        }
+        catch (final ApplicationPermissionAlreadyExistsException ignored3) { }
+
+        return Optional.of(consumerPermittableGroupIdentifier);
       }
     }
     catch (final Throwable e) {

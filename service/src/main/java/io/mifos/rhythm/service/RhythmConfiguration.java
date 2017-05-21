@@ -25,6 +25,7 @@ import io.mifos.core.lang.config.EnableServiceException;
 import io.mifos.core.lang.config.EnableTenantContext;
 import io.mifos.core.mariadb.config.EnableMariaDB;
 import io.mifos.permittedfeignclient.config.EnablePermissionRequestingFeignClient;
+import io.mifos.rhythm.service.internal.identity.ApplicationPermissionRequestCreator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
@@ -56,7 +57,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter
 @EnableTenantContext
 @EnablePermissionRequestingFeignClient
 @EnableApplicationName
-@EnableFeignClients(basePackages = {"io.mifos.identity.api.v1"})
+@EnableFeignClients(clients = {ApplicationPermissionRequestCreator.class})
 @ComponentScan({
     "io.mifos.rhythm.service.rest",
     "io.mifos.rhythm.service.config",
