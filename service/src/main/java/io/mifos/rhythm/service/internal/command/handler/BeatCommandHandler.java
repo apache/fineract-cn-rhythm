@@ -20,12 +20,16 @@ import io.mifos.core.command.annotation.CommandHandler;
 import io.mifos.core.lang.ServiceException;
 import io.mifos.rhythm.api.v1.events.BeatEvent;
 import io.mifos.rhythm.api.v1.events.EventConstants;
+import io.mifos.rhythm.service.ServiceConstants;
 import io.mifos.rhythm.service.internal.command.CreateBeatCommand;
 import io.mifos.rhythm.service.internal.command.DeleteBeatCommand;
 import io.mifos.rhythm.service.internal.mapper.BeatMapper;
 import io.mifos.rhythm.service.internal.repository.BeatEntity;
 import io.mifos.rhythm.service.internal.repository.BeatRepository;
+import io.mifos.rhythm.service.internal.service.IdentityPermittableGroupService;
+import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
@@ -36,20 +40,33 @@ import java.util.Optional;
 @SuppressWarnings("unused")
 @Aggregate
 public class BeatCommandHandler {
-
+  private final IdentityPermittableGroupService identityPermittableGroupService;
   private final BeatRepository beatRepository;
   private final EventHelper eventHelper;
+  private final Logger logger;
 
   @Autowired
-  public BeatCommandHandler(final BeatRepository beatRepository, final EventHelper eventHelper) {
+  public BeatCommandHandler(
+          final IdentityPermittableGroupService identityPermittableGroupService,
+          final BeatRepository beatRepository,
+          final EventHelper eventHelper,
+          @Qualifier(ServiceConstants.LOGGER_NAME) final Logger logger) {
     super();
+    this.identityPermittableGroupService = identityPermittableGroupService;
     this.beatRepository = beatRepository;
     this.eventHelper = eventHelper;
+    this.logger = logger;
   }
 
   @CommandHandler
   @Transactional
   public void process(final CreateBeatCommand createBeatCommand) {
+    final boolean applicationHasRequestForAccessPermission = identityPermittableGroupService.checkThatApplicationHasRequestForAccessPermission(
+            createBeatCommand.getTenantIdentifier(), createBeatCommand.getApplicationName());
+    if (!applicationHasRequestForAccessPermission) {
+      logger.warn("Rhythm needs permission to publish beats to application, but couldn't request that permission for tenant '{}' and application '{}'.",
+              createBeatCommand.getApplicationName(), createBeatCommand.getTenantIdentifier());
+    }
 
     final BeatEntity entity = BeatMapper.map(
             createBeatCommand.getTenantIdentifier(),

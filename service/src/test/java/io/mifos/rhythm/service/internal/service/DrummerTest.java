@@ -28,12 +28,12 @@ import java.util.function.Predicate;
 /**
  * @author Myrle Krantz
  */
-public class BeatPublisherServiceTest {
+public class DrummerTest {
 
   @Test
   public void incrementToAlignment() {
     final LocalDateTime now = LocalDateTime.now(ZoneId.of("UTC"));
-    final LocalDateTime tomorrow = BeatPublisherService.incrementToAlignment(now, 3);
+    final LocalDateTime tomorrow = Drummer.incrementToAlignment(now, 3);
 
     Assert.assertEquals(tomorrow.minusDays(1).truncatedTo(ChronoUnit.DAYS), now.truncatedTo(ChronoUnit.DAYS));
     Assert.assertEquals(3, tomorrow.getHour());
@@ -42,21 +42,21 @@ public class BeatPublisherServiceTest {
   @Test
   public void getNumberOfBeatPublishesNeeded() {
     final LocalDateTime now = LocalDateTime.now(ZoneId.of("UTC"));
-    final long eventsNeeded3 = BeatPublisherService.getNumberOfBeatPublishesNeeded(now, now.minus(3, ChronoUnit.DAYS));
+    final long eventsNeeded3 = Drummer.getNumberOfBeatPublishesNeeded(now, now.minus(3, ChronoUnit.DAYS));
     Assert.assertEquals(3, eventsNeeded3);
 
-    final long eventsNeededPast = BeatPublisherService.getNumberOfBeatPublishesNeeded(now, now.plus(1, ChronoUnit.DAYS));
+    final long eventsNeededPast = Drummer.getNumberOfBeatPublishesNeeded(now, now.plus(1, ChronoUnit.DAYS));
     Assert.assertEquals(0, eventsNeededPast);
 
-    final long eventsNeededNow = BeatPublisherService.getNumberOfBeatPublishesNeeded(now, now.minus(2, ChronoUnit.MINUTES));
+    final long eventsNeededNow = Drummer.getNumberOfBeatPublishesNeeded(now, now.minus(2, ChronoUnit.MINUTES));
     Assert.assertEquals(1, eventsNeededNow);
   }
 
   @Test
   public void checkBeatForPublishAllBeatsSucceed() {
     final LocalDateTime now = LocalDateTime.now(ZoneId.of("UTC"));
-    final Optional<LocalDateTime> ret = BeatPublisherService.checkBeatForPublishHelper(now, 0, now.minus(3, ChronoUnit.DAYS), x -> true);
-    Assert.assertEquals(Optional.of(BeatPublisherService.incrementToAlignment(now, 0)), ret);
+    final Optional<LocalDateTime> ret = Drummer.checkBeatForPublishHelper(now, 0, now.minus(3, ChronoUnit.DAYS), x -> true);
+    Assert.assertEquals(Optional.of(Drummer.incrementToAlignment(now, 0)), ret);
   }
 
   @Test
@@ -65,7 +65,7 @@ public class BeatPublisherServiceTest {
     final LocalDateTime nextBeat = now.minus(3, ChronoUnit.DAYS);
     @SuppressWarnings("unchecked") final Predicate<LocalDateTime> produceBeatsMock = Mockito.mock(Predicate.class);
     Mockito.when(produceBeatsMock.test(nextBeat)).thenReturn(false);
-    final Optional<LocalDateTime> ret = BeatPublisherService.checkBeatForPublishHelper(now, 0, nextBeat, produceBeatsMock);
+    final Optional<LocalDateTime> ret = Drummer.checkBeatForPublishHelper(now, 0, nextBeat, produceBeatsMock);
     Assert.assertEquals(Optional.of(nextBeat), ret);
   }
 
@@ -73,18 +73,18 @@ public class BeatPublisherServiceTest {
   public void checkBeatForPublishSecondFails() {
     final LocalDateTime now = LocalDateTime.now(ZoneId.of("UTC"));
     final LocalDateTime nextBeat = now.minus(3, ChronoUnit.DAYS);
-    final LocalDateTime secondBeat = BeatPublisherService.incrementToAlignment(nextBeat, 0);
+    final LocalDateTime secondBeat = Drummer.incrementToAlignment(nextBeat, 0);
     @SuppressWarnings("unchecked") final Predicate<LocalDateTime> produceBeatsMock = Mockito.mock(Predicate.class);
     Mockito.when(produceBeatsMock.test(nextBeat)).thenReturn(true);
     Mockito.when(produceBeatsMock.test(secondBeat)).thenReturn(false);
-    final Optional<LocalDateTime> ret = BeatPublisherService.checkBeatForPublishHelper(now, 0, nextBeat, produceBeatsMock);
+    final Optional<LocalDateTime> ret = Drummer.checkBeatForPublishHelper(now, 0, nextBeat, produceBeatsMock);
     Assert.assertEquals(Optional.of(secondBeat), ret);
   }
 
   @Test
   public void checkBeatForPublishNoneNeeded() {
     final LocalDateTime now = LocalDateTime.now(ZoneId.of("UTC"));
-    final Optional<LocalDateTime> ret = BeatPublisherService.checkBeatForPublishHelper(now, 0, now.plus(1, ChronoUnit.DAYS),
+    final Optional<LocalDateTime> ret = Drummer.checkBeatForPublishHelper(now, 0, now.plus(1, ChronoUnit.DAYS),
             x -> { Assert.fail("Pubish shouldn't be called"); return true; });
     Assert.assertEquals(Optional.empty(), ret);
   }

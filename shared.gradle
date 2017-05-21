@@ -11,6 +11,7 @@ ext.versions = [
         frameworktest: '0.1.0-BUILD-SNAPSHOT',
         frameworkanubis: '0.1.0-BUILD-SNAPSHOT',
         frameworkpermittedfeignclient: '0.1.0-BUILD-SNAPSHOT',
+        identity:  '0.1.0-BUILD-SNAPSHOT',
         validator : '5.3.0.Final'
 ]
 
