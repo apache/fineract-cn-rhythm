@@ -26,6 +26,7 @@ import io.mifos.identity.api.v1.domain.Permission;
 import io.mifos.permittedfeignclient.service.ApplicationAccessTokenService;
 import io.mifos.rhythm.service.config.RhythmProperties;
 import io.mifos.rhythm.service.internal.identity.ApplicationPermissionRequestCreator;
+import io.mifos.rhythm.spi.v1.PermittableGroupIds;
 import io.mifos.rhythm.spi.v1.client.BeatListener;
 import io.mifos.rhythm.spi.v1.domain.BeatPublish;
 import org.slf4j.Logger;
@@ -88,7 +89,7 @@ public class BeatPublisherService {
   public Optional<String> requestPermissionForBeats(final String tenantIdentifier, final String applicationName) {
     try (final AutoTenantContext ignored = new AutoTenantContext(tenantIdentifier)) {
       try (final AutoUserContext ignored2 = new AutoUserContext(properties.getUser(), "")) {
-        final String consumerPermittableGroupIdentifier = getPermittableGroupIdentifier(applicationName);
+        final String consumerPermittableGroupIdentifier = PermittableGroupIds.forApplication(applicationName);
         final Permission publishBeatPermission = new Permission();
         publishBeatPermission.setAllowedOperations(Collections.singleton(AllowedOperation.CHANGE));
         publishBeatPermission.setPermittableEndpointGroupIdentifier(consumerPermittableGroupIdentifier);
@@ -103,10 +104,6 @@ public class BeatPublisherService {
     catch (final Throwable e) {
       return Optional.empty();
     }
-  }
-
-  private static String getPermittableGroupIdentifier(final String beatConsumingApplicationName) {
-    return beatConsumingApplicationName.replace("-", "__") + "__khepri";
   }
 
   /**
