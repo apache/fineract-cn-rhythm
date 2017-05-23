@@ -18,6 +18,8 @@ dependencies {
     compile(
             [group: 'org.springframework.cloud', name: 'spring-cloud-starter-feign'],
             [group: 'io.mifos.core', name: 'api', version: versions.frameworkapi],
+            [group: 'io.mifos.core', name: 'cassandra', version: versions.frameworkcassandra],
+            [group: 'io.mifos.core', name: 'command', version: versions.frameworkcommand],
             [group: 'org.hibernate', name: 'hibernate-validator', version: versions.validator],
             [group: 'org.hibernate', name: 'hibernate-validator-annotation-processor', version: versions.validator]
     )
