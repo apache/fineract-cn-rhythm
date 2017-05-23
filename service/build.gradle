@@ -33,6 +33,7 @@ dependencies {
             [group: 'io.mifos.rhythm', name: 'api', version: project.version],
             [group: 'io.mifos.rhythm', name: 'spi', version: project.version],
             [group: 'io.mifos.anubis', name: 'library', version: versions.frameworkanubis],
+            [group: 'io.mifos.identity', name: 'api', version: versions.identity],
             [group: 'io.mifos.permitted-feign-client', name: 'library', version: versions.frameworkpermittedfeignclient],
             [group: 'com.google.code.gson', name: 'gson'],
             [group: 'io.mifos.core', name: 'lang', version: versions.frameworklang],

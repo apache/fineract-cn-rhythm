@@ -21,13 +21,13 @@ import io.mifos.rhythm.api.v1.events.BeatEvent;
 import io.mifos.rhythm.api.v1.events.EventConstants;
 import org.junit.Assert;
 import org.junit.Test;
+import org.mockito.Matchers;
 import org.mockito.Mockito;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.List;
-
-import static org.mockito.Matchers.*;
+import java.util.Optional;
 
 /**
  * @author Myrle Krantz
@@ -79,6 +79,7 @@ public class TestBeats extends AbstractRhythmTest {
 
   @Test
   public void shouldRetryBeatPublishIfFirstAttemptFails() throws InterruptedException {
+    final String tenantIdentifier = tenantDataStoreContext.getTenantName();
     final String appName = "funnybusiness-v4";
     final String beatId = "bebopthedowop";
 
@@ -90,12 +91,13 @@ public class TestBeats extends AbstractRhythmTest {
 
     final LocalDateTime expectedBeatTimestamp = getExpectedBeatTimestamp(now, beat.getAlignmentHour());
 
-    Mockito.when(beatPublisherServiceSpy.publishBeat(beatId, tenantDataStoreContext.getTenantName(), appName, expectedBeatTimestamp)).thenReturn(false, false, true);
+    Mockito.doReturn(Optional.of("boop")).when(beatPublisherServiceSpy).requestPermissionForBeats(Matchers.eq(tenantIdentifier), Matchers.eq(appName));
+    Mockito.when(beatPublisherServiceSpy.publishBeat(beatId, tenantIdentifier, appName, expectedBeatTimestamp)).thenReturn(false, false, true);
 
     this.testSubject.createBeat(appName, beat);
 
     Assert.assertTrue(this.eventRecorder.wait(EventConstants.POST_BEAT, new BeatEvent(appName, beat.getIdentifier())));
 
-    Mockito.verify(beatPublisherServiceSpy, Mockito.timeout(10_000).times(3)).publishBeat(beatId, tenantDataStoreContext.getTenantName(), appName, expectedBeatTimestamp);
+    Mockito.verify(beatPublisherServiceSpy, Mockito.timeout(10_000).times(3)).publishBeat(beatId, tenantIdentifier, appName, expectedBeatTimestamp);
   }
 }

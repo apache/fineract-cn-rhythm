@@ -20,14 +20,18 @@ import io.mifos.core.api.config.EnableApiFactory;
 import io.mifos.core.async.config.EnableAsync;
 import io.mifos.core.cassandra.config.EnableCassandra;
 import io.mifos.core.command.config.EnableCommandProcessing;
+import io.mifos.core.lang.config.EnableApplicationName;
 import io.mifos.core.lang.config.EnableServiceException;
 import io.mifos.core.lang.config.EnableTenantContext;
 import io.mifos.core.mariadb.config.EnableMariaDB;
 import io.mifos.permittedfeignclient.config.EnablePermissionRequestingFeignClient;
+import io.mifos.rhythm.service.internal.identity.ApplicationPermissionRequestCreator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
+import org.springframework.cloud.netflix.feign.EnableFeignClients;
+import org.springframework.cloud.netflix.ribbon.RibbonClient;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
@@ -52,13 +56,15 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter
 @EnableServiceException
 @EnableScheduling
 @EnableTenantContext
-@EnablePermissionRequestingFeignClient
+@EnablePermissionRequestingFeignClient(feignClasses = {ApplicationPermissionRequestCreator.class})
+@RibbonClient(name = "rhythm-v1")
+@EnableApplicationName
+@EnableFeignClients(clients = {ApplicationPermissionRequestCreator.class})
 @ComponentScan({
     "io.mifos.rhythm.service.rest",
     "io.mifos.rhythm.service.config",
     "io.mifos.rhythm.service.internal.service",
     "io.mifos.rhythm.service.internal.repository",
-    "io.mifos.rhythm.service.internal.scheduler",
     "io.mifos.rhythm.service.internal.command.handler"
 })
 @EnableJpaRepositories({
