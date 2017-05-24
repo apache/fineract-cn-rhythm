@@ -15,8 +15,11 @@
  */
 package io.mifos.rhythm.service.config;
 
+import io.mifos.core.lang.validation.constraints.ValidIdentifier;
+import org.hibernate.validator.constraints.Range;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
+import org.springframework.validation.annotation.Validated;
 
 import java.util.concurrent.TimeUnit;
 
@@ -25,8 +28,12 @@ import java.util.concurrent.TimeUnit;
  */
 @Component
 @ConfigurationProperties(prefix="rhythm")
+@Validated
 public class RhythmProperties {
+  @ValidIdentifier
   private String user;
+
+  @Range(min=0, max=3_600_000)
   private Long beatCheckRate = TimeUnit.MINUTES.toMillis(10);
 
   public RhythmProperties() {
