@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.mifos.rhythm.service;
+package io.mifos.rhythm.service.config;
 
 import io.mifos.anubis.config.EnableAnubis;
 import io.mifos.core.api.config.EnableApiFactory;
@@ -25,6 +25,7 @@ import io.mifos.core.lang.config.EnableServiceException;
 import io.mifos.core.lang.config.EnableTenantContext;
 import io.mifos.core.mariadb.config.EnableMariaDB;
 import io.mifos.permittedfeignclient.config.EnablePermissionRequestingFeignClient;
+import io.mifos.rhythm.service.ServiceConstants;
 import io.mifos.rhythm.service.internal.identity.ApplicationPermissionRequestCreator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
