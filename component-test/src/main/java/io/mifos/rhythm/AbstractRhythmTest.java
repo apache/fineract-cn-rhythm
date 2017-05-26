@@ -27,7 +27,7 @@ import io.mifos.rhythm.api.v1.client.RhythmManager;
 import io.mifos.rhythm.api.v1.domain.Beat;
 import io.mifos.rhythm.api.v1.events.BeatEvent;
 import io.mifos.rhythm.api.v1.events.EventConstants;
-import io.mifos.rhythm.service.RhythmConfiguration;
+import io.mifos.rhythm.service.config.RhythmConfiguration;
 import io.mifos.rhythm.service.internal.service.BeatPublisherService;
 import org.junit.*;
 import org.junit.rules.RuleChain;

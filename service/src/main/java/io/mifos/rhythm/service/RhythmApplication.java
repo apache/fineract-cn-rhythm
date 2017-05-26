@@ -15,6 +15,7 @@
  */
 package io.mifos.rhythm.service;
 
+import io.mifos.rhythm.service.config.RhythmConfiguration;
 import org.springframework.boot.SpringApplication;
 
 /**
