@@ -25,6 +25,6 @@ import java.util.Optional;
  */
 @Repository
 public interface ApplicationRepository extends JpaRepository<ApplicationEntity, Long> {
-  void deleteByTenantIdentifierAndApplicationName(String tenantIdentifier, String applicationName);
-  Optional<ApplicationEntity> findByTenantIdentifierAndApplicationName(String tenantIdentifier, String applicationName);
+  void deleteByTenantIdentifierAndApplicationIdentifier(String tenantIdentifier, String applicationIdentifier);
+  Optional<ApplicationEntity> findByTenantIdentifierAndApplicationIdentifier(String tenantIdentifier, String applicationIdentifier);
 }

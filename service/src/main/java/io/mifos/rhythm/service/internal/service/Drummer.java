@@ -67,7 +67,7 @@ public class Drummer {
       beats.forEach((beat) -> {
         final boolean applicationHasRequestForAccessPermission
                 = identityPermittableGroupService.checkThatApplicationHasRequestForAccessPermission(
-                beat.getTenantIdentifier(), beat.getApplicationName());
+                beat.getTenantIdentifier(), beat.getApplicationIdentifier());
         if (!applicationHasRequestForAccessPermission) {
           logger.info("Not checking if beat {} needs publishing, because application access needed to publish is not available.", beat);
         }
@@ -77,7 +77,7 @@ public class Drummer {
                   now,
                   beat.getBeatIdentifier(),
                   beat.getTenantIdentifier(),
-                  beat.getApplicationName(),
+                  beat.getApplicationIdentifier(),
                   beat.getAlignmentHour(),
                   beat.getNextBeat());
           nextBeat.ifPresent(y -> {

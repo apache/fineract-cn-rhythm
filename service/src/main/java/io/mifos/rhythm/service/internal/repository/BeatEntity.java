@@ -39,8 +39,8 @@ public class BeatEntity {
   @Column(name = "tenant_identifier", nullable = false)
   private String tenantIdentifier;
 
-  @Column(name = "application_name", nullable = false)
-  private String applicationName;
+  @Column(name = "application_identifier", nullable = false)
+  private String applicationIdentifier;
 
   @Column(name = "alignment_hour", nullable = false)
   private Integer alignmentHour;
@@ -77,12 +77,12 @@ public class BeatEntity {
     this.tenantIdentifier = tenantIdentifier;
   }
 
-  public String getApplicationName() {
-    return applicationName;
+  public String getApplicationIdentifier() {
+    return applicationIdentifier;
   }
 
-  public void setApplicationName(String applicationName) {
-    this.applicationName = applicationName;
+  public void setApplicationIdentifier(String applicationIdentifier) {
+    this.applicationIdentifier = applicationIdentifier;
   }
 
   public Integer getAlignmentHour() {
@@ -108,12 +108,12 @@ public class BeatEntity {
     BeatEntity that = (BeatEntity) o;
     return Objects.equals(beatIdentifier, that.beatIdentifier) &&
             Objects.equals(tenantIdentifier, that.tenantIdentifier) &&
-            Objects.equals(applicationName, that.applicationName);
+            Objects.equals(applicationIdentifier, that.applicationIdentifier);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(beatIdentifier, tenantIdentifier, applicationName);
+    return Objects.hash(beatIdentifier, tenantIdentifier, applicationIdentifier);
   }
 
   @Override
@@ -122,7 +122,7 @@ public class BeatEntity {
             "id=" + id +
             ", beatIdentifier='" + beatIdentifier + '\'' +
             ", tenantIdentifier='" + tenantIdentifier + '\'' +
-            ", applicationName='" + applicationName + '\'' +
+            ", applicationIdentifier='" + applicationIdentifier + '\'' +
             ", alignmentHour=" + alignmentHour +
             ", nextBeat=" + nextBeat +
             '}';

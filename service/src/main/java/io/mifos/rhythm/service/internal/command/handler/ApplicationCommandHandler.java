@@ -48,8 +48,8 @@ public class ApplicationCommandHandler {
   @CommandHandler
   @Transactional
   public void process(final DeleteApplicationCommand deleteApplicationCommand) {
-    this.applicationRepository.deleteByTenantIdentifierAndApplicationName(deleteApplicationCommand.getTenantIdentifier(), deleteApplicationCommand.getApplicationName());
-    this.beatRepository.deleteByTenantIdentifierAndApplicationName(deleteApplicationCommand.getTenantIdentifier(), deleteApplicationCommand.getApplicationName());
-    eventHelper.sendEvent(EventConstants.DELETE_APPLICATION, deleteApplicationCommand.getTenantIdentifier(), deleteApplicationCommand.getApplicationName());
+    this.applicationRepository.deleteByTenantIdentifierAndApplicationIdentifier(deleteApplicationCommand.getTenantIdentifier(), deleteApplicationCommand.getApplicationIdentifier());
+    this.beatRepository.deleteByTenantIdentifierAndApplicationIdentifier(deleteApplicationCommand.getTenantIdentifier(), deleteApplicationCommand.getApplicationIdentifier());
+    eventHelper.sendEvent(EventConstants.DELETE_APPLICATION, deleteApplicationCommand.getTenantIdentifier(), deleteApplicationCommand.getApplicationIdentifier());
   }
 }

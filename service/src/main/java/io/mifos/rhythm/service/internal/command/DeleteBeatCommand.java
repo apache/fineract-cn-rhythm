@@ -22,14 +22,14 @@ public class DeleteBeatCommand {
 
   private final String tenantIdentifier;
 
-  private final String applicationName;
+  private final String applicationIdentifier;
 
   private final String identifier;
 
-  public DeleteBeatCommand(final String tenantIdentifier, final String applicationName, final String identifier) {
+  public DeleteBeatCommand(final String tenantIdentifier, final String applicationIdentifier, final String identifier) {
     super();
     this.tenantIdentifier = tenantIdentifier;
-    this.applicationName = applicationName;
+    this.applicationIdentifier = applicationIdentifier;
     this.identifier = identifier;
   }
 
@@ -37,8 +37,8 @@ public class DeleteBeatCommand {
     return tenantIdentifier;
   }
 
-  public String getApplicationName() {
-    return this.applicationName;
+  public String getApplicationIdentifier() {
+    return this.applicationIdentifier;
   }
 
   public String getIdentifier() {

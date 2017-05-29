@@ -81,15 +81,15 @@ public class BeatPublisherService {
    * calls to identity, and therefore most be mocked in unit and component tests.
    *
    * @param tenantIdentifier The tenant identifier as provided via the tenant header when the beat was created.
-   * @param applicationName The name of the application the beat should be sent to.
+   * @param applicationIdentifier The name of the application the beat should be sent to.
    *
    * @return true if the beat was published.  false if the beat was not published, or we just don't know.
    */
   @SuppressWarnings("WeakerAccess") //Access is public for mocking in component test.
-  public Optional<String> requestPermissionForBeats(final String tenantIdentifier, final String applicationName) {
+  public Optional<String> requestPermissionForBeats(final String tenantIdentifier, final String applicationIdentifier) {
     try (final AutoTenantContext ignored = new AutoTenantContext(tenantIdentifier)) {
       try (final AutoUserContext ignored2 = new AutoUserContext(properties.getUser(), "")) {
-        final String consumerPermittableGroupIdentifier = PermittableGroupIds.forApplication(applicationName);
+        final String consumerPermittableGroupIdentifier = PermittableGroupIds.forApplication(applicationIdentifier);
         final Permission publishBeatPermission = new Permission();
         publishBeatPermission.setAllowedOperations(Collections.singleton(AllowedOperation.CHANGE));
         publishBeatPermission.setPermittableEndpointGroupIdentifier(consumerPermittableGroupIdentifier);
@@ -112,7 +112,7 @@ public class BeatPublisherService {
    *
    * @param beatIdentifier The identifier of the beat as provided when the beat was created.
    * @param tenantIdentifier The tenant identifier as provided via the tenant header when the beat was created.
-   * @param applicationName The name of the application the beat should be sent to.
+   * @param applicationIdentifier The name of the application the beat should be sent to.
    * @param timestamp The publication time for the beat.  If rhythm has been down for a while this could be in the past.
    *
    * @return true if the beat was published.  false if the beat was not published, or we just don't know.
@@ -121,12 +121,12 @@ public class BeatPublisherService {
   public boolean publishBeat(
           final String beatIdentifier,
           final String tenantIdentifier,
-          final String applicationName,
+          final String applicationIdentifier,
           final LocalDateTime timestamp) {
     final BeatPublish beatPublish = new BeatPublish(beatIdentifier, DateConverter.toIsoString(timestamp));
     logger.info("Attempting publish {} with timestamp {} under user {}.", beatPublish, timestamp, properties.getUser());
 
-    final List<ServiceInstance> applicationsByName = discoveryClient.getInstances(applicationName);
+    final List<ServiceInstance> applicationsByName = discoveryClient.getInstances(applicationIdentifier);
     if (applicationsByName.isEmpty())
       return false;
 
@@ -142,7 +142,7 @@ public class BeatPublisherService {
       catch (final Exception e) {
         logger.warn("Unable to publish beat '{}' to application '{}' for tenant '{}', " +
                 "because access token could not be acquired from identity. Exception was {}.",
-                beatIdentifier, applicationName, tenantIdentifier, e);
+                beatIdentifier, applicationIdentifier, tenantIdentifier, e);
         return false;
       }
       try (final AutoUserContext ignored2 = new AutoUserContext(properties.getUser(), accessToken)) {
@@ -152,7 +152,7 @@ public class BeatPublisherService {
     }
     catch (final Throwable e) {
       logger.warn("Unable to publish beat '{}' to application '{}' for tenant '{}', " +
-              "because exception was thrown in publish {}.", beatIdentifier, applicationName, tenantIdentifier, e);
+              "because exception was thrown in publish {}.", beatIdentifier, applicationIdentifier, tenantIdentifier, e);
       return false;
     }
   }

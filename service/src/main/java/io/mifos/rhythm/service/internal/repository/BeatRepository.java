@@ -28,8 +28,11 @@ import java.util.stream.Stream;
  */
 @Repository
 public interface BeatRepository extends JpaRepository<BeatEntity, Long> {
-  void deleteByTenantIdentifierAndApplicationName(String tenantIdentifier, String applicationName);
-  List<BeatEntity> findByTenantIdentifierAndApplicationName(String tenantIdentifier, String applicationName);
-  Optional<BeatEntity> findByTenantIdentifierAndApplicationNameAndBeatIdentifier(String tenantIdentifier, String applicationName, String identifier);
+  void deleteByTenantIdentifierAndApplicationIdentifier
+          (String tenantIdentifier, String applicationIdentifier);
+  List<BeatEntity> findByTenantIdentifierAndApplicationIdentifier
+          (String tenantIdentifier, String applicationIdentifier);
+  Optional<BeatEntity> findByTenantIdentifierAndApplicationIdentifierAndBeatIdentifier
+          (String tenantIdentifier, String applicationIdentifier, String beatIdentifier);
   Stream<BeatEntity> findByNextBeatBefore(LocalDateTime currentTime);
 }

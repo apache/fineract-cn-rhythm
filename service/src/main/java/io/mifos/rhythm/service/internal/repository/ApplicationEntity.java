@@ -33,8 +33,8 @@ public class ApplicationEntity {
   @Column(name = "tenant_identifier", nullable = false)
   private String tenantIdentifier;
 
-  @Column(name = "application_name", nullable = false)
-  private String applicationName;
+  @Column(name = "application_identifier", nullable = false)
+  private String applicationIdentifier;
 
   @Column(name = "permittable_identifier")
   private String consumerPermittableGroupIdentifier;
@@ -42,9 +42,9 @@ public class ApplicationEntity {
   public ApplicationEntity() {
   }
 
-  public ApplicationEntity(String tenantIdentifier, String applicationName, String consumerPermittableGroupIdentifier) {
+  public ApplicationEntity(String tenantIdentifier, String applicationIdentifier, String consumerPermittableGroupIdentifier) {
     this.tenantIdentifier = tenantIdentifier;
-    this.applicationName = applicationName;
+    this.applicationIdentifier = applicationIdentifier;
     this.consumerPermittableGroupIdentifier = consumerPermittableGroupIdentifier;
   }
 
@@ -64,12 +64,12 @@ public class ApplicationEntity {
     this.tenantIdentifier = tenantIdentifier;
   }
 
-  public String getApplicationName() {
-    return applicationName;
+  public String getApplicationIdentifier() {
+    return applicationIdentifier;
   }
 
-  public void setApplicationName(String applicationName) {
-    this.applicationName = applicationName;
+  public void setApplicationIdentifier(String applicationIdentifier) {
+    this.applicationIdentifier = applicationIdentifier;
   }
 
   public String getConsumerPermittableGroupIdentifier() {
@@ -86,12 +86,12 @@ public class ApplicationEntity {
     if (o == null || getClass() != o.getClass()) return false;
     ApplicationEntity that = (ApplicationEntity) o;
     return Objects.equals(tenantIdentifier, that.tenantIdentifier) &&
-            Objects.equals(applicationName, that.applicationName);
+            Objects.equals(applicationIdentifier, that.applicationIdentifier);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(tenantIdentifier, applicationName);
+    return Objects.hash(tenantIdentifier, applicationIdentifier);
   }
 
   @Override
@@ -99,7 +99,7 @@ public class ApplicationEntity {
     return "ApplicationEntity{" +
             "id=" + id +
             ", tenantIdentifier='" + tenantIdentifier + '\'' +
-            ", applicationName='" + applicationName + '\'' +
+            ", applicationIdentifier='" + applicationIdentifier + '\'' +
             ", consumerPermittableGroupIdentifier='" + consumerPermittableGroupIdentifier + '\'' +
             '}';
   }

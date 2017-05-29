@@ -33,44 +33,44 @@ import java.util.List;
 public interface RhythmManager {
 
   @RequestMapping(
-          value = "/applications/{applicationname}",
+          value = "/applications/{applicationidentifier}",
           method = RequestMethod.DELETE,
           produces = MediaType.ALL_VALUE,
           consumes = MediaType.ALL_VALUE
   )
-  void deleteApplication(@PathVariable("applicationname") final String applicationName);
+  void deleteApplication(@PathVariable("applicationidentifier") final String applicationIdentifier);
 
   @RequestMapping(
-          value = "/applications/{applicationname}/beats",
+          value = "/applications/{applicationidentifier}/beats",
           method = RequestMethod.GET,
           produces = MediaType.ALL_VALUE,
           consumes = MediaType.APPLICATION_JSON_VALUE
   )
-  List<Beat> getAllBeatsForApplication(@PathVariable("applicationname") final String applicationName);
+  List<Beat> getAllBeatsForApplication(@PathVariable("applicationidentifier") final String applicationIdentifier);
 
   @RequestMapping(
-          value = "/applications/{applicationname}/beats",
+          value = "/applications/{applicationidentifier}/beats",
           method = RequestMethod.POST,
           produces = MediaType.APPLICATION_JSON_VALUE,
           consumes = MediaType.APPLICATION_JSON_VALUE
   )
-  void createBeat(@PathVariable("applicationname") final String applicationName, final Beat beat);
+  void createBeat(@PathVariable("applicationidentifier") final String applicationIdentifier, final Beat beat);
 
   @RequestMapping(
-          value = "/applications/{applicationname}/beats/{beatidentifier}",
+          value = "/applications/{applicationidentifier}/beats/{beatidentifier}",
           method = RequestMethod.GET,
           produces = MediaType.APPLICATION_JSON_VALUE,
           consumes = MediaType.APPLICATION_JSON_VALUE
   )
   Beat getBeat(
-          @PathVariable("applicationname") final String applicationName,
+          @PathVariable("applicationidentifier") final String applicationName,
           @PathVariable("beatidentifier") final String beatIdentifier);
 
   @RequestMapping(
-          value = "/applications/{applicationname}/beats/{beatidentifier}",
+          value = "/applications/{applicationidentifier}/beats/{beatidentifier}",
           method = RequestMethod.DELETE,
           produces = MediaType.ALL_VALUE,
           consumes = MediaType.ALL_VALUE
   )
-  void deleteBeat(@PathVariable("applicationname") final String applicationName, @PathVariable("beatidentifier") final String beatIdentifier);
+  void deleteBeat(@PathVariable("applicationidentifier") final String applicationIdentifier, @PathVariable("beatidentifier") final String beatIdentifier);
 }

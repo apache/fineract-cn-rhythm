@@ -62,37 +62,37 @@ public class BeatCommandHandler {
   @Transactional
   public void process(final CreateBeatCommand createBeatCommand) {
     final boolean applicationHasRequestForAccessPermission = identityPermittableGroupService.checkThatApplicationHasRequestForAccessPermission(
-            createBeatCommand.getTenantIdentifier(), createBeatCommand.getApplicationName());
+            createBeatCommand.getTenantIdentifier(), createBeatCommand.getApplicationIdentifier());
     if (!applicationHasRequestForAccessPermission) {
       logger.warn("Rhythm needs permission to publish beats to application, but couldn't request that permission for tenant '{}' and application '{}'.",
-              createBeatCommand.getApplicationName(), createBeatCommand.getTenantIdentifier());
+              createBeatCommand.getApplicationIdentifier(), createBeatCommand.getTenantIdentifier());
     }
 
     final BeatEntity entity = BeatMapper.map(
             createBeatCommand.getTenantIdentifier(),
-            createBeatCommand.getApplicationName(),
+            createBeatCommand.getApplicationIdentifier(),
             createBeatCommand.getInstance());
     this.beatRepository.save(entity);
 
     eventHelper.sendEvent(EventConstants.POST_BEAT, createBeatCommand.getTenantIdentifier(),
-            new BeatEvent(createBeatCommand.getApplicationName(), createBeatCommand.getInstance().getIdentifier()));
+            new BeatEvent(createBeatCommand.getApplicationIdentifier(), createBeatCommand.getInstance().getIdentifier()));
   }
 
   @CommandHandler
   @Transactional
   public void process(final DeleteBeatCommand deleteBeatCommand) {
-    final Optional<BeatEntity> toDelete = this.beatRepository.findByTenantIdentifierAndApplicationNameAndBeatIdentifier(
+    final Optional<BeatEntity> toDelete = this.beatRepository.findByTenantIdentifierAndApplicationIdentifierAndBeatIdentifier(
             deleteBeatCommand.getTenantIdentifier(),
-            deleteBeatCommand.getApplicationName(),
+            deleteBeatCommand.getApplicationIdentifier(),
             deleteBeatCommand.getIdentifier());
     final BeatEntity toDeleteForReal
             = toDelete.orElseThrow(() -> ServiceException.notFound(
-                    "Beat with for the application " + deleteBeatCommand.getApplicationName() +
+                    "Beat with for the application " + deleteBeatCommand.getApplicationIdentifier() +
                             ", and the identifier " + deleteBeatCommand.getIdentifier() + " not found."));
 
     this.beatRepository.delete(toDeleteForReal);
 
     eventHelper.sendEvent(EventConstants.DELETE_BEAT, deleteBeatCommand.getTenantIdentifier(),
-            new BeatEvent(deleteBeatCommand.getApplicationName(), deleteBeatCommand.getIdentifier()));
+            new BeatEvent(deleteBeatCommand.getApplicationIdentifier(), deleteBeatCommand.getIdentifier()));
   }
 }

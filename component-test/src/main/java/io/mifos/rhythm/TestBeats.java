@@ -36,30 +36,30 @@ public class TestBeats extends AbstractRhythmTest {
 
   @Test
   public void shouldCreateBeat() throws InterruptedException {
-    final String appName = "funnybusiness-v1";
-    final Beat beat = createBeat(appName, "bebopthedowop");
+    final String applicationIdentifier = "funnybusiness-v1";
+    final Beat beat = createBeat(applicationIdentifier, "bebopthedowop");
 
-    final Beat createdBeat = this.testSubject.getBeat(appName, beat.getIdentifier());
+    final Beat createdBeat = this.testSubject.getBeat(applicationIdentifier, beat.getIdentifier());
     Assert.assertEquals(beat, createdBeat);
 
-    final List<Beat> allEntities = this.testSubject.getAllBeatsForApplication(appName);
+    final List<Beat> allEntities = this.testSubject.getAllBeatsForApplication(applicationIdentifier);
     Assert.assertTrue(allEntities.contains(beat));
   }
 
   @Test
   public void shouldDeleteBeat() throws InterruptedException {
-    final String appName = "funnybusiness-v2";
+    final String applicationIdentifier = "funnybusiness-v2";
 
-    final Beat beat = createBeat(appName, "bebopthedowop");
+    final Beat beat = createBeat(applicationIdentifier, "bebopthedowop");
 
-    testSubject.deleteBeat(appName, beat.getIdentifier());
-    Assert.assertTrue(this.eventRecorder.wait(EventConstants.DELETE_BEAT, new BeatEvent(appName, beat.getIdentifier())));
+    testSubject.deleteBeat(applicationIdentifier, beat.getIdentifier());
+    Assert.assertTrue(this.eventRecorder.wait(EventConstants.DELETE_BEAT, new BeatEvent(applicationIdentifier, beat.getIdentifier())));
 
-    final List<Beat> allEntities = this.testSubject.getAllBeatsForApplication(appName);
+    final List<Beat> allEntities = this.testSubject.getAllBeatsForApplication(applicationIdentifier);
     Assert.assertFalse(allEntities.contains(beat));
 
     try {
-      this.testSubject.getBeat(appName, beat.getIdentifier());
+      this.testSubject.getBeat(applicationIdentifier, beat.getIdentifier());
       Assert.fail("NotFoundException should be thrown.");
     }
     catch (final NotFoundException ignored) { }
@@ -67,20 +67,20 @@ public class TestBeats extends AbstractRhythmTest {
 
   @Test
   public void shouldDeleteApplication() throws InterruptedException {
-    final String appName = "funnybusiness-v3";
-    createBeat(appName, "bebopthedowop");
+    final String applicationIdentifier = "funnybusiness-v3";
+    createBeat(applicationIdentifier, "bebopthedowop");
 
-    this.testSubject.deleteApplication(appName);
-    Assert.assertTrue(this.eventRecorder.wait(EventConstants.DELETE_APPLICATION, appName));
+    this.testSubject.deleteApplication(applicationIdentifier);
+    Assert.assertTrue(this.eventRecorder.wait(EventConstants.DELETE_APPLICATION, applicationIdentifier));
 
-    final List<Beat> allEntities = this.testSubject.getAllBeatsForApplication(appName);
+    final List<Beat> allEntities = this.testSubject.getAllBeatsForApplication(applicationIdentifier);
     Assert.assertTrue(allEntities.isEmpty());
   }
 
   @Test
   public void shouldRetryBeatPublishIfFirstAttemptFails() throws InterruptedException {
     final String tenantIdentifier = tenantDataStoreContext.getTenantName();
-    final String appName = "funnybusiness-v4";
+    final String applicationIdentifier = "funnybusiness-v4";
     final String beatId = "bebopthedowop";
 
     final LocalDateTime now = LocalDateTime.now(ZoneId.of("UTC"));
@@ -91,13 +91,13 @@ public class TestBeats extends AbstractRhythmTest {
 
     final LocalDateTime expectedBeatTimestamp = getExpectedBeatTimestamp(now, beat.getAlignmentHour());
 
-    Mockito.doReturn(Optional.of("boop")).when(beatPublisherServiceSpy).requestPermissionForBeats(Matchers.eq(tenantIdentifier), Matchers.eq(appName));
-    Mockito.when(beatPublisherServiceSpy.publishBeat(beatId, tenantIdentifier, appName, expectedBeatTimestamp)).thenReturn(false, false, true);
+    Mockito.doReturn(Optional.of("boop")).when(beatPublisherServiceSpy).requestPermissionForBeats(Matchers.eq(tenantIdentifier), Matchers.eq(applicationIdentifier));
+    Mockito.when(beatPublisherServiceSpy.publishBeat(beatId, tenantIdentifier, applicationIdentifier, expectedBeatTimestamp)).thenReturn(false, false, true);
 
-    this.testSubject.createBeat(appName, beat);
+    this.testSubject.createBeat(applicationIdentifier, beat);
 
-    Assert.assertTrue(this.eventRecorder.wait(EventConstants.POST_BEAT, new BeatEvent(appName, beat.getIdentifier())));
+    Assert.assertTrue(this.eventRecorder.wait(EventConstants.POST_BEAT, new BeatEvent(applicationIdentifier, beat.getIdentifier())));
 
-    Mockito.verify(beatPublisherServiceSpy, Mockito.timeout(10_000).times(3)).publishBeat(beatId, tenantIdentifier, appName, expectedBeatTimestamp);
+    Mockito.verify(beatPublisherServiceSpy, Mockito.timeout(10_000).times(3)).publishBeat(beatId, tenantIdentifier, applicationIdentifier, expectedBeatTimestamp);
   }
 }
