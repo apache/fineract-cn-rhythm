@@ -67,7 +67,7 @@ public class Drummer {
       beats.forEach((beat) -> {
         final boolean applicationHasRequestForAccessPermission
                 = identityPermittableGroupService.checkThatApplicationHasRequestForAccessPermission(
-                beat.getTenantIdentifier(), beat.getApplicationName());
+                beat.getTenantIdentifier(), beat.getApplicationIdentifier());
         if (!applicationHasRequestForAccessPermission) {
           logger.info("Not checking if beat {} needs publishing, because application access needed to publish is not available.", beat);
         }
@@ -77,7 +77,7 @@ public class Drummer {
                   now,
                   beat.getBeatIdentifier(),
                   beat.getTenantIdentifier(),
-                  beat.getApplicationName(),
+                  beat.getApplicationIdentifier(),
                   beat.getAlignmentHour(),
                   beat.getNextBeat());
           nextBeat.ifPresent(y -> {
@@ -98,11 +98,11 @@ public class Drummer {
           final LocalDateTime now,
           final String beatIdentifier,
           final String tenantIdentifier,
-          final String applicationName,
+          final String applicationIdentifier,
           final Integer alignmentHour,
           final LocalDateTime nextBeat) {
     return checkBeatForPublishHelper(now, alignmentHour, nextBeat,
-            x -> beatPublisherService.publishBeat(beatIdentifier, tenantIdentifier, applicationName, x));
+            x -> beatPublisherService.publishBeat(beatIdentifier, tenantIdentifier, applicationIdentifier, x));
   }
 
   //Helper is separated from original function so that it can be unit-tested separately from publishBeat.

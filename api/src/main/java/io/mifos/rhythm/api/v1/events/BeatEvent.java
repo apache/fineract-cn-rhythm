@@ -22,23 +22,23 @@ import java.util.Objects;
  */
 @SuppressWarnings({"WeakerAccess", "unused"})
 public class BeatEvent {
-  private String applicationName;
+  private String applicationIdentifier;
   private String beatIdentifier;
 
   public BeatEvent() {
   }
 
-  public BeatEvent(String applicationName, String beatIdentifier) {
-    this.applicationName = applicationName;
+  public BeatEvent(String applicationIdentifier, String beatIdentifier) {
+    this.applicationIdentifier = applicationIdentifier;
     this.beatIdentifier = beatIdentifier;
   }
 
-  public String getApplicationName() {
-    return applicationName;
+  public String getApplicationIdentifier() {
+    return applicationIdentifier;
   }
 
-  public void setApplicationName(String applicationName) {
-    this.applicationName = applicationName;
+  public void setApplicationIdentifier(String applicationIdentifier) {
+    this.applicationIdentifier = applicationIdentifier;
   }
 
   public String getBeatIdentifier() {
@@ -54,19 +54,19 @@ public class BeatEvent {
     if (this == o) return true;
     if (o == null || getClass() != o.getClass()) return false;
     BeatEvent beatEvent = (BeatEvent) o;
-    return Objects.equals(applicationName, beatEvent.applicationName) &&
+    return Objects.equals(applicationIdentifier, beatEvent.applicationIdentifier) &&
             Objects.equals(beatIdentifier, beatEvent.beatIdentifier);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(applicationName, beatIdentifier);
+    return Objects.hash(applicationIdentifier, beatIdentifier);
   }
 
   @Override
   public String toString() {
     return "BeatEvent{" +
-            "applicationName='" + applicationName + '\'' +
+            "applicationIdentifier='" + applicationIdentifier + '\'' +
             ", beatIdentifier='" + beatIdentifier + '\'' +
             '}';
   }

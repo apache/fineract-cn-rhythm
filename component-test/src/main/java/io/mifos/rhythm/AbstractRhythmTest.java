@@ -39,6 +39,7 @@ import org.mockito.Mockito;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.cloud.netflix.feign.EnableFeignClients;
@@ -49,6 +50,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import java.security.interfaces.RSAPrivateKey;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
@@ -65,6 +67,7 @@ import java.util.Optional;
 public class AbstractRhythmTest {
 
   private static final String APP_NAME = "rhythm-v1";
+  private static final String LOGGER_NAME = "test-logger";
 
   @Configuration
   @EnableEventRecording
@@ -77,9 +80,9 @@ public class AbstractRhythmTest {
       super();
     }
 
-    @Bean()
+    @Bean(name = LOGGER_NAME)
     public Logger logger() {
-      return LoggerFactory.getLogger("test-logger");
+      return LoggerFactory.getLogger(LOGGER_NAME);
     }
   }
   private static final String TEST_USER = "homer";
@@ -111,9 +114,15 @@ public class AbstractRhythmTest {
   @MockBean
   BeatPublisherService beatPublisherServiceSpy;
 
+  @Autowired
+  @Qualifier(LOGGER_NAME)
+  Logger logger;
+
   @Before
   public void prepTest() {
     userContext = tenantApplicationSecurityEnvironment.createAutoUserContext(TEST_USER);
+    final RSAPrivateKey tenantPrivateKey = tenantApplicationSecurityEnvironment.getSystemSecurityEnvironment().tenantPrivateKey();
+    logger.info("tenantPrivateKey = {}", tenantPrivateKey);
   }
 
   @After
@@ -130,7 +139,7 @@ public class AbstractRhythmTest {
     }
   }
 
-  Beat createBeat(final String applicationName, final String beatIdentifier) throws InterruptedException {
+  Beat createBeat(final String applicationIdentifier, final String beatIdentifier) throws InterruptedException {
     final String tenantIdentifier = tenantDataStoreContext.getTenantName();
     final LocalDateTime now = LocalDateTime.now(ZoneId.of("UTC"));
 
@@ -139,16 +148,16 @@ public class AbstractRhythmTest {
     beat.setAlignmentHour(now.getHour());
 
     final LocalDateTime expectedBeatTimestamp = getExpectedBeatTimestamp(now, beat.getAlignmentHour());
-    Mockito.doReturn(Optional.of("boop")).when(beatPublisherServiceSpy).requestPermissionForBeats(Matchers.eq(tenantIdentifier), Matchers.eq(applicationName));
-    Mockito.doReturn(true).when(beatPublisherServiceSpy).publishBeat(Matchers.eq(beatIdentifier), Matchers.eq(tenantIdentifier), Matchers.eq(applicationName),
+    Mockito.doReturn(Optional.of("boop")).when(beatPublisherServiceSpy).requestPermissionForBeats(Matchers.eq(tenantIdentifier), Matchers.eq(applicationIdentifier));
+    Mockito.doReturn(true).when(beatPublisherServiceSpy).publishBeat(Matchers.eq(beatIdentifier), Matchers.eq(tenantIdentifier), Matchers.eq(applicationIdentifier),
             AdditionalMatchers.or(Matchers.eq(expectedBeatTimestamp), Matchers.eq(getNextTimeStamp(expectedBeatTimestamp))));
 
-    this.testSubject.createBeat(applicationName, beat);
+    this.testSubject.createBeat(applicationIdentifier, beat);
 
-    Assert.assertTrue(this.eventRecorder.wait(EventConstants.POST_BEAT, new BeatEvent(applicationName, beat.getIdentifier())));
+    Assert.assertTrue(this.eventRecorder.wait(EventConstants.POST_BEAT, new BeatEvent(applicationIdentifier, beat.getIdentifier())));
 
-    Mockito.verify(beatPublisherServiceSpy, Mockito.timeout(2_000).times(1)).requestPermissionForBeats(tenantIdentifier, applicationName);
-    Mockito.verify(beatPublisherServiceSpy, Mockito.timeout(2_000).times(1)).publishBeat(beatIdentifier, tenantDataStoreContext.getTenantName(), applicationName, expectedBeatTimestamp);
+    Mockito.verify(beatPublisherServiceSpy, Mockito.timeout(2_000).times(1)).requestPermissionForBeats(tenantIdentifier, applicationIdentifier);
+    Mockito.verify(beatPublisherServiceSpy, Mockito.timeout(2_000).times(1)).publishBeat(beatIdentifier, tenantDataStoreContext.getTenantName(), applicationIdentifier, expectedBeatTimestamp);
 
     return beat;
   }

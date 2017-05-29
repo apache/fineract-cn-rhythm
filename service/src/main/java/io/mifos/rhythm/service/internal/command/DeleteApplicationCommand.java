@@ -21,19 +21,19 @@ package io.mifos.rhythm.service.internal.command;
 public class DeleteApplicationCommand {
 
   private final String tenantIdentifier;
-  private final String applicationName;
+  private final String applicationIdentifier;
 
-  public DeleteApplicationCommand(String tenantIdentifier, final String applicationName) {
+  public DeleteApplicationCommand(String tenantIdentifier, final String applicationIdentifier) {
     super();
     this.tenantIdentifier = tenantIdentifier;
-    this.applicationName = applicationName;
+    this.applicationIdentifier = applicationIdentifier;
   }
 
   public String getTenantIdentifier() {
     return tenantIdentifier;
   }
 
-  public String getApplicationName() {
-    return this.applicationName;
+  public String getApplicationIdentifier() {
+    return this.applicationIdentifier;
   }
 }

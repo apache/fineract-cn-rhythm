@@ -23,14 +23,14 @@ import io.mifos.rhythm.api.v1.domain.Beat;
 public class CreateBeatCommand {
   private final String tenantIdentifier;
 
-  private final String applicationName;
+  private final String applicationIdentifier;
 
   private final Beat instance;
 
-  public CreateBeatCommand(final String tenantIdentifier, final String applicationName, final Beat instance) {
+  public CreateBeatCommand(final String tenantIdentifier, final String applicationIdentifier, final Beat instance) {
     super();
     this.tenantIdentifier = tenantIdentifier;
-    this.applicationName = applicationName;
+    this.applicationIdentifier = applicationIdentifier;
     this.instance = instance;
   }
 
@@ -38,8 +38,8 @@ public class CreateBeatCommand {
     return tenantIdentifier;
   }
 
-  public String getApplicationName() {
-    return applicationName;
+  public String getApplicationIdentifier() {
+    return applicationIdentifier;
   }
 
   public Beat getInstance() {

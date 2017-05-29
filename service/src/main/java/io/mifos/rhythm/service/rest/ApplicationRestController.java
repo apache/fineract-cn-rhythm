@@ -44,7 +44,7 @@ public class ApplicationRestController {
 
   @Permittable(value = AcceptedTokenType.SYSTEM)
   @RequestMapping(
-          value = "/{applicationname}",
+          value = "/{applicationidentifier}",
           method = RequestMethod.DELETE,
           consumes = MediaType.ALL_VALUE,
           produces = MediaType.ALL_VALUE
@@ -53,8 +53,8 @@ public class ApplicationRestController {
   @ResponseBody
   ResponseEntity<Void> deleteApplication(
           @RequestHeader(TENANT_HEADER) final String tenantIdentifier,
-          @PathVariable("applicationname") final String applicationName) throws InterruptedException {
-    this.commandGateway.process(new DeleteApplicationCommand(tenantIdentifier, applicationName));
+          @PathVariable("applicationidentifier") final String applicationIdentifier) throws InterruptedException {
+    this.commandGateway.process(new DeleteApplicationCommand(tenantIdentifier, applicationIdentifier));
     return ResponseEntity.accepted().build();
   }
 }

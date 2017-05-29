@@ -38,7 +38,7 @@ import static io.mifos.core.lang.config.TenantHeaderFilter.TENANT_HEADER;
  */
 @SuppressWarnings("unused")
 @RestController
-@RequestMapping("/applications/{applicationname}/beats")
+@RequestMapping("/applications/{applicationidentifier}/beats")
 public class BeatRestController {
 
   private final CommandGateway commandGateway;
@@ -62,8 +62,8 @@ public class BeatRestController {
   @ResponseBody
   List<Beat> getAllBeatsForApplication(
           @RequestHeader(TENANT_HEADER) final String tenantIdentifier,
-          @PathVariable("applicationname") final String applicationName) {
-    return this.beatService.findAllEntities(tenantIdentifier, applicationName);
+          @PathVariable("applicationidentifier") final String applicationIdentifier) {
+    return this.beatService.findAllEntities(tenantIdentifier, applicationIdentifier);
   }
 
   @Permittable(value = AcceptedTokenType.SYSTEM)
@@ -77,14 +77,14 @@ public class BeatRestController {
   @ResponseBody
   ResponseEntity<Beat> getBeat(
           @RequestHeader(TENANT_HEADER) final String tenantIdentifier,
-          @PathVariable("applicationname") final String applicationName,
+          @PathVariable("applicationidentifier") final String applicationIdentifier,
           @PathVariable("beatidentifier") final String beatIdentifier) {
-    return this.beatService.findByIdentifier(tenantIdentifier, applicationName, beatIdentifier)
+    return this.beatService.findByIdentifier(tenantIdentifier, applicationIdentifier, beatIdentifier)
             .map(ResponseEntity::ok)
-            .orElseThrow(() -> ServiceException.notFound("Instance with identifier " + applicationName + " doesn't exist."));
+            .orElseThrow(() -> ServiceException.notFound("Instance with identifier " + applicationIdentifier + " doesn't exist."));
   }
 
-  @Permittable(value = AcceptedTokenType.SYSTEM)
+  @Permittable(value = AcceptedTokenType.SYSTEM, acceptTokenIntendedForForeignApplication = true) //Allow apps to use this endpoint in their provisioning code.
   @RequestMapping(
           method = RequestMethod.POST,
           consumes = MediaType.APPLICATION_JSON_VALUE,
@@ -94,9 +94,9 @@ public class BeatRestController {
   @ResponseBody
   ResponseEntity<Void> createBeat(
           @RequestHeader(TENANT_HEADER) final String tenantIdentifier,
-          @PathVariable("applicationname") final String applicationName,
+          @PathVariable("applicationidentifier") final String applicationIdentifier,
           @RequestBody @Valid final Beat instance) throws InterruptedException {
-    this.commandGateway.process(new CreateBeatCommand(tenantIdentifier, applicationName, instance));
+    this.commandGateway.process(new CreateBeatCommand(tenantIdentifier, applicationIdentifier, instance));
     return ResponseEntity.accepted().build();
   }
 
@@ -111,9 +111,9 @@ public class BeatRestController {
   @ResponseBody
   ResponseEntity<Void> deleteBeat(
           @RequestHeader(TENANT_HEADER) final String tenantIdentifier,
-          @PathVariable("applicationname") final String applicationName,
+          @PathVariable("applicationidentifier") final String applicationIdentifier,
           @PathVariable("beatidentifier") final String beatIdentifier) throws InterruptedException {
-    this.commandGateway.process(new DeleteBeatCommand(tenantIdentifier, applicationName, beatIdentifier));
+    this.commandGateway.process(new DeleteBeatCommand(tenantIdentifier, applicationIdentifier, beatIdentifier));
     return ResponseEntity.accepted().build();
   }
 }

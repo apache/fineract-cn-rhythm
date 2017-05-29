@@ -42,19 +42,19 @@ public class IdentityPermittableGroupService {
   @Transactional
   public boolean checkThatApplicationHasRequestForAccessPermission(
           final String tenantIdentifier,
-          final String applicationName) {
-    final Optional<ApplicationEntity> findApplication = applicationRepository.findByTenantIdentifierAndApplicationName(
+          final String applicationIdentifier) {
+    final Optional<ApplicationEntity> findApplication = applicationRepository.findByTenantIdentifierAndApplicationIdentifier(
             tenantIdentifier,
-            applicationName);
+            applicationIdentifier);
     if (findApplication.isPresent())
       return true;
     else {
-      final Optional<String> ret = beatPublisherService.requestPermissionForBeats(tenantIdentifier, applicationName);
+      final Optional<String> ret = beatPublisherService.requestPermissionForBeats(tenantIdentifier, applicationIdentifier);
 
       ret.ifPresent(x -> {
         final ApplicationEntity saveApplication = new ApplicationEntity();
         saveApplication.setTenantIdentifier(tenantIdentifier);
-        saveApplication.setApplicationName(applicationName);
+        saveApplication.setApplicationIdentifier(applicationIdentifier);
         saveApplication.setConsumerPermittableGroupIdentifier(x);
         applicationRepository.save(saveApplication);
       });
