@@ -42,11 +42,11 @@ public interface BeatMapper {
     return ret;
   }
 
-  static BeatEntity map(final String tenantIdentifier, final String applicationName, final Beat instance) {
+  static BeatEntity map(final String tenantIdentifier, final String applicationIdentifier, final Beat instance) {
     final BeatEntity ret = new BeatEntity();
     ret.setBeatIdentifier(instance.getIdentifier());
     ret.setTenantIdentifier(tenantIdentifier);
-    ret.setApplicationIdentifier(applicationName);
+    ret.setApplicationIdentifier(applicationIdentifier);
     ret.setAlignmentHour(instance.getAlignmentHour());
     //First beat is today.  If it's in the past, it will be created nearly immediately.
     ret.setNextBeat(LocalDateTime.now(ZoneId.of("UTC")).truncatedTo(ChronoUnit.DAYS).plusHours(instance.getAlignmentHour()));

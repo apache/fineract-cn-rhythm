@@ -22,25 +22,25 @@ import java.util.Objects;
  */
 @SuppressWarnings({"WeakerAccess", "unused"})
 public class BeatPublishEvent {
-  String applicationName;
+  String applicationIdentifier;
   String beatIdentifier;
   String forTime;
 
   public BeatPublishEvent() {
   }
 
-  public BeatPublishEvent(String applicationName, String beatIdentifier, String forTime) {
-    this.applicationName = applicationName;
+  public BeatPublishEvent(String applicationIdentifier, String beatIdentifier, String forTime) {
+    this.applicationIdentifier = applicationIdentifier;
     this.beatIdentifier = beatIdentifier;
     this.forTime = forTime;
   }
 
-  public String getApplicationName() {
-    return applicationName;
+  public String getApplicationIdentifier() {
+    return applicationIdentifier;
   }
 
-  public void setApplicationName(String applicationName) {
-    this.applicationName = applicationName;
+  public void setApplicationIdentifier(String applicationIdentifier) {
+    this.applicationIdentifier = applicationIdentifier;
   }
 
   public String getBeatIdentifier() {
@@ -64,20 +64,20 @@ public class BeatPublishEvent {
     if (this == o) return true;
     if (o == null || getClass() != o.getClass()) return false;
     BeatPublishEvent that = (BeatPublishEvent) o;
-    return Objects.equals(applicationName, that.applicationName) &&
+    return Objects.equals(applicationIdentifier, that.applicationIdentifier) &&
             Objects.equals(beatIdentifier, that.beatIdentifier) &&
             Objects.equals(forTime, that.forTime);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(applicationName, beatIdentifier, forTime);
+    return Objects.hash(applicationIdentifier, beatIdentifier, forTime);
   }
 
   @Override
   public String toString() {
     return "BeatPublishEvent{" +
-            "applicationName='" + applicationName + '\'' +
+            "applicationIdentifier='" + applicationIdentifier + '\'' +
             ", beatIdentifier='" + beatIdentifier + '\'' +
             ", forTime='" + forTime + '\'' +
             '}';

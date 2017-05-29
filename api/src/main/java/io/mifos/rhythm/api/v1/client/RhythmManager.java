@@ -63,7 +63,7 @@ public interface RhythmManager {
           consumes = MediaType.APPLICATION_JSON_VALUE
   )
   Beat getBeat(
-          @PathVariable("applicationidentifier") final String applicationName,
+          @PathVariable("applicationidentifier") final String applicationIdentifier,
           @PathVariable("beatidentifier") final String beatIdentifier);
 
   @RequestMapping(
