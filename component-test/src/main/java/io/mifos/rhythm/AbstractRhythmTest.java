@@ -88,9 +88,9 @@ public class AbstractRhythmTest {
   private static final String TEST_USER = "homer";
 
   private final static TestEnvironment testEnvironment = new TestEnvironment(APP_NAME);
-  private final static CassandraInitializer cassandraInitializer = new CassandraInitializer(true);
-  private final static MariaDBInitializer mariaDBInitializer = new MariaDBInitializer(true);
-  final static TenantDataStoreContextTestRule tenantDataStoreContext = TenantDataStoreContextTestRule.forDefinedTenantName("cleopatraDefined2", cassandraInitializer, mariaDBInitializer);
+  private final static CassandraInitializer cassandraInitializer = new CassandraInitializer();
+  private final static MariaDBInitializer mariaDBInitializer = new MariaDBInitializer();
+  final static TenantDataStoreContextTestRule tenantDataStoreContext = TenantDataStoreContextTestRule.forRandomTenantName(cassandraInitializer, mariaDBInitializer);
 
   @ClassRule
   public static TestRule orderClassRules = RuleChain
