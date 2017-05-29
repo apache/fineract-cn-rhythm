@@ -39,6 +39,7 @@ import org.mockito.Mockito;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.cloud.netflix.feign.EnableFeignClients;
@@ -49,6 +50,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import java.security.interfaces.RSAPrivateKey;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
@@ -65,6 +67,7 @@ import java.util.Optional;
 public class AbstractRhythmTest {
 
   private static final String APP_NAME = "rhythm-v1";
+  private static final String LOGGER_NAME = "test-logger";
 
   @Configuration
   @EnableEventRecording
@@ -77,17 +80,17 @@ public class AbstractRhythmTest {
       super();
     }
 
-    @Bean()
+    @Bean(name = LOGGER_NAME)
     public Logger logger() {
-      return LoggerFactory.getLogger("test-logger");
+      return LoggerFactory.getLogger(LOGGER_NAME);
     }
   }
   private static final String TEST_USER = "homer";
 
   private final static TestEnvironment testEnvironment = new TestEnvironment(APP_NAME);
-  private final static CassandraInitializer cassandraInitializer = new CassandraInitializer();
-  private final static MariaDBInitializer mariaDBInitializer = new MariaDBInitializer();
-  final static TenantDataStoreContextTestRule tenantDataStoreContext = TenantDataStoreContextTestRule.forRandomTenantName(cassandraInitializer, mariaDBInitializer);
+  private final static CassandraInitializer cassandraInitializer = new CassandraInitializer(true);
+  private final static MariaDBInitializer mariaDBInitializer = new MariaDBInitializer(true);
+  final static TenantDataStoreContextTestRule tenantDataStoreContext = TenantDataStoreContextTestRule.forDefinedTenantName("cleopatraDefined2", cassandraInitializer, mariaDBInitializer);
 
   @ClassRule
   public static TestRule orderClassRules = RuleChain
@@ -111,9 +114,15 @@ public class AbstractRhythmTest {
   @MockBean
   BeatPublisherService beatPublisherServiceSpy;
 
+  @Autowired
+  @Qualifier(LOGGER_NAME)
+  Logger logger;
+
   @Before
   public void prepTest() {
     userContext = tenantApplicationSecurityEnvironment.createAutoUserContext(TEST_USER);
+    final RSAPrivateKey tenantPrivateKey = tenantApplicationSecurityEnvironment.getSystemSecurityEnvironment().tenantPrivateKey();
+    logger.info("tenantPrivateKey = {}", tenantPrivateKey);
   }
 
   @After
