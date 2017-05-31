@@ -17,6 +17,7 @@ package io.mifos.rhythm.service.internal.command.handler;
 
 import io.mifos.core.command.annotation.Aggregate;
 import io.mifos.core.command.annotation.CommandHandler;
+import io.mifos.core.command.annotation.CommandLogLevel;
 import io.mifos.rhythm.api.v1.events.EventConstants;
 import io.mifos.rhythm.service.internal.command.DeleteApplicationCommand;
 import io.mifos.rhythm.service.internal.repository.ApplicationRepository;
@@ -45,7 +46,7 @@ public class ApplicationCommandHandler {
     this.eventHelper = eventHelper;
   }
 
-  @CommandHandler
+  @CommandHandler(logStart = CommandLogLevel.INFO, logFinish = CommandLogLevel.INFO)
   @Transactional
   public void process(final DeleteApplicationCommand deleteApplicationCommand) {
     this.applicationRepository.deleteByTenantIdentifierAndApplicationIdentifier(deleteApplicationCommand.getTenantIdentifier(), deleteApplicationCommand.getApplicationIdentifier());

@@ -45,4 +45,12 @@ public class DeleteBeatCommand {
     return identifier;
   }
 
+  @Override
+  public String toString() {
+    return "DeleteBeatCommand{" +
+            "tenantIdentifier='" + tenantIdentifier + '\'' +
+            ", applicationIdentifier='" + applicationIdentifier + '\'' +
+            ", identifier='" + identifier + '\'' +
+            '}';
+  }
 }

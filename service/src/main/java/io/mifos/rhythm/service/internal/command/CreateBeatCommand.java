@@ -45,4 +45,13 @@ public class CreateBeatCommand {
   public Beat getInstance() {
     return this.instance;
   }
+
+  @Override
+  public String toString() {
+    return "CreateBeatCommand{" +
+            "tenantIdentifier='" + tenantIdentifier + '\'' +
+            ", applicationIdentifier='" + applicationIdentifier + '\'' +
+            ", instance=" + instance.getIdentifier() +
+            '}';
+  }
 }
