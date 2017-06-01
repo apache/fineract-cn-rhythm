@@ -89,6 +89,8 @@ public class BeatPublisherService {
   public Optional<String> requestPermissionForBeats(final String tenantIdentifier, final String applicationIdentifier) {
     try (final AutoTenantContext ignored = new AutoTenantContext(tenantIdentifier)) {
       try (final AutoUserContext ignored2 = new AutoUserContext(properties.getUser(), "")) {
+        logger.info("Requesting permission to send beats to application '{}' under tenant '{}'.", applicationIdentifier, tenantIdentifier);
+
         final String consumerPermittableGroupIdentifier = PermittableGroupIds.forApplication(applicationIdentifier);
         final Permission publishBeatPermission = new Permission();
         publishBeatPermission.setAllowedOperations(Collections.singleton(AllowedOperation.CHANGE));
@@ -96,12 +98,16 @@ public class BeatPublisherService {
         try {
           applicationPermissionRequestCreator.createApplicationPermission(rhythmApplicationName.toString(), publishBeatPermission);
         }
-        catch (final ApplicationPermissionAlreadyExistsException ignored3) { }
+        catch (final ApplicationPermissionAlreadyExistsException e) {
+          logger.debug("Failed to request permission for application {}, in tenant {} because the request already exists. {} was thrown.", applicationIdentifier, tenantIdentifier, e);
+        }
 
+        logger.debug("Successfully requested permission to send beats to application '{}' under tenant '{}'.", applicationIdentifier, tenantIdentifier);
         return Optional.of(consumerPermittableGroupIdentifier);
       }
     }
     catch (final Throwable e) {
+      logger.warn("Failed to request permission for application {}, in tenant {}.", applicationIdentifier, tenantIdentifier, e);
       return Optional.empty();
     }
   }

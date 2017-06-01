@@ -25,8 +25,11 @@ import org.springframework.cloud.netflix.feign.FeignClient;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+
+import javax.validation.Valid;
 
 /**
  * @author Myrle Krantz
@@ -40,5 +43,6 @@ public interface ApplicationPermissionRequestCreator {
           produces = {MediaType.ALL_VALUE})
   @ThrowsException(status = HttpStatus.CONFLICT, exception = ApplicationPermissionAlreadyExistsException.class)
   @Permittable(groupId = io.mifos.identity.api.v1.PermittableGroupIds.APPLICATION_SELF_MANAGEMENT)
-  void createApplicationPermission(@PathVariable("applicationidentifier") String applicationIdentifier, Permission permission);
+  void createApplicationPermission(@PathVariable("applicationidentifier") String applicationIdentifier,
+                                   @RequestBody @Valid Permission permission);
 }
