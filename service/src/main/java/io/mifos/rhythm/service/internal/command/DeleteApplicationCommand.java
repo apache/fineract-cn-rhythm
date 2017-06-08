@@ -36,4 +36,12 @@ public class DeleteApplicationCommand {
   public String getApplicationIdentifier() {
     return this.applicationIdentifier;
   }
+
+  @Override
+  public String toString() {
+    return "DeleteApplicationCommand{" +
+            "tenantIdentifier='" + tenantIdentifier + '\'' +
+            ", applicationIdentifier='" + applicationIdentifier + '\'' +
+            '}';
+  }
 }

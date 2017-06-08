@@ -84,7 +84,7 @@ public class BeatRestController {
             .orElseThrow(() -> ServiceException.notFound("Instance with identifier " + applicationIdentifier + " doesn't exist."));
   }
 
-  @Permittable(value = AcceptedTokenType.SYSTEM, acceptTokenIntendedForForeignApplication = true) //Allow apps to use this endpoint in their provisioning code.
+  @Permittable(value = AcceptedTokenType.SYSTEM, permittedEndpoint = "/applications/{applicationidentifier}/beats", acceptTokenIntendedForForeignApplication = true) //Allow apps to use this endpoint in their provisioning code.
   @RequestMapping(
           method = RequestMethod.POST,
           consumes = MediaType.APPLICATION_JSON_VALUE,

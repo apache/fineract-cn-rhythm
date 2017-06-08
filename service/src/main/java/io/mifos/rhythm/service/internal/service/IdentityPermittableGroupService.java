@@ -18,7 +18,9 @@ package io.mifos.rhythm.service.internal.service;
 import io.mifos.rhythm.service.internal.repository.ApplicationEntity;
 import io.mifos.rhythm.service.internal.repository.ApplicationRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
@@ -39,10 +41,20 @@ public class IdentityPermittableGroupService {
     this.beatPublisherService = beatPublisherService;
   }
 
-  @Transactional
-  public boolean checkThatApplicationHasRequestForAccessPermission(
+  public synchronized boolean checkThatApplicationHasRequestForAccessPermission(
           final String tenantIdentifier,
           final String applicationIdentifier) {
+    try {
+      return checkThatApplicationHasRequestForAccessPermissionHelper(tenantIdentifier, applicationIdentifier);
+    }
+    catch (final DataIntegrityViolationException e) {
+      return false;
+    }
+  }
+
+  @SuppressWarnings("WeakerAccess")
+  @Transactional(propagation = Propagation.REQUIRES_NEW)
+  public boolean checkThatApplicationHasRequestForAccessPermissionHelper(String tenantIdentifier, String applicationIdentifier) {
     final Optional<ApplicationEntity> findApplication = applicationRepository.findByTenantIdentifierAndApplicationIdentifier(
             tenantIdentifier,
             applicationIdentifier);

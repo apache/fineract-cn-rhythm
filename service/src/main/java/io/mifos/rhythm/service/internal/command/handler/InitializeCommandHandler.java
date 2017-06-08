@@ -17,14 +17,12 @@ package io.mifos.rhythm.service.internal.command.handler;
 
 import io.mifos.core.command.annotation.Aggregate;
 import io.mifos.core.command.annotation.CommandHandler;
+import io.mifos.core.command.annotation.CommandLogLevel;
 import io.mifos.core.command.annotation.EventEmitter;
 import io.mifos.core.mariadb.domain.FlywayFactoryBean;
 import io.mifos.rhythm.api.v1.events.EventConstants;
-import io.mifos.rhythm.service.ServiceConstants;
 import io.mifos.rhythm.service.internal.command.InitializeServiceCommand;
-import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.sql.DataSource;
@@ -36,25 +34,22 @@ import javax.sql.DataSource;
 @Aggregate
 public class InitializeCommandHandler {
 
-  private final Logger logger;
   private final DataSource dataSource;
   private final FlywayFactoryBean flywayFactoryBean;
 
+  @SuppressWarnings("SpringJavaAutowiringInspection")
   @Autowired
-  public InitializeCommandHandler(@Qualifier(ServiceConstants.LOGGER_NAME) final Logger logger,
-                                  final DataSource dataSource,
+  public InitializeCommandHandler(final DataSource dataSource,
                                   final FlywayFactoryBean flywayFactoryBean) {
     super();
-    this.logger = logger;
     this.dataSource = dataSource;
     this.flywayFactoryBean = flywayFactoryBean;
   }
 
-  @CommandHandler
+  @CommandHandler(logStart = CommandLogLevel.INFO, logFinish = CommandLogLevel.INFO)
   @Transactional
   @EventEmitter(selectorName = EventConstants.SELECTOR_NAME, selectorValue = EventConstants.INITIALIZE)
   public String initialize(final InitializeServiceCommand initializeServiceCommand) {
-    this.logger.debug("Start service migration.");
     this.flywayFactoryBean.create(this.dataSource).migrate();
     return EventConstants.INITIALIZE;
   }
