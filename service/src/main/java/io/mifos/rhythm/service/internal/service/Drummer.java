@@ -59,7 +59,9 @@ public class Drummer {
 
   @Scheduled(initialDelayString = "${rhythm.beatCheckRate}", fixedRateString = "${rhythm.beatCheckRate}")
   @Transactional
-  public void checkForBeatsNeeded() {
+  public synchronized void checkForBeatsNeeded() {
+    //In it's current form this function cannot be run in multiple instances of the same service.  We need to get
+    //locking on selected entries corrected here, before this will work.
     try {
       final LocalDateTime now = LocalDateTime.now(ZoneId.of("UTC"));
       //Get beats from the last two hours in case restart/start happens close to hour begin.

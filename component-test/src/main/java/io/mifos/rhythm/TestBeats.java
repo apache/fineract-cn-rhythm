@@ -26,6 +26,8 @@ import org.mockito.Mockito;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -37,7 +39,7 @@ public class TestBeats extends AbstractRhythmTest {
   @Test
   public void shouldCreateBeat() throws InterruptedException {
     final String applicationIdentifier = "funnybusiness-v1";
-    final Beat beat = createBeat(applicationIdentifier, "bebopthedowop");
+    final Beat beat = createBeatForThisHour(applicationIdentifier, "bebopthedowop");
 
     final Beat createdBeat = this.testSubject.getBeat(applicationIdentifier, beat.getIdentifier());
     Assert.assertEquals(beat, createdBeat);
@@ -50,7 +52,7 @@ public class TestBeats extends AbstractRhythmTest {
   public void shouldDeleteBeat() throws InterruptedException {
     final String applicationIdentifier = "funnybusiness-v2";
 
-    final Beat beat = createBeat(applicationIdentifier, "bebopthedowop");
+    final Beat beat = createBeatForThisHour(applicationIdentifier, "bebopthedowop");
 
     testSubject.deleteBeat(applicationIdentifier, beat.getIdentifier());
     Assert.assertTrue(this.eventRecorder.wait(EventConstants.DELETE_BEAT, new BeatEvent(applicationIdentifier, beat.getIdentifier())));
@@ -68,7 +70,7 @@ public class TestBeats extends AbstractRhythmTest {
   @Test
   public void shouldDeleteApplication() throws InterruptedException {
     final String applicationIdentifier = "funnybusiness-v3";
-    createBeat(applicationIdentifier, "bebopthedowop");
+    createBeatForThisHour(applicationIdentifier, "bebopthedowop");
 
     this.testSubject.deleteApplication(applicationIdentifier);
     Assert.assertTrue(this.eventRecorder.wait(EventConstants.DELETE_APPLICATION, applicationIdentifier));
@@ -99,5 +101,25 @@ public class TestBeats extends AbstractRhythmTest {
     Assert.assertTrue(this.eventRecorder.wait(EventConstants.POST_BEAT, new BeatEvent(applicationIdentifier, beat.getIdentifier())));
 
     Mockito.verify(beatPublisherServiceSpy, Mockito.timeout(10_000).times(3)).publishBeat(beatId, tenantIdentifier, applicationIdentifier, expectedBeatTimestamp);
+  }
+
+  @Test
+  public void twentyFourBeats() throws InterruptedException {
+    final String applicationIdentifier = "funnybusiness-v5";
+    final LocalDateTime today = LocalDateTime.now(ZoneId.of("UTC")).truncatedTo(ChronoUnit.DAYS);
+    final List<Beat> beats = new ArrayList<>();
+    for (int i = 0; i < 24; i ++) {
+      final LocalDateTime expectedBeatTimestamp = today.plusHours(i);
+      beats.add(createBeat(applicationIdentifier, "bebopthedowop" + i, i, expectedBeatTimestamp));
+    }
+
+    beats.forEach(x -> {
+      final Beat createdBeat = this.testSubject.getBeat(applicationIdentifier, x.getIdentifier());
+      Assert.assertEquals(x, createdBeat);
+    });
+
+    final List<Beat> allEntities = this.testSubject.getAllBeatsForApplication(applicationIdentifier);
+
+    beats.forEach(x -> Assert.assertTrue(allEntities.contains(x)));
   }
 }

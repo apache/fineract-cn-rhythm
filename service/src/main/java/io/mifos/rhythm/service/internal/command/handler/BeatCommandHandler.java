@@ -59,14 +59,26 @@ public class BeatCommandHandler {
     this.logger = logger;
   }
 
-  @CommandHandler(logStart = CommandLogLevel.INFO, logFinish = CommandLogLevel.INFO)
-  @Transactional
+  @CommandHandler(logStart = CommandLogLevel.INFO, logFinish = CommandLogLevel.NONE)
   public void process(final CreateBeatCommand createBeatCommand) {
+    processCreateBeatCommand(createBeatCommand);
+
+    final BeatEvent event
+            = new BeatEvent(createBeatCommand.getApplicationIdentifier(), createBeatCommand.getInstance().getIdentifier());
+    logger.info("Sending event {}", event);
+    eventHelper.sendEvent(EventConstants.POST_BEAT, createBeatCommand.getTenantIdentifier(), event);
+  }
+
+  //I want the transaction to close before I send a beat or log it being sent.  So I need a separate function for the
+  //stuff that should happen in the transaction.
+  @SuppressWarnings("WeakerAccess")
+  @Transactional
+  public void processCreateBeatCommand(CreateBeatCommand createBeatCommand) {
     final boolean applicationHasRequestForAccessPermission = identityPermittableGroupService.checkThatApplicationHasRequestForAccessPermission(
             createBeatCommand.getTenantIdentifier(), createBeatCommand.getApplicationIdentifier());
     if (!applicationHasRequestForAccessPermission) {
-      logger.warn("Rhythm needs permission to publish beats to application, but couldn't request that permission for tenant '{}' and application '{}'.",
-              createBeatCommand.getApplicationIdentifier(), createBeatCommand.getTenantIdentifier());
+      logger.info("Rhythm needs permission to publish beats to application, but couldn't request that permission for tenant '{}' and application '{}'.",
+              createBeatCommand.getTenantIdentifier(), createBeatCommand.getApplicationIdentifier());
     }
 
     final BeatEntity entity = BeatMapper.map(
@@ -74,12 +86,9 @@ public class BeatCommandHandler {
             createBeatCommand.getApplicationIdentifier(),
             createBeatCommand.getInstance());
     this.beatRepository.save(entity);
-
-    eventHelper.sendEvent(EventConstants.POST_BEAT, createBeatCommand.getTenantIdentifier(),
-            new BeatEvent(createBeatCommand.getApplicationIdentifier(), createBeatCommand.getInstance().getIdentifier()));
   }
 
-  @CommandHandler
+  @CommandHandler(logStart = CommandLogLevel.INFO, logFinish = CommandLogLevel.NONE)
   @Transactional
   public void process(final DeleteBeatCommand deleteBeatCommand) {
     final Optional<BeatEntity> toDelete = this.beatRepository.findByTenantIdentifierAndApplicationIdentifierAndBeatIdentifier(
@@ -88,8 +97,8 @@ public class BeatCommandHandler {
             deleteBeatCommand.getIdentifier());
     final BeatEntity toDeleteForReal
             = toDelete.orElseThrow(() -> ServiceException.notFound(
-                    "Beat with for the application " + deleteBeatCommand.getApplicationIdentifier() +
-                            ", and the identifier " + deleteBeatCommand.getIdentifier() + " not found."));
+                    "Beat for the application ''" + deleteBeatCommand.getApplicationIdentifier() +
+                            "'' with the identifier ''" + deleteBeatCommand.getIdentifier() + "'' not found."));
 
     this.beatRepository.delete(toDeleteForReal);
 
