@@ -16,16 +16,21 @@
 package io.mifos.rhythm.spi.v1.domain;
 
 import io.mifos.core.lang.validation.constraints.ValidIdentifier;
+import io.mifos.core.lang.validation.constraints.ValidLocalDateTimeString;
 
+import javax.validation.constraints.NotNull;
 import java.util.Objects;
 
 /**
  * @author Myrle Krantz
  */
+@SuppressWarnings({"unused", "WeakerAccess"})
 public class BeatPublish {
   @ValidIdentifier
   private String identifier;
 
+  @NotNull
+  @ValidLocalDateTimeString
   private String forTime;
 
   public BeatPublish() {
