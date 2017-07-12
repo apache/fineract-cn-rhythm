@@ -20,7 +20,6 @@ package io.mifos.rhythm.spi.v1.events;
  */
 @SuppressWarnings("unused")
 public interface EventConstants {
-  String DESTINATION = "beats-v1";
   String SELECTOR_NAME = "action";
   String POST_PUBLISHEDBEAT = "post-publishedbeat";
   String SELECTOR_POST_PUBLISHEDBEAT = SELECTOR_NAME + " = '" + POST_PUBLISHEDBEAT + "'";
