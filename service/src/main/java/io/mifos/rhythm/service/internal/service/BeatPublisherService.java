@@ -18,6 +18,7 @@ package io.mifos.rhythm.service.internal.service;
 import io.mifos.anubis.api.v1.domain.AllowedOperation;
 import io.mifos.core.api.context.AutoUserContext;
 import io.mifos.core.api.util.ApiFactory;
+import io.mifos.core.api.util.InvalidTokenException;
 import io.mifos.core.lang.ApplicationName;
 import io.mifos.core.lang.AutoTenantContext;
 import io.mifos.core.lang.DateConverter;
@@ -97,12 +98,15 @@ public class BeatPublisherService {
         publishBeatPermission.setPermittableEndpointGroupIdentifier(consumerPermittableGroupIdentifier);
         try {
           applicationPermissionRequestCreator.createApplicationPermission(rhythmApplicationName.toString(), publishBeatPermission);
+          logger.debug("Successfully requested permission to send beats to application '{}' under tenant '{}'.", applicationIdentifier, tenantIdentifier);
+        }
+        catch (final InvalidTokenException e) {
+          logger.error("Failed to request permission for application {}, in tenant {} because rhythm does not have permission to access identity.", applicationIdentifier, tenantIdentifier, e);
         }
         catch (final ApplicationPermissionAlreadyExistsException e) {
           logger.debug("Failed to request permission for application {}, in tenant {} because the request already exists. {} was thrown.", applicationIdentifier, tenantIdentifier, e);
         }
 
-        logger.debug("Successfully requested permission to send beats to application '{}' under tenant '{}'.", applicationIdentifier, tenantIdentifier);
         return Optional.of(consumerPermittableGroupIdentifier);
       }
     }
