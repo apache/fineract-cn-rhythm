@@ -64,6 +64,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * @author Myrle Krantz
  */
+@SuppressWarnings("SpringAutowiredFieldsWarningInspection")
 @RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT,
         classes = {AbstractRhythmTest.TestConfiguration.class},
@@ -117,7 +118,7 @@ public class AbstractRhythmTest {
   EventRecorder eventRecorder;
 
   @MockBean
-  BeatPublisherService beatPublisherServiceSpy;
+  BeatPublisherService beatPublisherServiceMock;
 
   @Autowired
   @Qualifier(LOGGER_NAME)
@@ -148,9 +149,17 @@ public class AbstractRhythmTest {
     final LocalDateTime now = LocalDateTime.now(ZoneId.of("UTC"));
     int alignmentHour = now.getHour();
     final LocalDateTime expectedBeatTimestamp = getExpectedBeatTimestamp(now, alignmentHour);
+
+    Mockito.doAnswer(new Returns(true)).when(beatPublisherServiceMock).publishBeat(
+            Matchers.eq(beatIdentifier),
+            Matchers.eq(tenantDataStoreContext.getTenantName()),
+            Matchers.eq(applicationIdentifier),
+            Matchers.eq(expectedBeatTimestamp));
+
     final Beat ret = createBeat(applicationIdentifier, beatIdentifier, alignmentHour, expectedBeatTimestamp);
 
-    Mockito.verify(beatPublisherServiceSpy, Mockito.timeout(2_000).times(1)).publishBeat(beatIdentifier, tenantDataStoreContext.getTenantName(), applicationIdentifier, expectedBeatTimestamp);
+    Mockito.verify(beatPublisherServiceMock, Mockito.timeout(2_000).times(1))
+        .publishBeat(beatIdentifier, tenantDataStoreContext.getTenantName(), applicationIdentifier, expectedBeatTimestamp);
 
     return ret;
   }
@@ -182,15 +191,15 @@ public class AbstractRhythmTest {
     beat.setIdentifier(beatIdentifier);
     beat.setAlignmentHour(alignmentHour);
 
-    Mockito.doAnswer(new AnswerWithDelay<>(2_000, new Returns(Optional.of(PermittableGroupIds.forApplication(applicationIdentifier))))).when(beatPublisherServiceSpy).requestPermissionForBeats(Matchers.eq(tenantIdentifier), Matchers.eq(applicationIdentifier));
-    Mockito.doAnswer(new AnswerWithDelay<>(2_000, new Returns(true))).when(beatPublisherServiceSpy).publishBeat(Matchers.eq(beatIdentifier), Matchers.eq(tenantIdentifier), Matchers.eq(applicationIdentifier),
+    Mockito.doAnswer(new AnswerWithDelay<>(2_000, new Returns(Optional.of(PermittableGroupIds.forApplication(applicationIdentifier))))).when(beatPublisherServiceMock).requestPermissionForBeats(Matchers.eq(tenantIdentifier), Matchers.eq(applicationIdentifier));
+    Mockito.doAnswer(new AnswerWithDelay<>(2_000, new Returns(true))).when(beatPublisherServiceMock).publishBeat(Matchers.eq(beatIdentifier), Matchers.eq(tenantIdentifier), Matchers.eq(applicationIdentifier),
             AdditionalMatchers.or(Matchers.eq(expectedBeatTimestamp), Matchers.eq(getNextTimeStamp(expectedBeatTimestamp))));
 
     this.testSubject.createBeat(applicationIdentifier, beat);
 
     Assert.assertTrue(this.eventRecorder.wait(EventConstants.POST_BEAT, new BeatEvent(applicationIdentifier, beat.getIdentifier())));
 
-    Mockito.verify(beatPublisherServiceSpy, Mockito.timeout(2_500).times(1)).requestPermissionForBeats(tenantIdentifier, applicationIdentifier);
+    Mockito.verify(beatPublisherServiceMock, Mockito.timeout(2_500).times(1)).requestPermissionForBeats(tenantIdentifier, applicationIdentifier);
 
     return beat;
   }

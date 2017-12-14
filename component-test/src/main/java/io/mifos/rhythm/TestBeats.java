@@ -19,11 +19,15 @@ import io.mifos.core.api.util.NotFoundException;
 import io.mifos.rhythm.api.v1.domain.Beat;
 import io.mifos.rhythm.api.v1.events.BeatEvent;
 import io.mifos.rhythm.api.v1.events.EventConstants;
+import io.mifos.rhythm.service.internal.repository.BeatEntity;
+import io.mifos.rhythm.service.internal.repository.BeatRepository;
 import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.Matchers;
 import org.mockito.Mockito;
+import org.springframework.beans.factory.annotation.Autowired;
 
+import javax.transaction.Transactional;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
@@ -35,6 +39,9 @@ import java.util.Optional;
  * @author Myrle Krantz
  */
 public class TestBeats extends AbstractRhythmTest {
+  @SuppressWarnings("SpringAutowiredFieldsWarningInspection")
+  @Autowired
+  BeatRepository beatRepository;
 
   @Test
   public void shouldCreateBeat() throws InterruptedException {
@@ -93,14 +100,14 @@ public class TestBeats extends AbstractRhythmTest {
 
     final LocalDateTime expectedBeatTimestamp = getExpectedBeatTimestamp(now, beat.getAlignmentHour());
 
-    Mockito.doReturn(Optional.of("boop")).when(beatPublisherServiceSpy).requestPermissionForBeats(Matchers.eq(tenantIdentifier), Matchers.eq(applicationIdentifier));
-    Mockito.when(beatPublisherServiceSpy.publishBeat(beatId, tenantIdentifier, applicationIdentifier, expectedBeatTimestamp)).thenReturn(false, false, true);
+    Mockito.doReturn(Optional.of("boop")).when(beatPublisherServiceMock).requestPermissionForBeats(Matchers.eq(tenantIdentifier), Matchers.eq(applicationIdentifier));
+    Mockito.when(beatPublisherServiceMock.publishBeat(beatId, tenantIdentifier, applicationIdentifier, expectedBeatTimestamp)).thenReturn(false, false, true);
 
     this.testSubject.createBeat(applicationIdentifier, beat);
 
     Assert.assertTrue(this.eventRecorder.wait(EventConstants.POST_BEAT, new BeatEvent(applicationIdentifier, beat.getIdentifier())));
 
-    Mockito.verify(beatPublisherServiceSpy, Mockito.timeout(10_000).times(3)).publishBeat(beatId, tenantIdentifier, applicationIdentifier, expectedBeatTimestamp);
+    Mockito.verify(beatPublisherServiceMock, Mockito.timeout(10_000).times(3)).publishBeat(beatId, tenantIdentifier, applicationIdentifier, expectedBeatTimestamp);
   }
 
   @Test
@@ -121,5 +128,41 @@ public class TestBeats extends AbstractRhythmTest {
     final List<Beat> allEntities = this.testSubject.getAllBeatsForApplication(applicationIdentifier);
 
     beats.forEach(x -> Assert.assertTrue(allEntities.contains(x)));
+  }
+
+  @Test
+  public void shouldBeatForMissingDays() throws InterruptedException {
+    final String applicationIdentifier = "funnybusiness-v6";
+    final String beatIdentifier = "fiddlebeat";
+    createBeatForThisHour(applicationIdentifier, beatIdentifier);
+
+    final int daysAgo = 10;
+    final LocalDateTime nextBeat = setBack(applicationIdentifier, beatIdentifier, daysAgo);
+
+    for (int i = daysAgo; i > 0; i--) {
+      Mockito.verify(beatPublisherServiceMock, Mockito.timeout(4_000).times(1))
+          .publishBeat(beatIdentifier, tenantDataStoreContext.getTenantName(), applicationIdentifier, nextBeat.minusDays(daysAgo));
+    }
+  }
+
+  @Transactional
+  LocalDateTime setBack(
+      final String applicationIdentifier,
+      final String beatIdentifier,
+      final int daysAgo) {
+
+    final BeatEntity beatEntity = beatRepository.findByTenantIdentifierAndApplicationIdentifierAndBeatIdentifier(
+        tenantDataStoreContext.getTenantName(),
+        applicationIdentifier,
+        beatIdentifier).orElseThrow(IllegalStateException::new);
+
+    Mockito.reset(beatPublisherServiceMock);
+    final LocalDateTime nextBeat = beatEntity.getNextBeat();
+
+    beatEntity.setNextBeat(nextBeat.minusDays(daysAgo));
+
+    beatRepository.save(beatEntity);
+
+    return nextBeat;
   }
 }

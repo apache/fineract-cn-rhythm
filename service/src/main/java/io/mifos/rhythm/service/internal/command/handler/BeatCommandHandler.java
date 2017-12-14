@@ -18,7 +18,6 @@ package io.mifos.rhythm.service.internal.command.handler;
 import io.mifos.core.command.annotation.Aggregate;
 import io.mifos.core.command.annotation.CommandHandler;
 import io.mifos.core.command.annotation.CommandLogLevel;
-import io.mifos.core.lang.ServiceException;
 import io.mifos.rhythm.api.v1.events.BeatEvent;
 import io.mifos.rhythm.api.v1.events.EventConstants;
 import io.mifos.rhythm.service.ServiceConstants;
@@ -32,8 +31,6 @@ import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.Optional;
 
 /**
  * @author Myrle Krantz
@@ -91,16 +88,10 @@ public class BeatCommandHandler {
   @CommandHandler(logStart = CommandLogLevel.INFO, logFinish = CommandLogLevel.NONE)
   @Transactional
   public void process(final DeleteBeatCommand deleteBeatCommand) {
-    final Optional<BeatEntity> toDelete = this.beatRepository.findByTenantIdentifierAndApplicationIdentifierAndBeatIdentifier(
+    this.beatRepository.deleteByTenantIdentifierAndApplicationIdentifierAndBeatIdentifier(
             deleteBeatCommand.getTenantIdentifier(),
             deleteBeatCommand.getApplicationIdentifier(),
             deleteBeatCommand.getIdentifier());
-    final BeatEntity toDeleteForReal
-            = toDelete.orElseThrow(() -> ServiceException.notFound(
-                    "Beat for the application ''" + deleteBeatCommand.getApplicationIdentifier() +
-                            "'' with the identifier ''" + deleteBeatCommand.getIdentifier() + "'' not found."));
-
-    this.beatRepository.delete(toDeleteForReal);
 
     eventHelper.sendEvent(EventConstants.DELETE_BEAT, deleteBeatCommand.getTenantIdentifier(),
             new BeatEvent(deleteBeatCommand.getApplicationIdentifier(), deleteBeatCommand.getIdentifier()));

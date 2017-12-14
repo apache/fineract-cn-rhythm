@@ -16,8 +16,10 @@
 package io.mifos.rhythm.service.internal.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Lock;
 import org.springframework.stereotype.Repository;
 
+import javax.persistence.LockModeType;
 import java.util.Optional;
 
 /**
@@ -25,6 +27,7 @@ import java.util.Optional;
  */
 @Repository
 public interface ApplicationRepository extends JpaRepository<ApplicationEntity, Long> {
+  @Lock(LockModeType.PESSIMISTIC_WRITE)
   void deleteByTenantIdentifierAndApplicationIdentifier(String tenantIdentifier, String applicationIdentifier);
   Optional<ApplicationEntity> findByTenantIdentifierAndApplicationIdentifier(String tenantIdentifier, String applicationIdentifier);
 }

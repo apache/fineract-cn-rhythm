@@ -47,10 +47,10 @@ public class Drummer {
 
   @Autowired
   public Drummer(
-          final IdentityPermittableGroupService identityPermittableGroupService,
-          final BeatPublisherService beatPublisherService,
-          final BeatRepository beatRepository,
-          @Qualifier(ServiceConstants.LOGGER_NAME) final Logger logger) {
+      final IdentityPermittableGroupService identityPermittableGroupService,
+      final BeatPublisherService beatPublisherService,
+      final BeatRepository beatRepository,
+      @Qualifier(ServiceConstants.LOGGER_NAME) final Logger logger) {
     this.identityPermittableGroupService = identityPermittableGroupService;
     this.beatPublisherService = beatPublisherService;
     this.beatRepository = beatRepository;
