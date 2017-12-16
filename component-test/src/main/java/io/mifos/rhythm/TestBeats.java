@@ -17,6 +17,7 @@ package io.mifos.rhythm;
 
 import io.mifos.core.api.util.NotFoundException;
 import io.mifos.rhythm.api.v1.domain.Beat;
+import io.mifos.rhythm.api.v1.domain.ClockOffset;
 import io.mifos.rhythm.api.v1.events.BeatEvent;
 import io.mifos.rhythm.api.v1.events.EventConstants;
 import io.mifos.rhythm.service.internal.repository.BeatEntity;
@@ -28,6 +29,7 @@ import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.transaction.Transactional;
+import java.time.Clock;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
@@ -128,6 +130,23 @@ public class TestBeats extends AbstractRhythmTest {
     final List<Beat> allEntities = this.testSubject.getAllBeatsForApplication(applicationIdentifier);
 
     beats.forEach(x -> Assert.assertTrue(allEntities.contains(x)));
+  }
+
+  @Test
+  public void shouldChangeTheTenantClockOffset() throws InterruptedException {
+    final ClockOffset initialClockOffset = this.testSubject.getClockOffset();
+    Assert.assertEquals(Integer.valueOf(0), initialClockOffset.getHours());
+    Assert.assertEquals(Integer.valueOf(0), initialClockOffset.getMinutes());
+    Assert.assertEquals(Integer.valueOf(0), initialClockOffset.getSeconds());
+
+    final LocalDateTime now = LocalDateTime.now(Clock.systemUTC());
+    final ClockOffset offsetToNow = new ClockOffset(now.getHour(), now.getMinute(), now.getSecond());
+    this.testSubject.setClockOffset(offsetToNow);
+
+    Assert.assertTrue(this.eventRecorder.wait(EventConstants.PUT_CLOCKOFFSET, offsetToNow));
+
+    final ClockOffset changedClockOffset = this.testSubject.getClockOffset();
+    Assert.assertEquals(offsetToNow, changedClockOffset);
   }
 
   @Test
