@@ -57,7 +57,7 @@ public class ClockOffsetRestController {
   public
   @ResponseBody
   ResponseEntity<ClockOffset> getClockOffset(@RequestHeader(TENANT_HEADER) final String tenantIdentifier) {
-    return ResponseEntity.ok(this.clockOffsetService.findByTenant(tenantIdentifier));
+    return ResponseEntity.ok(this.clockOffsetService.findByTenantIdentifier(tenantIdentifier));
   }
 
   @Permittable(value = AcceptedTokenType.SYSTEM)

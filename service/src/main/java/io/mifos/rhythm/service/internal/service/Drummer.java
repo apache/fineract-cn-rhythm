@@ -15,6 +15,7 @@
  */
 package io.mifos.rhythm.service.internal.service;
 
+import io.mifos.rhythm.api.v1.domain.ClockOffset;
 import io.mifos.rhythm.service.ServiceConstants;
 import io.mifos.rhythm.service.internal.repository.BeatEntity;
 import io.mifos.rhythm.service.internal.repository.BeatRepository;
@@ -27,8 +28,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Nonnull;
+import java.time.Clock;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
 import java.util.Optional;
 import java.util.function.Predicate;
@@ -37,12 +38,12 @@ import java.util.stream.Stream;
 /**
  * @author Myrle Krantz
  */
-@SuppressWarnings({"unused", "WeakerAccess"})
 @Component
 public class Drummer {
   private final IdentityPermittableGroupService identityPermittableGroupService;
   private final BeatPublisherService beatPublisherService;
   private final BeatRepository beatRepository;
+  private final ClockOffsetService clockOffsetService;
   private final Logger logger;
 
   @Autowired
@@ -50,10 +51,12 @@ public class Drummer {
       final IdentityPermittableGroupService identityPermittableGroupService,
       final BeatPublisherService beatPublisherService,
       final BeatRepository beatRepository,
+      final ClockOffsetService clockOffsetService,
       @Qualifier(ServiceConstants.LOGGER_NAME) final Logger logger) {
     this.identityPermittableGroupService = identityPermittableGroupService;
     this.beatPublisherService = beatPublisherService;
     this.beatRepository = beatRepository;
+    this.clockOffsetService = clockOffsetService;
     this.logger = logger;
   }
 
@@ -63,7 +66,7 @@ public class Drummer {
     //In it's current form this function cannot be run in multiple instances of the same service.  We need to get
     //locking on selected entries corrected here, before this will work.
     try {
-      final LocalDateTime now = LocalDateTime.now(ZoneId.of("UTC"));
+      final LocalDateTime now = LocalDateTime.now(Clock.systemUTC());
       //Get beats from the last two hours in case restart/start happens close to hour begin.
       final Stream<BeatEntity> beats = beatRepository.findByNextBeatBefore(now);
       beats.forEach((beat) -> {
@@ -86,6 +89,7 @@ public class Drummer {
             beat.setNextBeat(y);
             beatRepository.save(beat);
           });
+          logger.info("Beat updated to {}.", beat);
         }
       });
 
@@ -96,14 +100,15 @@ public class Drummer {
     }
   }
 
-  public Optional<LocalDateTime> checkBeatForPublish(
-          final LocalDateTime now,
-          final String beatIdentifier,
-          final String tenantIdentifier,
-          final String applicationIdentifier,
-          final Integer alignmentHour,
-          final LocalDateTime nextBeat) {
-    return checkBeatForPublishHelper(now, alignmentHour, nextBeat,
+  private Optional<LocalDateTime> checkBeatForPublish(
+      final LocalDateTime now,
+      final String beatIdentifier,
+      final String tenantIdentifier,
+      final String applicationIdentifier,
+      final Integer alignmentHour,
+      final LocalDateTime nextBeat) {
+    final ClockOffset clockOffset = clockOffsetService.findByTenantIdentifier(tenantIdentifier);
+    return checkBeatForPublishHelper(now, alignmentHour, nextBeat, clockOffset,
             x -> beatPublisherService.publishBeat(beatIdentifier, tenantIdentifier, applicationIdentifier, x));
   }
 
@@ -112,13 +117,14 @@ public class Drummer {
           final LocalDateTime now,
           final Integer alignmentHour,
           final LocalDateTime nextBeat,
+          final ClockOffset clockOffset,
           final Predicate<LocalDateTime> publishSucceeded) {
     final long numberOfBeatPublishesNeeded = getNumberOfBeatPublishesNeeded(now, nextBeat);
     if (numberOfBeatPublishesNeeded == 0)
       return Optional.empty();
 
     final Optional<LocalDateTime> firstFailedBeat = Stream.iterate(nextBeat,
-            x -> incrementToAlignment(x, alignmentHour))
+            x -> incrementToAlignment(x, alignmentHour, clockOffset))
             .limit(numberOfBeatPublishesNeeded)
             .filter(x -> !publishSucceeded.test(x))
             .findFirst();
@@ -126,7 +132,7 @@ public class Drummer {
     if (firstFailedBeat.isPresent())
       return firstFailedBeat;
     else
-      return Optional.of(incrementToAlignment(now, alignmentHour));
+      return Optional.of(incrementToAlignment(now, alignmentHour, clockOffset));
   }
 
   static long getNumberOfBeatPublishesNeeded(final LocalDateTime now, final @Nonnull LocalDateTime nextBeat) {
@@ -136,8 +142,15 @@ public class Drummer {
     return Math.max(1, nextBeat.until(now, ChronoUnit.DAYS));
   }
 
-  static LocalDateTime incrementToAlignment(final LocalDateTime toIncrement, final Integer alignmentHour)
+  static LocalDateTime incrementToAlignment(
+      final LocalDateTime toIncrement,
+      final Integer alignmentHour,
+      final ClockOffset clockOffset)
   {
-    return toIncrement.plusDays(1).truncatedTo(ChronoUnit.DAYS).plusHours(alignmentHour);
+    return toIncrement.truncatedTo(ChronoUnit.DAYS)
+        .plusDays(1)
+        .plusHours(alignmentHour + clockOffset.getHours())
+        .plusMinutes(clockOffset.getMinutes())
+        .plusSeconds(clockOffset.getSeconds());
   }
 }

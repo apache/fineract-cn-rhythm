@@ -33,9 +33,9 @@ public class ClockOffsetService {
     this.clockOffsetRepository = clockOffsetRepository;
   }
 
-  public ClockOffset findByTenant(final String tenantIdentifier) {
+  public ClockOffset findByTenantIdentifier(final String tenantIdentifier) {
     return clockOffsetRepository.findByTenantIdentifier(tenantIdentifier)
         .map(ClockOffsetMapper::map)
-        .orElseGet(ClockOffset::new);
+        .orElseGet(ClockOffset::new); //If none is set, use 0,0,0
   }
 }

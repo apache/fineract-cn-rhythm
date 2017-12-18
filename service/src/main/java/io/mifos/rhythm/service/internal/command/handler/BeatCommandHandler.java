@@ -18,6 +18,7 @@ package io.mifos.rhythm.service.internal.command.handler;
 import io.mifos.core.command.annotation.Aggregate;
 import io.mifos.core.command.annotation.CommandHandler;
 import io.mifos.core.command.annotation.CommandLogLevel;
+import io.mifos.rhythm.api.v1.domain.ClockOffset;
 import io.mifos.rhythm.api.v1.events.BeatEvent;
 import io.mifos.rhythm.api.v1.events.EventConstants;
 import io.mifos.rhythm.service.ServiceConstants;
@@ -26,6 +27,7 @@ import io.mifos.rhythm.service.internal.command.DeleteBeatCommand;
 import io.mifos.rhythm.service.internal.mapper.BeatMapper;
 import io.mifos.rhythm.service.internal.repository.BeatEntity;
 import io.mifos.rhythm.service.internal.repository.BeatRepository;
+import io.mifos.rhythm.service.internal.service.ClockOffsetService;
 import io.mifos.rhythm.service.internal.service.IdentityPermittableGroupService;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,18 +42,21 @@ import org.springframework.transaction.annotation.Transactional;
 public class BeatCommandHandler {
   private final IdentityPermittableGroupService identityPermittableGroupService;
   private final BeatRepository beatRepository;
+  private final ClockOffsetService clockOffsetService;
   private final EventHelper eventHelper;
   private final Logger logger;
 
   @Autowired
   public BeatCommandHandler(
-          final IdentityPermittableGroupService identityPermittableGroupService,
-          final BeatRepository beatRepository,
-          final EventHelper eventHelper,
-          @Qualifier(ServiceConstants.LOGGER_NAME) final Logger logger) {
+      final IdentityPermittableGroupService identityPermittableGroupService,
+      final BeatRepository beatRepository,
+      final ClockOffsetService clockOffsetService,
+      final EventHelper eventHelper,
+      @Qualifier(ServiceConstants.LOGGER_NAME) final Logger logger) {
     super();
     this.identityPermittableGroupService = identityPermittableGroupService;
     this.beatRepository = beatRepository;
+    this.clockOffsetService = clockOffsetService;
     this.eventHelper = eventHelper;
     this.logger = logger;
   }
@@ -70,18 +75,20 @@ public class BeatCommandHandler {
   //stuff that should happen in the transaction.
   @SuppressWarnings("WeakerAccess")
   @Transactional
-  public void processCreateBeatCommand(CreateBeatCommand createBeatCommand) {
+  public void processCreateBeatCommand(final CreateBeatCommand createBeatCommand) {
     final boolean applicationHasRequestForAccessPermission = identityPermittableGroupService.checkThatApplicationHasRequestForAccessPermission(
-            createBeatCommand.getTenantIdentifier(), createBeatCommand.getApplicationIdentifier());
+        createBeatCommand.getTenantIdentifier(), createBeatCommand.getApplicationIdentifier());
     if (!applicationHasRequestForAccessPermission) {
       logger.info("Rhythm needs permission to publish beats to application, but couldn't request that permission for tenant '{}' and application '{}'.",
-              createBeatCommand.getTenantIdentifier(), createBeatCommand.getApplicationIdentifier());
+          createBeatCommand.getTenantIdentifier(), createBeatCommand.getApplicationIdentifier());
     }
+    final ClockOffset clockOffset = clockOffsetService.findByTenantIdentifier(createBeatCommand.getTenantIdentifier());
 
     final BeatEntity entity = BeatMapper.map(
-            createBeatCommand.getTenantIdentifier(),
-            createBeatCommand.getApplicationIdentifier(),
-            createBeatCommand.getInstance());
+        createBeatCommand.getTenantIdentifier(),
+        createBeatCommand.getApplicationIdentifier(),
+        createBeatCommand.getInstance(),
+        clockOffset);
     this.beatRepository.save(entity);
   }
 

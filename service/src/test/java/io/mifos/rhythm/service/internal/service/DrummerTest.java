@@ -15,14 +15,17 @@
  */
 package io.mifos.rhythm.service.internal.service;
 
+import io.mifos.rhythm.api.v1.domain.ClockOffset;
 import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.Mockito;
 
+import java.time.Clock;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
+import java.util.HashSet;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Predicate;
 
 /**
@@ -32,8 +35,8 @@ public class DrummerTest {
 
   @Test
   public void incrementToAlignment() {
-    final LocalDateTime now = LocalDateTime.now(ZoneId.of("UTC"));
-    final LocalDateTime tomorrow = Drummer.incrementToAlignment(now, 3);
+    final LocalDateTime now = LocalDateTime.now(Clock.systemUTC());
+    final LocalDateTime tomorrow = Drummer.incrementToAlignment(now, 3, new ClockOffset());
 
     Assert.assertEquals(tomorrow.minusDays(1).truncatedTo(ChronoUnit.DAYS), now.truncatedTo(ChronoUnit.DAYS));
     Assert.assertEquals(3, tomorrow.getHour());
@@ -41,7 +44,7 @@ public class DrummerTest {
 
   @Test
   public void getNumberOfBeatPublishesNeeded() {
-    final LocalDateTime now = LocalDateTime.now(ZoneId.of("UTC"));
+    final LocalDateTime now = LocalDateTime.now(Clock.systemUTC());
     final long eventsNeeded3 = Drummer.getNumberOfBeatPublishesNeeded(now, now.minus(3, ChronoUnit.DAYS));
     Assert.assertEquals(3, eventsNeeded3);
 
@@ -54,38 +57,62 @@ public class DrummerTest {
 
   @Test
   public void checkBeatForPublishAllBeatsSucceed() {
-    final LocalDateTime now = LocalDateTime.now(ZoneId.of("UTC"));
-    final Optional<LocalDateTime> ret = Drummer.checkBeatForPublishHelper(now, 0, now.minus(3, ChronoUnit.DAYS), x -> true);
-    Assert.assertEquals(Optional.of(Drummer.incrementToAlignment(now, 0)), ret);
+    final LocalDateTime now = LocalDateTime.now(Clock.systemUTC());
+    final Set<LocalDateTime> calledForTimes = new HashSet<>();
+    final Optional<LocalDateTime> ret = Drummer.checkBeatForPublishHelper(
+        now,
+        0,
+        now.minus(3, ChronoUnit.DAYS),
+        new ClockOffset(),
+        x -> {
+          calledForTimes.add(x);
+          return true;
+        });
+    Assert.assertEquals(Optional.of(Drummer.incrementToAlignment(now, 0, new ClockOffset())), ret);
+    Assert.assertEquals(3, calledForTimes.size());
   }
 
   @Test
   public void checkBeatForPublishFirstFails() {
-    final LocalDateTime now = LocalDateTime.now(ZoneId.of("UTC"));
+    final LocalDateTime now = LocalDateTime.now(Clock.systemUTC());
     final LocalDateTime nextBeat = now.minus(3, ChronoUnit.DAYS);
     @SuppressWarnings("unchecked") final Predicate<LocalDateTime> produceBeatsMock = Mockito.mock(Predicate.class);
     Mockito.when(produceBeatsMock.test(nextBeat)).thenReturn(false);
-    final Optional<LocalDateTime> ret = Drummer.checkBeatForPublishHelper(now, 0, nextBeat, produceBeatsMock);
+    final Optional<LocalDateTime> ret = Drummer.checkBeatForPublishHelper(
+        now,
+        0,
+        nextBeat,
+        new ClockOffset(),
+        produceBeatsMock);
     Assert.assertEquals(Optional.of(nextBeat), ret);
   }
 
   @Test
   public void checkBeatForPublishSecondFails() {
-    final LocalDateTime now = LocalDateTime.now(ZoneId.of("UTC"));
+    final LocalDateTime now = LocalDateTime.now(Clock.systemUTC());
     final LocalDateTime nextBeat = now.minus(3, ChronoUnit.DAYS);
-    final LocalDateTime secondBeat = Drummer.incrementToAlignment(nextBeat, 0);
+    final LocalDateTime secondBeat = Drummer.incrementToAlignment(nextBeat, 0, new ClockOffset());
     @SuppressWarnings("unchecked") final Predicate<LocalDateTime> produceBeatsMock = Mockito.mock(Predicate.class);
     Mockito.when(produceBeatsMock.test(nextBeat)).thenReturn(true);
     Mockito.when(produceBeatsMock.test(secondBeat)).thenReturn(false);
-    final Optional<LocalDateTime> ret = Drummer.checkBeatForPublishHelper(now, 0, nextBeat, produceBeatsMock);
+    final Optional<LocalDateTime> ret = Drummer.checkBeatForPublishHelper(
+        now,
+        0,
+        nextBeat,
+        new ClockOffset(),
+        produceBeatsMock);
     Assert.assertEquals(Optional.of(secondBeat), ret);
   }
 
   @Test
   public void checkBeatForPublishNoneNeeded() {
-    final LocalDateTime now = LocalDateTime.now(ZoneId.of("UTC"));
-    final Optional<LocalDateTime> ret = Drummer.checkBeatForPublishHelper(now, 0, now.plus(1, ChronoUnit.DAYS),
-            x -> { Assert.fail("Pubish shouldn't be called"); return true; });
+    final LocalDateTime now = LocalDateTime.now(Clock.systemUTC());
+    final Optional<LocalDateTime> ret = Drummer.checkBeatForPublishHelper(
+        now,
+        0,
+        now.plus(1, ChronoUnit.DAYS),
+        new ClockOffset(),
+        x -> { Assert.fail("Publish shouldn't be called"); return true; });
     Assert.assertEquals(Optional.empty(), ret);
   }
 }

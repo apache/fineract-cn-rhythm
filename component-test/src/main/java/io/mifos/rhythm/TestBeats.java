@@ -133,7 +133,30 @@ public class TestBeats extends AbstractRhythmTest {
   }
 
   @Test
-  public void shouldChangeTheTenantClockOffset() throws InterruptedException {
+  public void shouldBeatForMissingDays() throws InterruptedException {
+    final String applicationIdentifier = "funnybusiness-v6";
+    final String beatIdentifier = "fiddlebeat";
+    createBeatForThisHour(applicationIdentifier, beatIdentifier);
+
+    final int daysAgo = 10;
+    final LocalDateTime nextBeat = setBack(applicationIdentifier, beatIdentifier, daysAgo);
+
+    for (int i = daysAgo; i > 0; i--) {
+      Mockito.verify(beatPublisherServiceMock, Mockito.timeout(4_000).times(1))
+          .publishBeat(
+              beatIdentifier,
+              tenantDataStoreContext.getTenantName(),
+              applicationIdentifier,
+              nextBeat.minusDays(daysAgo));
+    }
+  }
+
+  @Test
+  public void clockOffsetShouldEffectBeatTiming() throws InterruptedException {
+    final String tenantIdentifier = tenantDataStoreContext.getTenantName();
+    final String applicationIdentifier = "funnybusiness-v7";
+    final String beatIdentifier = "fiddlebeat0";
+
     final ClockOffset initialClockOffset = this.testSubject.getClockOffset();
     Assert.assertEquals(Integer.valueOf(0), initialClockOffset.getHours());
     Assert.assertEquals(Integer.valueOf(0), initialClockOffset.getMinutes());
@@ -147,21 +170,27 @@ public class TestBeats extends AbstractRhythmTest {
 
     final ClockOffset changedClockOffset = this.testSubject.getClockOffset();
     Assert.assertEquals(offsetToNow, changedClockOffset);
-  }
 
-  @Test
-  public void shouldBeatForMissingDays() throws InterruptedException {
-    final String applicationIdentifier = "funnybusiness-v6";
-    final String beatIdentifier = "fiddlebeat";
-    createBeatForThisHour(applicationIdentifier, beatIdentifier);
+    final Beat beat = new Beat();
+    beat.setIdentifier(beatIdentifier);
+    beat.setAlignmentHour(0);
 
-    final int daysAgo = 10;
-    final LocalDateTime nextBeat = setBack(applicationIdentifier, beatIdentifier, daysAgo);
+    final LocalDateTime expectedBeatTimestamp = getExpectedBeatTimestamp(now, 0, offsetToNow);
 
-    for (int i = daysAgo; i > 0; i--) {
-      Mockito.verify(beatPublisherServiceMock, Mockito.timeout(4_000).times(1))
-          .publishBeat(beatIdentifier, tenantDataStoreContext.getTenantName(), applicationIdentifier, nextBeat.minusDays(daysAgo));
-    }
+    Mockito.doReturn(Optional.of("boop")).when(beatPublisherServiceMock)
+        .requestPermissionForBeats(Matchers.eq(tenantIdentifier), Matchers.eq(applicationIdentifier));
+    Mockito.when(beatPublisherServiceMock
+        .publishBeat(beatIdentifier, tenantIdentifier, applicationIdentifier, expectedBeatTimestamp))
+        .thenReturn(true);
+
+    this.testSubject.createBeat(applicationIdentifier, beat);
+
+    Assert.assertTrue(this.eventRecorder.wait(EventConstants.POST_BEAT, new BeatEvent(applicationIdentifier, beat.getIdentifier())));
+
+    Mockito.verify(beatPublisherServiceMock, Mockito.timeout(10_000).times(1)).publishBeat(beatIdentifier, tenantIdentifier, applicationIdentifier, expectedBeatTimestamp);
+
+    this.testSubject.setClockOffset(initialClockOffset);
+    Assert.assertTrue(this.eventRecorder.wait(EventConstants.PUT_CLOCKOFFSET, initialClockOffset));
   }
 
   @Transactional

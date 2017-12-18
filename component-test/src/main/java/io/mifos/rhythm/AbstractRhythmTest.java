@@ -25,6 +25,7 @@ import io.mifos.core.test.listener.EnableEventRecording;
 import io.mifos.core.test.listener.EventRecorder;
 import io.mifos.rhythm.api.v1.client.RhythmManager;
 import io.mifos.rhythm.api.v1.domain.Beat;
+import io.mifos.rhythm.api.v1.domain.ClockOffset;
 import io.mifos.rhythm.api.v1.events.BeatEvent;
 import io.mifos.rhythm.api.v1.events.EventConstants;
 import io.mifos.rhythm.service.config.RhythmConfiguration;
@@ -68,7 +69,7 @@ import java.util.concurrent.TimeUnit;
 @RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT,
         classes = {AbstractRhythmTest.TestConfiguration.class},
-        properties = {"rhythm.user=homer", "rhythm.beatCheckRate=500"}
+        properties = {"rhythm.user=homer", "rhythm.beatCheckRate=1000"}
 )
 public class AbstractRhythmTest {
 
@@ -205,8 +206,17 @@ public class AbstractRhythmTest {
   }
 
   LocalDateTime getExpectedBeatTimestamp(final LocalDateTime fromTime, final Integer alignmentHour) {
+    return getExpectedBeatTimestamp(fromTime, alignmentHour, new ClockOffset());
+  }
+
+  LocalDateTime getExpectedBeatTimestamp(
+      final LocalDateTime fromTime,
+      final Integer alignmentHour,
+      final ClockOffset clockOffset) {
     final LocalDateTime midnight = fromTime.truncatedTo(ChronoUnit.DAYS);
-    return midnight.plusHours(alignmentHour);
+    return midnight.plusHours(alignmentHour + clockOffset.getHours())
+        .plusMinutes(clockOffset.getMinutes())
+        .plusSeconds(clockOffset.getSeconds());
   }
 
   private LocalDateTime getNextTimeStamp(final LocalDateTime fromTime) {
