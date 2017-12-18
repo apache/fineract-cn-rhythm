@@ -26,6 +26,7 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.Matchers;
 import org.mockito.Mockito;
+import org.mockito.internal.stubbing.answers.Returns;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.transaction.Transactional;
@@ -147,7 +148,7 @@ public class TestBeats extends AbstractRhythmTest {
               beatIdentifier,
               tenantDataStoreContext.getTenantName(),
               applicationIdentifier,
-              nextBeat.minusDays(daysAgo));
+              nextBeat.minusDays(i));
     }
   }
 
@@ -189,6 +190,7 @@ public class TestBeats extends AbstractRhythmTest {
 
     Mockito.verify(beatPublisherServiceMock, Mockito.timeout(10_000).times(1)).publishBeat(beatIdentifier, tenantIdentifier, applicationIdentifier, expectedBeatTimestamp);
 
+    //Set back to zero'ed clock offset so you don't break the rest of the tests.
     this.testSubject.setClockOffset(initialClockOffset);
     Assert.assertTrue(this.eventRecorder.wait(EventConstants.PUT_CLOCKOFFSET, initialClockOffset));
   }
@@ -205,6 +207,12 @@ public class TestBeats extends AbstractRhythmTest {
         beatIdentifier).orElseThrow(IllegalStateException::new);
 
     Mockito.reset(beatPublisherServiceMock);
+    Mockito.doAnswer(new Returns(true)).when(beatPublisherServiceMock)
+        .publishBeat(
+            Matchers.eq(beatIdentifier),
+            Matchers.eq(tenantDataStoreContext.getTenantName()),
+            Matchers.eq(applicationIdentifier),
+            Matchers.any(LocalDateTime.class));
     final LocalDateTime nextBeat = beatEntity.getNextBeat();
 
     beatEntity.setNextBeat(nextBeat.minusDays(daysAgo));

@@ -27,11 +27,9 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.annotation.Nonnull;
 import java.time.Clock;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
-import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
@@ -78,17 +76,17 @@ public class Drummer {
         }
         else {
           logger.info("Checking if beat {} needs publishing.", beat);
-          final Optional<LocalDateTime> nextBeat = checkBeatForPublish(
+          final LocalDateTime nextBeat = checkBeatForPublish(
                   now,
                   beat.getBeatIdentifier(),
                   beat.getTenantIdentifier(),
                   beat.getApplicationIdentifier(),
                   beat.getAlignmentHour(),
                   beat.getNextBeat());
-          nextBeat.ifPresent(y -> {
-            beat.setNextBeat(y);
+          if (!nextBeat.equals(beat.getNextBeat())) {
+            beat.setNextBeat(nextBeat);
             beatRepository.save(beat);
-          });
+          }
           logger.info("Beat updated to {}.", beat);
         }
       });
@@ -100,7 +98,7 @@ public class Drummer {
     }
   }
 
-  private Optional<LocalDateTime> checkBeatForPublish(
+  private LocalDateTime checkBeatForPublish(
       final LocalDateTime now,
       final String beatIdentifier,
       final String tenantIdentifier,
@@ -113,33 +111,22 @@ public class Drummer {
   }
 
   //Helper is separated from original function so that it can be unit-tested separately from publishBeat.
-  static Optional<LocalDateTime> checkBeatForPublishHelper(
+  static LocalDateTime checkBeatForPublishHelper(
           final LocalDateTime now,
           final Integer alignmentHour,
           final LocalDateTime nextBeat,
           final ClockOffset clockOffset,
           final Predicate<LocalDateTime> publishSucceeded) {
-    final long numberOfBeatPublishesNeeded = getNumberOfBeatPublishesNeeded(now, nextBeat);
-    if (numberOfBeatPublishesNeeded == 0)
-      return Optional.empty();
+    LocalDateTime beatToPublish = nextBeat;
+    for (;
+         !beatToPublish.isAfter(now);
+         beatToPublish = incrementToAlignment(beatToPublish, alignmentHour, clockOffset))
+    {
+      if (!publishSucceeded.test(beatToPublish))
+        break;
+    }
 
-    final Optional<LocalDateTime> firstFailedBeat = Stream.iterate(nextBeat,
-            x -> incrementToAlignment(x, alignmentHour, clockOffset))
-            .limit(numberOfBeatPublishesNeeded)
-            .filter(x -> !publishSucceeded.test(x))
-            .findFirst();
-
-    if (firstFailedBeat.isPresent())
-      return firstFailedBeat;
-    else
-      return Optional.of(incrementToAlignment(now, alignmentHour, clockOffset));
-  }
-
-  static long getNumberOfBeatPublishesNeeded(final LocalDateTime now, final @Nonnull LocalDateTime nextBeat) {
-    if (nextBeat.isAfter(now))
-      return 0;
-
-    return Math.max(1, nextBeat.until(now, ChronoUnit.DAYS));
+    return beatToPublish;
   }
 
   static LocalDateTime incrementToAlignment(

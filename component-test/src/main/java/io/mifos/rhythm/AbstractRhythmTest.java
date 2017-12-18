@@ -198,7 +198,7 @@ public class AbstractRhythmTest {
 
     this.testSubject.createBeat(applicationIdentifier, beat);
 
-    Assert.assertTrue(this.eventRecorder.wait(EventConstants.POST_BEAT, new BeatEvent(applicationIdentifier, beat.getIdentifier())));
+    Assert.assertTrue(beat.getIdentifier(), this.eventRecorder.wait(EventConstants.POST_BEAT, new BeatEvent(applicationIdentifier, beat.getIdentifier())));
 
     Mockito.verify(beatPublisherServiceMock, Mockito.timeout(2_500).times(1)).requestPermissionForBeats(tenantIdentifier, applicationIdentifier);
 
