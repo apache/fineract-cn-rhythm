@@ -15,9 +15,12 @@
  */
 package io.mifos.rhythm.service.internal.service;
 
+import io.mifos.rhythm.service.ServiceConstants;
 import io.mifos.rhythm.service.internal.repository.ApplicationEntity;
 import io.mifos.rhythm.service.internal.repository.ApplicationRepository;
+import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -32,19 +35,23 @@ import java.util.Optional;
 public class IdentityPermittableGroupService {
   private final ApplicationRepository applicationRepository;
   private final BeatPublisherService beatPublisherService;
+  private final Logger logger;
 
   @Autowired
   public IdentityPermittableGroupService(
-          final ApplicationRepository applicationRepository,
-          final BeatPublisherService beatPublisherService) {
+      final ApplicationRepository applicationRepository,
+      final BeatPublisherService beatPublisherService,
+      @Qualifier(ServiceConstants.LOGGER_NAME) final Logger logger) {
     this.applicationRepository = applicationRepository;
     this.beatPublisherService = beatPublisherService;
+    this.logger = logger;
   }
 
   public synchronized boolean checkThatApplicationHasRequestForAccessPermission(
           final String tenantIdentifier,
           final String applicationIdentifier) {
     try {
+      logger.info("checkThatApplicationHasRequestForAccessPermission begin");
       return checkThatApplicationHasRequestForAccessPermissionHelper(tenantIdentifier, applicationIdentifier);
     }
     catch (final DataIntegrityViolationException e) {

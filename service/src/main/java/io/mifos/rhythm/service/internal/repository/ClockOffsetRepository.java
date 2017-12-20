@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 The Mifos Initiative.
+ * Copyright 2017 Kuelap, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,18 +16,9 @@
 package io.mifos.rhythm.service.internal.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Lock;
-import org.springframework.stereotype.Repository;
 
-import javax.persistence.LockModeType;
 import java.util.Optional;
 
-/**
- * @author Myrle Krantz
- */
-@Repository
-public interface ApplicationRepository extends JpaRepository<ApplicationEntity, Long> {
-  @Lock(LockModeType.PESSIMISTIC_WRITE)
-  void deleteByTenantIdentifierAndApplicationIdentifier(String tenantIdentifier, String applicationIdentifier);
-  Optional<ApplicationEntity> findByTenantIdentifierAndApplicationIdentifier(String tenantIdentifier, String applicationIdentifier);
+public interface ClockOffsetRepository extends JpaRepository<ClockOffsetEntity, Long> {
+  Optional<ClockOffsetEntity> findByTenantIdentifier(String tenantIdentifier);
 }

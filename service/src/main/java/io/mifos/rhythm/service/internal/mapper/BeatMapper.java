@@ -16,10 +16,12 @@
 package io.mifos.rhythm.service.internal.mapper;
 
 import io.mifos.rhythm.api.v1.domain.Beat;
+import io.mifos.rhythm.api.v1.domain.ClockOffset;
 import io.mifos.rhythm.service.internal.repository.BeatEntity;
+import io.mifos.rhythm.service.internal.repository.ClockOffsetEntity;
 
+import java.time.Clock;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
@@ -42,14 +44,41 @@ public interface BeatMapper {
     return ret;
   }
 
-  static BeatEntity map(final String tenantIdentifier, final String applicationIdentifier, final Beat instance) {
+  static BeatEntity map(
+      final String tenantIdentifier,
+      final String applicationIdentifier,
+      final Beat instance,
+      final ClockOffset clockOffset) {
     final BeatEntity ret = new BeatEntity();
     ret.setBeatIdentifier(instance.getIdentifier());
     ret.setTenantIdentifier(tenantIdentifier);
     ret.setApplicationIdentifier(applicationIdentifier);
     ret.setAlignmentHour(instance.getAlignmentHour());
-    //First beat is today.  If it's in the past, it will be created nearly immediately.
-    ret.setNextBeat(LocalDateTime.now(ZoneId.of("UTC")).truncatedTo(ChronoUnit.DAYS).plusHours(instance.getAlignmentHour()));
+    //First beat is today.  If it's in the past, it will be published nearly immediately.
+    ret.setNextBeat(alignDateTime(
+        LocalDateTime.now(Clock.systemUTC()),
+        instance.getAlignmentHour(),
+        clockOffset));
     return ret;
+  }
+
+  static LocalDateTime alignDateTime(
+      final LocalDateTime localDateTime,
+      final int alignmentHour,
+      final ClockOffset clockOffset) {
+    return localDateTime.truncatedTo(ChronoUnit.DAYS)
+        .plusHours(alignmentHour + clockOffset.getHours())
+        .plusMinutes(clockOffset.getMinutes())
+        .plusSeconds(clockOffset.getSeconds());
+  }
+
+  static LocalDateTime alignDateTime(
+      final LocalDateTime localDateTime,
+      final int alignmentHour,
+      final ClockOffsetEntity clockOffset) {
+    return localDateTime.truncatedTo(ChronoUnit.DAYS)
+        .plusHours(alignmentHour + clockOffset.getHours())
+        .plusMinutes(clockOffset.getMinutes())
+        .plusSeconds(clockOffset.getSeconds());
   }
 }

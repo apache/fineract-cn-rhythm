@@ -17,6 +17,7 @@ package io.mifos.rhythm.api.v1.client;
 
 import io.mifos.core.api.util.CustomFeignClientsConfiguration;
 import io.mifos.rhythm.api.v1.domain.Beat;
+import io.mifos.rhythm.api.v1.domain.ClockOffset;
 import org.springframework.cloud.netflix.feign.FeignClient;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -31,6 +32,21 @@ import java.util.List;
 @SuppressWarnings("unused")
 @FeignClient(value="rhythm-v1", path="/rhythm/v1", configuration = CustomFeignClientsConfiguration.class)
 public interface RhythmManager {
+  @RequestMapping(
+      value = "/clockoffset",
+      method = RequestMethod.PUT,
+      produces = MediaType.APPLICATION_JSON_VALUE,
+      consumes = MediaType.APPLICATION_JSON_VALUE
+  )
+  void setClockOffset(ClockOffset clockOffset);
+
+  @RequestMapping(
+      value = "/clockoffset",
+      method = RequestMethod.GET,
+      produces = MediaType.APPLICATION_JSON_VALUE,
+      consumes = MediaType.APPLICATION_JSON_VALUE
+  )
+  ClockOffset getClockOffset();
 
   @RequestMapping(
           value = "/applications/{applicationidentifier}",
