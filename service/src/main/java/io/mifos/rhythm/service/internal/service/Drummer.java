@@ -62,6 +62,7 @@ public class Drummer {
   @Scheduled(initialDelayString = "${rhythm.beatCheckRate}", fixedRateString = "${rhythm.beatCheckRate}")
   @Transactional
   public synchronized void checkForBeatsNeeded() {
+    logger.info("checkForBeatsNeeded begin.");
     //In it's current form this function cannot be run in multiple instances of the same service.  We need to get
     //locking on selected entries corrected here, before this will work.
     try {
@@ -97,6 +98,7 @@ public class Drummer {
       logger.info("InvalidDataAccessResourceUsageException in check for scheduled beats, probably " +
               "because initialize hasn't been called yet. {}", e);
     }
+    logger.info("checkForBeatsNeeded end.");
   }
 
   @Transactional
