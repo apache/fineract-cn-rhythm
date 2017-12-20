@@ -24,10 +24,12 @@ import io.mifos.rhythm.service.internal.command.ChangeClockOffsetCommand;
 import io.mifos.rhythm.service.internal.mapper.ClockOffsetMapper;
 import io.mifos.rhythm.service.internal.repository.ClockOffsetEntity;
 import io.mifos.rhythm.service.internal.repository.ClockOffsetRepository;
+import io.mifos.rhythm.service.internal.service.Drummer;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 
+import javax.transaction.Transactional;
 import java.util.Optional;
 
 /**
@@ -37,32 +39,41 @@ import java.util.Optional;
 @Aggregate
 public class ClockOffsetCommandHandler {
   private final ClockOffsetRepository clockOffsetRepository;
+  private final Drummer drummer;
   private final EventHelper eventHelper;
   private final Logger logger;
 
   @Autowired
   public ClockOffsetCommandHandler(
       final ClockOffsetRepository clockOffsetRepository,
+      final Drummer drummer,
       final EventHelper eventHelper,
       @Qualifier(ServiceConstants.LOGGER_NAME) final Logger logger) {
     super();
     this.clockOffsetRepository = clockOffsetRepository;
+    this.drummer = drummer;
     this.eventHelper = eventHelper;
     this.logger = logger;
   }
 
+  @Transactional
   @CommandHandler(logStart = CommandLogLevel.INFO, logFinish = CommandLogLevel.NONE)
   public void process(final ChangeClockOffsetCommand changeClockOffsetCommand) {
 
-    final Optional<ClockOffsetEntity> existingClockOffset =
+    final Optional<ClockOffsetEntity> oldClockOffsetEntity =
         clockOffsetRepository.findByTenantIdentifier(changeClockOffsetCommand.getTenantIdentifier());
 
-    final ClockOffsetEntity clockOffsetEntity = ClockOffsetMapper.map(
+    final ClockOffsetEntity newOffsetEntity = ClockOffsetMapper.map(
         changeClockOffsetCommand.getTenantIdentifier(),
         changeClockOffsetCommand.getInstance(),
-        existingClockOffset);
+        oldClockOffsetEntity);
 
-    clockOffsetRepository.save(clockOffsetEntity);
+    clockOffsetRepository.save(newOffsetEntity);
+
+    drummer.realignAllBeatsForTenant(
+        changeClockOffsetCommand.getTenantIdentifier(),
+        oldClockOffsetEntity.orElseGet(ClockOffsetEntity::new),
+        newOffsetEntity);
 
     logger.info("Sending change clock offset event.");
     eventHelper.sendEvent(

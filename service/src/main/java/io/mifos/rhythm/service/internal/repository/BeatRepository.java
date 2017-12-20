@@ -44,4 +44,6 @@ public interface BeatRepository extends JpaRepository<BeatEntity, Long> {
           (String tenantIdentifier, String applicationIdentifier, String beatIdentifier);
   @Lock(LockModeType.PESSIMISTIC_WRITE)
   Stream<BeatEntity> findByNextBeatBefore(LocalDateTime currentTime);
+  @Lock(LockModeType.PESSIMISTIC_WRITE)
+  Stream<BeatEntity> findByTenantIdentifier(String tenantIdentifier);
 }

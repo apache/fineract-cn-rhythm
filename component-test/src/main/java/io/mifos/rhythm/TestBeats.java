@@ -37,6 +37,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author Myrle Krantz
@@ -168,7 +169,7 @@ public class TestBeats extends AbstractRhythmTest {
     this.testSubject.setClockOffset(offsetToNow);
 
     Assert.assertTrue(this.eventRecorder.wait(EventConstants.PUT_CLOCKOFFSET, offsetToNow));
-
+    TimeUnit.SECONDS.sleep(1);
     final ClockOffset changedClockOffset = this.testSubject.getClockOffset();
     Assert.assertEquals(offsetToNow, changedClockOffset);
 
@@ -193,6 +194,7 @@ public class TestBeats extends AbstractRhythmTest {
     //Set back to zero'ed clock offset so you don't break the rest of the tests.
     this.testSubject.setClockOffset(initialClockOffset);
     Assert.assertTrue(this.eventRecorder.wait(EventConstants.PUT_CLOCKOFFSET, initialClockOffset));
+    TimeUnit.SECONDS.sleep(1);
   }
 
   @Transactional

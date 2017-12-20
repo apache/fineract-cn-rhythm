@@ -17,8 +17,10 @@ package io.mifos.rhythm.service.internal.service;
 
 import io.mifos.rhythm.api.v1.domain.ClockOffset;
 import io.mifos.rhythm.service.ServiceConstants;
+import io.mifos.rhythm.service.internal.mapper.BeatMapper;
 import io.mifos.rhythm.service.internal.repository.BeatEntity;
 import io.mifos.rhythm.service.internal.repository.BeatRepository;
+import io.mifos.rhythm.service.internal.repository.ClockOffsetEntity;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -29,7 +31,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Clock;
 import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
@@ -98,6 +99,28 @@ public class Drummer {
     }
   }
 
+  @Transactional
+  public synchronized void realignAllBeatsForTenant(
+      final String tenantIdentifier,
+      final ClockOffsetEntity oldClockOffset,
+      final ClockOffsetEntity newClockOffset)
+  {
+    final Stream<BeatEntity> beatsToAdjust = beatRepository.findByTenantIdentifier(tenantIdentifier);
+    beatsToAdjust.forEach(x -> {
+      //Need to subtract old clock offset, because for large clock offsets and large alignments,
+      //time can "skip" into the next day through realignment.
+      final LocalDateTime oldBeatNextBeat = x.getNextBeat()
+          .minusHours(oldClockOffset.getHours())
+          .minusMinutes(oldClockOffset.getMinutes())
+          .minusSeconds(oldClockOffset.getSeconds());
+      x.setNextBeat(BeatMapper.alignDateTime(
+          oldBeatNextBeat,
+          x.getAlignmentHour(),
+          newClockOffset));
+      beatRepository.save(x);
+    });
+  }
+
   private LocalDateTime checkBeatForPublish(
       final LocalDateTime now,
       final String beatIdentifier,
@@ -134,10 +157,6 @@ public class Drummer {
       final Integer alignmentHour,
       final ClockOffset clockOffset)
   {
-    return toIncrement.truncatedTo(ChronoUnit.DAYS)
-        .plusDays(1)
-        .plusHours(alignmentHour + clockOffset.getHours())
-        .plusMinutes(clockOffset.getMinutes())
-        .plusSeconds(clockOffset.getSeconds());
+    return BeatMapper.alignDateTime(toIncrement.plusDays(1), alignmentHour, clockOffset);
   }
 }

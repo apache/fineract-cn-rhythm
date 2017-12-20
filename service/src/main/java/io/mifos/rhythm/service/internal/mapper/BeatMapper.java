@@ -18,6 +18,7 @@ package io.mifos.rhythm.service.internal.mapper;
 import io.mifos.rhythm.api.v1.domain.Beat;
 import io.mifos.rhythm.api.v1.domain.ClockOffset;
 import io.mifos.rhythm.service.internal.repository.BeatEntity;
+import io.mifos.rhythm.service.internal.repository.ClockOffsetEntity;
 
 import java.time.Clock;
 import java.time.LocalDateTime;
@@ -47,18 +48,37 @@ public interface BeatMapper {
       final String tenantIdentifier,
       final String applicationIdentifier,
       final Beat instance,
-      final ClockOffset offset) {
+      final ClockOffset clockOffset) {
     final BeatEntity ret = new BeatEntity();
     ret.setBeatIdentifier(instance.getIdentifier());
     ret.setTenantIdentifier(tenantIdentifier);
     ret.setApplicationIdentifier(applicationIdentifier);
     ret.setAlignmentHour(instance.getAlignmentHour());
     //First beat is today.  If it's in the past, it will be published nearly immediately.
-    ret.setNextBeat(LocalDateTime.now(Clock.systemUTC())
-        .truncatedTo(ChronoUnit.DAYS)
-        .plusHours(instance.getAlignmentHour() + offset.getHours())
-        .plusMinutes(offset.getMinutes())
-        .plusSeconds(offset.getSeconds()));
+    ret.setNextBeat(alignDateTime(
+        LocalDateTime.now(Clock.systemUTC()),
+        instance.getAlignmentHour(),
+        clockOffset));
     return ret;
+  }
+
+  static LocalDateTime alignDateTime(
+      final LocalDateTime localDateTime,
+      final int alignmentHour,
+      final ClockOffset clockOffset) {
+    return localDateTime.truncatedTo(ChronoUnit.DAYS)
+        .plusHours(alignmentHour + clockOffset.getHours())
+        .plusMinutes(clockOffset.getMinutes())
+        .plusSeconds(clockOffset.getSeconds());
+  }
+
+  static LocalDateTime alignDateTime(
+      final LocalDateTime localDateTime,
+      final int alignmentHour,
+      final ClockOffsetEntity clockOffset) {
+    return localDateTime.truncatedTo(ChronoUnit.DAYS)
+        .plusHours(alignmentHour + clockOffset.getHours())
+        .plusMinutes(clockOffset.getMinutes())
+        .plusSeconds(clockOffset.getSeconds());
   }
 }

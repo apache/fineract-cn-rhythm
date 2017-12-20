@@ -33,13 +33,13 @@ public class ClockOffsetEntity {
   private String tenantIdentifier;
 
   @Column(name = "hours", nullable = false)
-  private Integer hours;
+  private Integer hours = 0;
 
   @Column(name = "minutes", nullable = false)
-  private Integer minutes;
+  private Integer minutes = 0;
 
   @Column(name = "seconds", nullable = false)
-  private Integer seconds;
+  private Integer seconds = 0;
 
   public Long getId() {
     return id;
