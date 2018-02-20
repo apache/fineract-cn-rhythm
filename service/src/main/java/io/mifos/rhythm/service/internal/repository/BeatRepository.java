@@ -16,8 +16,10 @@
 package io.mifos.rhythm.service.internal.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Lock;
 import org.springframework.stereotype.Repository;
 
+import javax.persistence.LockModeType;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -28,11 +30,20 @@ import java.util.stream.Stream;
  */
 @Repository
 public interface BeatRepository extends JpaRepository<BeatEntity, Long> {
+  @Lock(LockModeType.PESSIMISTIC_WRITE)
   void deleteByTenantIdentifierAndApplicationIdentifier
-          (String tenantIdentifier, String applicationIdentifier);
+      (String tenantIdentifier, String applicationIdentifier);
+  @Lock(LockModeType.PESSIMISTIC_WRITE)
+  void deleteByTenantIdentifierAndApplicationIdentifierAndBeatIdentifier
+      (String tenantIdentifier,
+       String applicationIdentifier,
+       String beatIdentifier);
   List<BeatEntity> findByTenantIdentifierAndApplicationIdentifier
           (String tenantIdentifier, String applicationIdentifier);
   Optional<BeatEntity> findByTenantIdentifierAndApplicationIdentifierAndBeatIdentifier
           (String tenantIdentifier, String applicationIdentifier, String beatIdentifier);
+  @Lock(LockModeType.PESSIMISTIC_WRITE)
   Stream<BeatEntity> findByNextBeatBefore(LocalDateTime currentTime);
+  @Lock(LockModeType.PESSIMISTIC_WRITE)
+  Stream<BeatEntity> findByTenantIdentifier(String tenantIdentifier);
 }

@@ -81,7 +81,7 @@ public class BeatRestController {
           @PathVariable("beatidentifier") final String beatIdentifier) {
     return this.beatService.findByIdentifier(tenantIdentifier, applicationIdentifier, beatIdentifier)
             .map(ResponseEntity::ok)
-            .orElseThrow(() -> ServiceException.notFound("Instance with identifier " + applicationIdentifier + " doesn't exist."));
+            .orElseThrow(() -> ServiceException.notFound("Instance with identifier ''" + applicationIdentifier + "'' doesn''t exist."));
   }
 
   @Permittable(value = AcceptedTokenType.SYSTEM, permittedEndpoint = "/applications/{applicationidentifier}/beats", acceptTokenIntendedForForeignApplication = true) //Allow apps to use this endpoint in their provisioning code.

@@ -27,8 +27,10 @@ public interface EventConstants {
   String POST_BEAT = "post-beat";
   String DELETE_APPLICATION = "delete-application";
   String DELETE_BEAT = "delete-beat";
+  String PUT_CLOCKOFFSET = "put-clockoffset";
   String SELECTOR_INITIALIZE = SELECTOR_NAME + " = '" + INITIALIZE + "'";
   String SELECTOR_POST_BEAT = SELECTOR_NAME + " = '" + POST_BEAT + "'";
   String SELECTOR_DELETE_APPLICATION = SELECTOR_NAME + " = '" + DELETE_APPLICATION + "'";
   String SELECTOR_DELETE_BEAT = SELECTOR_NAME + " = '" + DELETE_BEAT + "'";
+  String SELECTOR_PUT_CLOCKOFFSET = SELECTOR_NAME + " = '" + PUT_CLOCKOFFSET + "'";
 }
