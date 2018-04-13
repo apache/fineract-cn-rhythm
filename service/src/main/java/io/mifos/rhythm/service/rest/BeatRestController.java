@@ -18,23 +18,28 @@
  */
 package io.mifos.rhythm.service.rest;
 
-import io.mifos.anubis.annotation.AcceptedTokenType;
-import io.mifos.anubis.annotation.Permittable;
-import io.mifos.core.command.gateway.CommandGateway;
-import io.mifos.core.lang.ServiceException;
+import static org.apache.fineract.cn.lang.config.TenantHeaderFilter.TENANT_HEADER;
+
 import io.mifos.rhythm.api.v1.domain.Beat;
 import io.mifos.rhythm.service.internal.command.CreateBeatCommand;
 import io.mifos.rhythm.service.internal.command.DeleteBeatCommand;
 import io.mifos.rhythm.service.internal.service.BeatService;
+import java.util.List;
+import javax.validation.Valid;
+import org.apache.fineract.cn.anubis.annotation.AcceptedTokenType;
+import org.apache.fineract.cn.anubis.annotation.Permittable;
+import org.apache.fineract.cn.command.gateway.CommandGateway;
+import org.apache.fineract.cn.lang.ServiceException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-
-import javax.validation.Valid;
-import java.util.List;
-
-import static io.mifos.core.lang.config.TenantHeaderFilter.TENANT_HEADER;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RestController;
 
 /**
  * @author Myrle Krantz
@@ -84,7 +89,8 @@ public class BeatRestController {
           @PathVariable("beatidentifier") final String beatIdentifier) {
     return this.beatService.findByIdentifier(tenantIdentifier, applicationIdentifier, beatIdentifier)
             .map(ResponseEntity::ok)
-            .orElseThrow(() -> ServiceException.notFound("Instance with identifier ''" + applicationIdentifier + "'' doesn''t exist."));
+            .orElseThrow(() -> ServiceException
+                .notFound("Instance with identifier ''" + applicationIdentifier + "'' doesn''t exist."));
   }
 
   @Permittable(value = AcceptedTokenType.SYSTEM, permittedEndpoint = "/applications/{applicationidentifier}/beats", acceptTokenIntendedForForeignApplication = true) //Allow apps to use this endpoint in their provisioning code.

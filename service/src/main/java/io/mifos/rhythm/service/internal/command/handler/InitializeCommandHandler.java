@@ -18,17 +18,16 @@
  */
 package io.mifos.rhythm.service.internal.command.handler;
 
-import io.mifos.core.command.annotation.Aggregate;
-import io.mifos.core.command.annotation.CommandHandler;
-import io.mifos.core.command.annotation.CommandLogLevel;
-import io.mifos.core.command.annotation.EventEmitter;
-import io.mifos.core.mariadb.domain.FlywayFactoryBean;
 import io.mifos.rhythm.api.v1.events.EventConstants;
 import io.mifos.rhythm.service.internal.command.InitializeServiceCommand;
+import javax.sql.DataSource;
+import org.apache.fineract.cn.command.annotation.Aggregate;
+import org.apache.fineract.cn.command.annotation.CommandHandler;
+import org.apache.fineract.cn.command.annotation.CommandLogLevel;
+import org.apache.fineract.cn.command.annotation.EventEmitter;
+import org.apache.fineract.cn.mariadb.domain.FlywayFactoryBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
-
-import javax.sql.DataSource;
 
 /**
  * @author Myrle Krantz

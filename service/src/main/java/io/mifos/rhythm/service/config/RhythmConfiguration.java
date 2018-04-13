@@ -18,18 +18,18 @@
  */
 package io.mifos.rhythm.service.config;
 
-import io.mifos.anubis.config.EnableAnubis;
-import io.mifos.core.api.config.EnableApiFactory;
-import io.mifos.core.async.config.EnableAsync;
-import io.mifos.core.cassandra.config.EnableCassandra;
-import io.mifos.core.command.config.EnableCommandProcessing;
-import io.mifos.core.lang.config.EnableApplicationName;
-import io.mifos.core.lang.config.EnableServiceException;
-import io.mifos.core.lang.config.EnableTenantContext;
-import io.mifos.core.mariadb.config.EnableMariaDB;
-import io.mifos.permittedfeignclient.config.EnablePermissionRequestingFeignClient;
 import io.mifos.rhythm.service.ServiceConstants;
 import io.mifos.rhythm.service.internal.identity.ApplicationPermissionRequestCreator;
+import org.apache.fineract.cn.anubis.config.EnableAnubis;
+import org.apache.fineract.cn.api.config.EnableApiFactory;
+import org.apache.fineract.cn.async.config.EnableAsync;
+import org.apache.fineract.cn.cassandra.config.EnableCassandra;
+import org.apache.fineract.cn.command.config.EnableCommandProcessing;
+import org.apache.fineract.cn.lang.config.EnableApplicationName;
+import org.apache.fineract.cn.lang.config.EnableServiceException;
+import org.apache.fineract.cn.lang.config.EnableTenantContext;
+import org.apache.fineract.cn.mariadb.config.EnableMariaDB;
+import org.apache.fineract.cn.permittedfeignclient.config.EnablePermissionRequestingFeignClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;

@@ -18,13 +18,12 @@
  */
 package io.mifos.rhythm.service.config;
 
-import io.mifos.core.lang.validation.constraints.ValidIdentifier;
+import java.util.concurrent.TimeUnit;
+import org.apache.fineract.cn.lang.validation.constraints.ValidIdentifier;
 import org.hibernate.validator.constraints.Range;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.annotation.Validated;
-
-import java.util.concurrent.TimeUnit;
 
 /**
  * @author Myrle Krantz

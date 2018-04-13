@@ -18,12 +18,13 @@
  */
 package io.mifos.rhythm.service.internal.identity;
 
-import io.mifos.anubis.annotation.Permittable;
-import io.mifos.core.api.annotation.ThrowsException;
-import io.mifos.identity.api.v1.client.ApplicationPermissionAlreadyExistsException;
-import io.mifos.identity.api.v1.domain.Permission;
-import io.mifos.permittedfeignclient.annotation.EndpointSet;
-import io.mifos.permittedfeignclient.annotation.PermittedFeignClientsConfiguration;
+import javax.validation.Valid;
+import org.apache.fineract.cn.anubis.annotation.Permittable;
+import org.apache.fineract.cn.api.annotation.ThrowsException;
+import org.apache.fineract.cn.identity.api.v1.client.ApplicationPermissionAlreadyExistsException;
+import org.apache.fineract.cn.identity.api.v1.domain.Permission;
+import org.apache.fineract.cn.permittedfeignclient.annotation.EndpointSet;
+import org.apache.fineract.cn.permittedfeignclient.annotation.PermittedFeignClientsConfiguration;
 import org.springframework.cloud.netflix.feign.FeignClient;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -31,8 +32,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-
-import javax.validation.Valid;
 
 /**
  * @author Myrle Krantz
@@ -45,7 +44,7 @@ public interface ApplicationPermissionRequestCreator {
           consumes = {MediaType.APPLICATION_JSON_VALUE},
           produces = {MediaType.ALL_VALUE})
   @ThrowsException(status = HttpStatus.CONFLICT, exception = ApplicationPermissionAlreadyExistsException.class)
-  @Permittable(groupId = io.mifos.identity.api.v1.PermittableGroupIds.APPLICATION_SELF_MANAGEMENT)
+  @Permittable(groupId = org.apache.fineract.cn.identity.api.v1.PermittableGroupIds.APPLICATION_SELF_MANAGEMENT)
   void createApplicationPermission(@PathVariable("applicationidentifier") String applicationIdentifier,
                                    @RequestBody @Valid Permission permission);
 }

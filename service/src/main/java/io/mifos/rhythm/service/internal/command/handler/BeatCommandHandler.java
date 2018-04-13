@@ -18,9 +18,6 @@
  */
 package io.mifos.rhythm.service.internal.command.handler;
 
-import io.mifos.core.command.annotation.Aggregate;
-import io.mifos.core.command.annotation.CommandHandler;
-import io.mifos.core.command.annotation.CommandLogLevel;
 import io.mifos.rhythm.api.v1.domain.ClockOffset;
 import io.mifos.rhythm.api.v1.events.BeatEvent;
 import io.mifos.rhythm.api.v1.events.EventConstants;
@@ -32,6 +29,9 @@ import io.mifos.rhythm.service.internal.repository.BeatEntity;
 import io.mifos.rhythm.service.internal.repository.BeatRepository;
 import io.mifos.rhythm.service.internal.service.ClockOffsetService;
 import io.mifos.rhythm.service.internal.service.IdentityPermittableGroupService;
+import org.apache.fineract.cn.command.annotation.Aggregate;
+import org.apache.fineract.cn.command.annotation.CommandHandler;
+import org.apache.fineract.cn.command.annotation.CommandLogLevel;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;

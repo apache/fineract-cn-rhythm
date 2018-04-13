@@ -18,34 +18,33 @@
  */
 package io.mifos.rhythm.service.internal.service;
 
-import io.mifos.anubis.api.v1.domain.AllowedOperation;
-import io.mifos.core.api.context.AutoUserContext;
-import io.mifos.core.api.util.ApiFactory;
-import io.mifos.core.api.util.InvalidTokenException;
-import io.mifos.core.lang.ApplicationName;
-import io.mifos.core.lang.AutoTenantContext;
-import io.mifos.core.lang.DateConverter;
-import io.mifos.identity.api.v1.client.ApplicationPermissionAlreadyExistsException;
-import io.mifos.identity.api.v1.domain.Permission;
-import io.mifos.permittedfeignclient.service.ApplicationAccessTokenService;
+import static io.mifos.rhythm.service.ServiceConstants.LOGGER_NAME;
+
 import io.mifos.rhythm.service.config.RhythmProperties;
 import io.mifos.rhythm.service.internal.identity.ApplicationPermissionRequestCreator;
 import io.mifos.rhythm.spi.v1.PermittableGroupIds;
 import io.mifos.rhythm.spi.v1.client.BeatListener;
 import io.mifos.rhythm.spi.v1.domain.BeatPublish;
+import java.time.LocalDateTime;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+import org.apache.fineract.cn.anubis.api.v1.domain.AllowedOperation;
+import org.apache.fineract.cn.api.context.AutoUserContext;
+import org.apache.fineract.cn.api.util.ApiFactory;
+import org.apache.fineract.cn.api.util.InvalidTokenException;
+import org.apache.fineract.cn.identity.api.v1.client.ApplicationPermissionAlreadyExistsException;
+import org.apache.fineract.cn.identity.api.v1.domain.Permission;
+import org.apache.fineract.cn.lang.ApplicationName;
+import org.apache.fineract.cn.lang.AutoTenantContext;
+import org.apache.fineract.cn.lang.DateConverter;
+import org.apache.fineract.cn.permittedfeignclient.service.ApplicationAccessTokenService;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.cloud.client.ServiceInstance;
 import org.springframework.cloud.client.discovery.DiscoveryClient;
 import org.springframework.stereotype.Service;
-
-import java.time.LocalDateTime;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-
-import static io.mifos.rhythm.service.ServiceConstants.LOGGER_NAME;
 
 /**
  * @author Myrle Krantz

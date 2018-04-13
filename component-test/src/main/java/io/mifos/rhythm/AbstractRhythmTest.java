@@ -18,14 +18,6 @@
  */
 package io.mifos.rhythm;
 
-import io.mifos.anubis.test.v1.TenantApplicationSecurityEnvironmentTestRule;
-import io.mifos.core.api.context.AutoUserContext;
-import io.mifos.core.test.env.TestEnvironment;
-import io.mifos.core.test.fixture.TenantDataStoreContextTestRule;
-import io.mifos.core.test.fixture.cassandra.CassandraInitializer;
-import io.mifos.core.test.fixture.mariadb.MariaDBInitializer;
-import io.mifos.core.test.listener.EnableEventRecording;
-import io.mifos.core.test.listener.EventRecorder;
 import io.mifos.rhythm.api.v1.client.RhythmManager;
 import io.mifos.rhythm.api.v1.domain.Beat;
 import io.mifos.rhythm.api.v1.domain.ClockOffset;
@@ -34,7 +26,25 @@ import io.mifos.rhythm.api.v1.events.EventConstants;
 import io.mifos.rhythm.service.config.RhythmConfiguration;
 import io.mifos.rhythm.service.internal.service.BeatPublisherService;
 import io.mifos.rhythm.spi.v1.PermittableGroupIds;
-import org.junit.*;
+import java.security.interfaces.RSAPrivateKey;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.temporal.ChronoUnit;
+import java.util.Optional;
+import java.util.concurrent.TimeUnit;
+import org.apache.fineract.cn.anubis.test.v1.TenantApplicationSecurityEnvironmentTestRule;
+import org.apache.fineract.cn.api.context.AutoUserContext;
+import org.apache.fineract.cn.test.env.TestEnvironment;
+import org.apache.fineract.cn.test.fixture.TenantDataStoreContextTestRule;
+import org.apache.fineract.cn.test.fixture.cassandra.CassandraInitializer;
+import org.apache.fineract.cn.test.fixture.mariadb.MariaDBInitializer;
+import org.apache.fineract.cn.test.listener.EnableEventRecording;
+import org.apache.fineract.cn.test.listener.EventRecorder;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.ClassRule;
+import org.junit.Rule;
 import org.junit.rules.RuleChain;
 import org.junit.rules.TestRule;
 import org.junit.runner.RunWith;
@@ -57,13 +67,6 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.junit4.SpringRunner;
-
-import java.security.interfaces.RSAPrivateKey;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.temporal.ChronoUnit;
-import java.util.Optional;
-import java.util.concurrent.TimeUnit;
 
 /**
  * @author Myrle Krantz

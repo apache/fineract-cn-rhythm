@@ -18,13 +18,13 @@
  */
 package io.mifos.rhythm.service.internal.command.handler;
 
-import io.mifos.core.command.annotation.Aggregate;
-import io.mifos.core.command.annotation.CommandHandler;
-import io.mifos.core.command.annotation.CommandLogLevel;
 import io.mifos.rhythm.api.v1.events.EventConstants;
 import io.mifos.rhythm.service.internal.command.DeleteApplicationCommand;
 import io.mifos.rhythm.service.internal.repository.ApplicationRepository;
 import io.mifos.rhythm.service.internal.repository.BeatRepository;
+import org.apache.fineract.cn.command.annotation.Aggregate;
+import org.apache.fineract.cn.command.annotation.CommandHandler;
+import org.apache.fineract.cn.command.annotation.CommandLogLevel;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 

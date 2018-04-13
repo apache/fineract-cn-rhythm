@@ -18,11 +18,10 @@
  */
 package io.mifos.rhythm.spi.v1.domain;
 
-import io.mifos.core.lang.validation.constraints.ValidIdentifier;
-import io.mifos.core.lang.validation.constraints.ValidLocalDateTimeString;
-
-import javax.validation.constraints.NotNull;
 import java.util.Objects;
+import javax.validation.constraints.NotNull;
+import org.apache.fineract.cn.lang.validation.constraints.ValidIdentifier;
+import org.apache.fineract.cn.lang.validation.constraints.ValidLocalDateTimeString;
 
 /**
  * @author Myrle Krantz

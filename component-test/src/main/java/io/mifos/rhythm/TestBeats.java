@@ -18,21 +18,12 @@
  */
 package io.mifos.rhythm;
 
-import io.mifos.core.api.util.NotFoundException;
 import io.mifos.rhythm.api.v1.domain.Beat;
 import io.mifos.rhythm.api.v1.domain.ClockOffset;
 import io.mifos.rhythm.api.v1.events.BeatEvent;
 import io.mifos.rhythm.api.v1.events.EventConstants;
 import io.mifos.rhythm.service.internal.repository.BeatEntity;
 import io.mifos.rhythm.service.internal.repository.BeatRepository;
-import org.junit.Assert;
-import org.junit.Test;
-import org.mockito.Matchers;
-import org.mockito.Mockito;
-import org.mockito.internal.stubbing.answers.Returns;
-import org.springframework.beans.factory.annotation.Autowired;
-
-import javax.transaction.Transactional;
 import java.time.Clock;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -41,6 +32,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
+import javax.transaction.Transactional;
+import org.apache.fineract.cn.api.util.NotFoundException;
+import org.junit.Assert;
+import org.junit.Test;
+import org.mockito.Matchers;
+import org.mockito.Mockito;
+import org.mockito.internal.stubbing.answers.Returns;
+import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * @author Myrle Krantz
