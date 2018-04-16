@@ -1,8 +1,6 @@
 # Apache Fineract CN Rhythm
 
-[![Join the chat at https://gitter.im/mifos-initiative/mifos.io](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/mifos-initiative/mifos.io?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
-
-This project provides a heart beatPublish for other microservices which need to start jobs to be executed once and only once at a defined time.
+This project provides a heart beatPublish for other services which need to start jobs to be executed once and only once at a defined time.
 
 ## Abstract
 Apache Fineract CN is an application framework for digital financial services, a system to support nationwide and cross-national financial transactions and help to level and speed the creation of an inclusive, interconnected digital economy for every nation in the world.
