@@ -23,7 +23,7 @@ import org.apache.fineract.cn.command.annotation.Aggregate;
 import org.apache.fineract.cn.command.annotation.CommandHandler;
 import org.apache.fineract.cn.command.annotation.CommandLogLevel;
 import org.apache.fineract.cn.command.annotation.EventEmitter;
-import org.apache.fineract.cn.mariadb.domain.FlywayFactoryBean;
+import org.apache.fineract.cn.postgresql.domain.FlywayFactoryBean;
 import org.apache.fineract.cn.rhythm.api.v1.events.EventConstants;
 import org.apache.fineract.cn.rhythm.service.internal.command.InitializeServiceCommand;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -23,7 +23,7 @@ ext.versions = [
         frameworklang : '0.1.0-BUILD-SNAPSHOT',
         frameworkasync : '0.1.0-BUILD-SNAPSHOT',
         frameworkcassandra : '0.1.0-BUILD-SNAPSHOT',
-        frameworkmariadb : '0.1.0-BUILD-SNAPSHOT',
+        frameworkpostgresql : '0.1.0-BUILD-SNAPSHOT',
         frameworkcommand : '0.1.0-BUILD-SNAPSHOT',
         frameworktest: '0.1.0-BUILD-SNAPSHOT',
         frameworkanubis: '0.1.0-BUILD-SNAPSHOT',
