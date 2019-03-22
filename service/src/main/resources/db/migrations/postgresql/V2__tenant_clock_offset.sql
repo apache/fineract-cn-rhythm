@@ -17,8 +17,8 @@
 -- under the License.
 --
 
-CREATE TABLE khepri_clockoffsets (
-  id BIGINT NOT NULL AUTO_INCREMENT,
+CREATE TABLE IF NOT EXISTS khepri_clockoffsets (
+  id BIGINT NOT NULL,
   tenant_identifier        VARCHAR(32)  NOT NULL,
   hours                    INT          NOT NULL,
   minutes                  INT          NOT NULL,
