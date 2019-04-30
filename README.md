@@ -1,4 +1,4 @@
-# Apache Fineract CN Rhythm
+# Apache Fineract CN Rhythm [![Build Status](https://api.travis-ci.com/apache/fineract-cn-rhythm.svg?branch=develop)](https://travis-ci.com/apache/fineract-cn-rhythm)
 
 This project provides a heart beatPublish for other services which need to start jobs to be executed once and only once at a defined time.
 
