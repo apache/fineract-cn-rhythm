@@ -18,7 +18,7 @@
 --
 
 CREATE TABLE IF NOT EXISTS khepri_clockoffsets (
-  id BIGINT NOT NULL,
+  id BIGSERIAL NOT NULL,
   tenant_identifier        VARCHAR(32)  NOT NULL,
   hours                    INT          NOT NULL,
   minutes                  INT          NOT NULL,

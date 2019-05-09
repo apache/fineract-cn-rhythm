@@ -18,7 +18,7 @@
 --
 
 CREATE TABLE IF NOT EXISTS khepri_beats (
-  id BIGINT NOT NULL,
+  id BIGSERIAL NOT NULL,
   tenant_identifier        VARCHAR(32)  NOT NULL,
   application_identifier   VARCHAR(64)  NOT NULL,
   beat_identifier          VARCHAR(32)  NOT NULL,
@@ -29,7 +29,7 @@ CREATE TABLE IF NOT EXISTS khepri_beats (
 );
 
 CREATE TABLE IF NOT EXISTS khepri_apps (
-  id BIGINT NOT NULL,
+  id BIGSERIAL NOT NULL,
   tenant_identifier        VARCHAR(32) NOT NULL,
   application_identifier   VARCHAR(32) NOT NULL,
   permittable_identifier   VARCHAR(32) NOT NULL,
