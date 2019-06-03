@@ -28,3 +28,6 @@ env:
     - ARTIFACTORY_URL=https://mifos.jfrog.io/mifos
     - ARTIFACTORY_USER=travis-ci
     - secure: "l1xWZsribnzO0EpD+RJre6pqujPZ4uq+jCzdz5HH9oWd9j7kAKVH/24Zferi+vUUnMYM+yjghZS3kn3fki0/cpTyD5SPfCMk0E7kJkMnMXoLYw/FqgHc00wciHZbd9FnoaUohI8rxWyW5SIJQSW9tEBGljKGIs+NxX/APEMZVAW6AaRDVw6vO9jL3t+fLi29AqX1lehGi3DiafSh2FrE04pP96L9A8kKsV3yg3jfPjDXWOfHipjJgl0epSP8UHwIEItsNb25m8TI61erj4HAERCwJFdlHrWPG+laTWapnPBUunCgqN49cowBmAy6Zi5e5FhvAI+mj1YjAP01gbpdFtCSEJDr0k0iZmmzwQvyf84sf883Jlw3XMUWy5RtTt0ZYyap3p1FPGYqfEyUYFexmKmIjJjVEg8apOSDcvdw/Fs+qEbDieg5ibGt7osD1j2M3kt5bilqdgjN+V4tdb3j4/C6TYTarvLXmKZKsZHjHuOa1n7A3KnJBk6ljlJyk3fVwLBnPDxtxxYfjlbRjoSNxYiIfAVFJpDHOdvUaW2HYKkpykDPiVA5j59TSm2LillzDzyuYko/sx1CzlHOdOH0qw1W2dIOvA6qPsZ0snOy4lKvnbn91rucBrEMGmJu+G6A5YIbNGsGX/r0c85KQ0F03jOOYVt+hlKfm57TfAr3HEc="
+after_failure:
+  - ./gradlew rat
+  - cat api/build/reports/rat/rat-report.txt
