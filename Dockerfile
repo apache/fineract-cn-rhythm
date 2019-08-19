@@ -16,7 +16,14 @@
 # specific language governing permissions and limitations
 # under the License.
 #
-FROM openjdk:8-jdk-alpine
+FROM openjdk:8-jdk-alpine AS builder
+RUN mkdir builddir
+COPY . builddir
+WORKDIR builddir
+RUN ./gradlew publishToMavenLocal
+
+
+FROM openjdk:8-jdk-alpine AS runner
 
 ARG rhythm_port=2022
 
@@ -27,6 +34,6 @@ ENV server.max-http-header-size=16384 \
     server.port=$rhythm_port
 
 WORKDIR /tmp
-COPY rhythm-service-boot-0.1.0-BUILD-SNAPSHOT.jar .
+COPY --from=builder /builddir/service/build/libs/rhythm-service-boot-0.1.0-BUILD-SNAPSHOT.jar ./rhythm-service-boot.jar
 
-CMD ["java", "-jar", "rhythm-service-boot-0.1.0-BUILD-SNAPSHOT.jar"]
+CMD ["java", "-jar", "rhythm-service-boot.jar"]
