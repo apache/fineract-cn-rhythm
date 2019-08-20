@@ -34,6 +34,6 @@ ENV server.max-http-header-size=16384 \
     server.port=$rhythm_port
 
 WORKDIR /tmp
-COPY --from=builder /builddir/service/build/libs/rhythm-service-boot-0.1.0-BUILD-SNAPSHOT.jar ./rhythm-service-boot.jar
+COPY --from=builder /builddir/service/build/libs/service-0.1.0-BUILD-SNAPSHOT-boot.jar ./rhythm-service-boot.jar
 
 CMD ["java", "-jar", "rhythm-service-boot.jar"]
