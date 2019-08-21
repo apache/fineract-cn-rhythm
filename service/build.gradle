@@ -86,14 +86,11 @@ publishing {
     }
 }
 
-jar {
-  baseName = 'fineract-cn-rhythm'
-	version = version
-}
+def dockerImage = 'fineract-cn-rhythm'
 
 ////START Build docker image
 if (!project.hasProperty("dockerImgName")) {
-    ext.dockerImgName = "${jar.baseName}"
+    ext.dockerImgName = "${dockerImage}"
 }
 if (!project.hasProperty("dockerTag")) {
     ext.dockerTag = "latest"
