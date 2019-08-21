@@ -14,8 +14,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 group 'org.apache.fineract.cn'
+
+task buildDocker {
+  //dependsOn gradle.includedBuild('service').task(':publishToMavenLocal')
+  dependsOn gradle.includedBuild('service').task(':buildDocker')
+}
 
 task publishApiToMavenLocal {
     dependsOn gradle.includedBuild('api').task(':publishToMavenLocal')

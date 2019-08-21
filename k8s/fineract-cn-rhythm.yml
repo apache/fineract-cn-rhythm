@@ -1,0 +1,58 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: fineract-cn-rhythm
+spec:
+  selector:
+    app: fineract-cn-rhythm
+  ports:
+    - name: http
+      protocol: TCP
+      port: 2022
+      targetPort: httpport
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: fineract-cn-rhythm
+  labels:
+    app: fineract-cn-rhythm
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: fineract-cn-rhythm
+  template:
+    metadata:
+      labels:
+        app: fineract-cn-rhythm
+    spec:
+      containers:
+        - name: fineract-cn-rhythm
+          image: registry.dev.redbee.io/fineract-cn-rhythm:latest
+          imagePullPolicy: Always
+          env:
+            - name: "server.port"
+              value: "2022"
+            - name: "server.max-http-header-size"
+              value: "16384"
+            - name: "spring.cloud.config.uri"
+              value: "http://fineract-cn-cloud-config-server:8888"
+            - name: "spring.cloud.config.profile"
+              value: "default"
+          ports:
+            - name: httpport
+              containerPort: 2022
+          resources:
+            requests:
+              memory: 1Gi
+              cpu: 0.1
+            limits:
+              memory: 2Gi
+              cpu: 1
+      imagePullSecrets:
+        - name: docker.redbee
+
+---

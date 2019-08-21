@@ -26,6 +26,7 @@ buildscript {
 
     dependencies {
         classpath ("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
+        classpath('se.transmode.gradle:gradle-docker:1.2')
     }
 }
 
@@ -38,6 +39,7 @@ plugins {
 apply from: '../shared.gradle'
 
 apply plugin: 'spring-boot'
+apply plugin: 'docker'
 
 springBoot {
     executable = true
@@ -82,4 +84,43 @@ publishing {
             version project.findProperty('externalVersion') ?: project.version
         }
     }
+}
+
+jar {
+  baseName = 'fineract-cn-rhythm'
+	version = version
+}
+
+////START Build docker image
+if (!project.hasProperty("dockerImgName")) {
+    ext.dockerImgName = "${jar.baseName}"
+}
+if (!project.hasProperty("dockerTag")) {
+    ext.dockerTag = "latest"
+}
+if (!project.hasProperty("dockerRegistry")) {
+    ext.dockerRegistry = "registry.dev.redbee.io"
+}
+if (!project.hasProperty("dockerPushToRegistry")) {
+    ext.dockerPushToRegistry = true
+}
+task buildDocker(type: Docker, dependsOn: build) {
+    baseImage = "openjdk:8-jdk-alpine"
+    maintainer = "vbees"
+    hostUrl = "https://registry.dev.redbee.io"
+    push = dockerPushToRegistry.toBoolean()
+    dryRun = false
+    tagVersion = "${dockerTag}"
+    tag = "${dockerRegistry}/${dockerImgName}"
+    addFile {
+        from bootRepackage
+        rename { "${dockerImgName}.jar" }
+    }
+    addFile("./java-entrypoint.sh", "/java-entrypoint.sh")
+    //exposePort(8080)
+
+    entryPoint([
+        "/java-entrypoint.sh",
+        "/${dockerImgName}.jar"
+    ])
 }
