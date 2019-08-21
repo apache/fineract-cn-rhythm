@@ -23,10 +23,13 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import org.apache.fineract.cn.anubis.api.v1.domain.AllowedOperation;
+import org.apache.fineract.cn.api.context.AutoGuest;
 import org.apache.fineract.cn.api.context.AutoUserContext;
 import org.apache.fineract.cn.api.util.ApiFactory;
 import org.apache.fineract.cn.api.util.InvalidTokenException;
 import org.apache.fineract.cn.identity.api.v1.client.ApplicationPermissionAlreadyExistsException;
+import org.apache.fineract.cn.identity.api.v1.client.IdentityManager;
+import org.apache.fineract.cn.identity.api.v1.domain.Authentication;
 import org.apache.fineract.cn.identity.api.v1.domain.Permission;
 import org.apache.fineract.cn.lang.ApplicationName;
 import org.apache.fineract.cn.lang.AutoTenantContext;
@@ -58,6 +61,7 @@ public class BeatPublisherService {
   private final ApiFactory apiFactory;
   private final RhythmProperties properties;
   private final Logger logger;
+  private final IdentityManager identityManager;
 
   @Autowired
   public BeatPublisherService(
@@ -67,7 +71,8 @@ public class BeatPublisherService {
           final ApplicationName rhythmApplicationName,
           final ApiFactory apiFactory,
           final RhythmProperties properties,
-          @Qualifier(ServiceConstants.LOGGER_NAME) final Logger logger) {
+          @Qualifier(ServiceConstants.LOGGER_NAME) final Logger logger,
+          final IdentityManager identityManager) {
     this.discoveryClient = discoveryClient;
     this.applicationPermissionRequestCreator = applicationPermissionRequestCreator;
     this.applicationAccessTokenService = applicationAccessTokenService;
@@ -75,6 +80,7 @@ public class BeatPublisherService {
     this.apiFactory = apiFactory;
     this.properties = properties;
     this.logger = logger;
+    this.identityManager = identityManager;
   }
 
   /**
@@ -89,8 +95,16 @@ public class BeatPublisherService {
    */
   @SuppressWarnings("WeakerAccess") //Access is public for mocking in component test.
   public Optional<String> requestPermissionForBeats(final String tenantIdentifier, final String applicationIdentifier) {
+
     try (final AutoTenantContext ignored = new AutoTenantContext(tenantIdentifier)) {
-      try (final AutoUserContext ignored2 = new AutoUserContext(properties.getUser(), "")) {
+
+      final Authentication schedulerUserAuthentication;
+      try (final AutoGuest ignored2 = new AutoGuest()) {
+        logger.info("Login user '{}' pass '{}'.", properties.getUser(), properties.getPassword());
+        schedulerUserAuthentication = this.identityManager.login(properties.getUser(), properties.getPassword());
+      }
+
+      try (final AutoUserContext ignored2 = new AutoUserContext(properties.getUser(), schedulerUserAuthentication.getAccessToken())) {
         logger.info("Requesting permission to send beats to application '{}' under tenant '{}'.", applicationIdentifier, tenantIdentifier);
 
         final String consumerPermittableGroupIdentifier = PermittableGroupIds.forApplication(applicationIdentifier);
@@ -98,7 +112,7 @@ public class BeatPublisherService {
         publishBeatPermission.setAllowedOperations(Collections.singleton(AllowedOperation.CHANGE));
         publishBeatPermission.setPermittableEndpointGroupIdentifier(consumerPermittableGroupIdentifier);
         try {
-          applicationPermissionRequestCreator.createApplicationPermission(rhythmApplicationName.toString(), publishBeatPermission);
+          this.identityManager.createApplicationPermission(rhythmApplicationName.toString(), publishBeatPermission);
           logger.debug("Successfully requested permission to send beats to application '{}' under tenant '{}'.", applicationIdentifier, tenantIdentifier);
         }
         catch (final InvalidTokenException e) {

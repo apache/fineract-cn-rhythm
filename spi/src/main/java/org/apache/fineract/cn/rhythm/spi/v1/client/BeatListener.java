@@ -18,6 +18,7 @@
  */
 package org.apache.fineract.cn.rhythm.spi.v1.client;
 
+import org.apache.fineract.cn.api.util.CustomFeignClientsConfiguration;
 import org.apache.fineract.cn.rhythm.spi.v1.domain.BeatPublish;
 import org.springframework.cloud.netflix.feign.FeignClient;
 import org.springframework.http.MediaType;
@@ -28,9 +29,9 @@ import org.springframework.web.bind.annotation.RequestMethod;
  * @author Myrle Krantz
  */
 @SuppressWarnings("unused")
-@FeignClient
+@FeignClient()
 public interface BeatListener {
-  String PUBLISH_BEAT_PATH = "/beatlistener/v1/publishedbeats";
+  String PUBLISH_BEAT_PATH = "/portfolio/v1/beatlistener/v1/publishedbeats";
 
   @RequestMapping(
           value = PUBLISH_BEAT_PATH,
