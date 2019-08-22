@@ -55,4 +55,16 @@ publishing {
             version project.findProperty('externalVersion') ?: project.version
         }
     }
+    repositories {
+        maven {
+            def repo = version.endsWith('SNAPSHOT') ? 'waas-snapshot' : 'waas'
+            url "http://registry-nd.dev.redbee.io/repository/${repo}"
+
+            credentials {
+                username = String.valueOf(System.getenv("NEXUS_USER"))
+                password = String.valueOf(System.getenv("NEXUS_PASS"))
+            }
+
+        }
+    }
 }

@@ -21,6 +21,11 @@ task buildDocker {
   dependsOn gradle.includedBuild('service').task(':buildDocker')
 }
 
+task publish {
+  dependsOn gradle.includedBuild('api').task(':publish')
+  dependsOn gradle.includedBuild('spi').task(':publish')
+}
+
 task publishApiToMavenLocal {
     dependsOn gradle.includedBuild('api').task(':publishToMavenLocal')
 }
