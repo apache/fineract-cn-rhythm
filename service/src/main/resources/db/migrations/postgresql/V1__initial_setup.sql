@@ -17,10 +17,8 @@
 -- under the License.
 --
 
-# noinspection SqlNoDataSourceInspectionForFile
-
-CREATE TABLE khepri_beats (
-  id BIGINT NOT NULL AUTO_INCREMENT,
+CREATE TABLE IF NOT EXISTS khepri_beats (
+  id BIGSERIAL NOT NULL,
   tenant_identifier        VARCHAR(32)  NOT NULL,
   application_identifier   VARCHAR(64)  NOT NULL,
   beat_identifier          VARCHAR(32)  NOT NULL,
@@ -30,8 +28,8 @@ CREATE TABLE khepri_beats (
   CONSTRAINT khepri_beats_pk PRIMARY KEY (id)
 );
 
-CREATE TABLE khepri_apps (
-  id BIGINT NOT NULL AUTO_INCREMENT,
+CREATE TABLE IF NOT EXISTS khepri_apps (
+  id BIGSERIAL NOT NULL,
   tenant_identifier        VARCHAR(32) NOT NULL,
   application_identifier   VARCHAR(32) NOT NULL,
   permittable_identifier   VARCHAR(32) NOT NULL,

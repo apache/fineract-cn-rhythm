@@ -26,7 +26,7 @@ import org.apache.fineract.cn.command.config.EnableCommandProcessing;
 import org.apache.fineract.cn.lang.config.EnableApplicationName;
 import org.apache.fineract.cn.lang.config.EnableServiceException;
 import org.apache.fineract.cn.lang.config.EnableTenantContext;
-import org.apache.fineract.cn.mariadb.config.EnableMariaDB;
+import org.apache.fineract.cn.postgresql.config.EnablePostgreSQL;
 import org.apache.fineract.cn.permittedfeignclient.config.EnablePermissionRequestingFeignClient;
 import org.apache.fineract.cn.rhythm.service.ServiceConstants;
 import org.apache.fineract.cn.rhythm.service.internal.identity.ApplicationPermissionRequestCreator;
@@ -54,7 +54,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter
 @EnableApiFactory
 @EnableAsync
 @EnableCassandra
-@EnableMariaDB(forTenantContext = false)
+@EnablePostgreSQL(forTenantContext = false)
 @EnableCommandProcessing
 @EnableAnubis
 @EnableServiceException
