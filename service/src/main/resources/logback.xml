@@ -34,29 +34,9 @@
         </encoder>
     </appender>
 
-    <logger name="com" level="INFO">
-        <appender-ref ref="STDOUT" />
+    <root level="INFO">
         <appender-ref ref="LOGSTASH"/>
-    </logger>
-
-    <logger name="org" level="INFO">
-        <appender-ref ref="STDOUT" />
-        <appender-ref ref="LOGSTASH"/>
-    </logger>
-
-    <logger name="org.apache.fineract.cn" level="DEBUG">
-        <appender-ref ref="STDOUT" />
-        <appender-ref ref="LOGSTASH"/>
-    </logger>
-
-    <logger name="io" level="INFO">
-        <appender-ref ref="STDOUT" />
-        <appender-ref ref="LOGSTASH"/>
-    </logger>
-
-    <logger name="net" level="INFO">
-        <appender-ref ref="STDOUT" />
-        <appender-ref ref="LOGSTASH"/>
-    </logger>
+        <appender-ref ref="STDOUT"/>
+    </root>
 
 </configuration>

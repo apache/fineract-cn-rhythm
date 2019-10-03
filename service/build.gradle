@@ -97,6 +97,10 @@ publishing {
     }
 }
 
+configurations.all {
+    resolutionStrategy.cacheChangingModulesFor 0, 'seconds'
+}
+
 def dockerImage = 'fineract-cn-rhythm'
 
 ////START Build docker image
