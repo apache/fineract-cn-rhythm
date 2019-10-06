@@ -110,7 +110,10 @@ rat {
             "gradlew",
             "gradlew.bat",
             "README.md",
-            "**/.dockerignore/**"
+            "**/.dockerignore/**",
+            "**/target/**",
+            "**/*.log",
+            "**/banner.txt"
     ]
     plainOutput = true
 }
