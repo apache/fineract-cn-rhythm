@@ -96,7 +96,8 @@ public class Drummer {
         }
       });
 
-    } catch (final PessimisticLockingFailureException e) {
+    }
+    catch (final PessimisticLockingFailureException e) {
       if (e.getMessage() != null && e.getMessage().contains("relation \"khepri_beats\" does not exist")) {
         logger.info("Exception in check for scheduled beats as table khepri_beats does not exist. Probably cause initialize hasn't been called yet.");
       }
