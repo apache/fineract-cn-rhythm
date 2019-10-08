@@ -22,6 +22,7 @@ import java.time.Clock;
 import java.time.LocalDateTime;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
+
 import org.apache.fineract.cn.rhythm.api.v1.domain.ClockOffset;
 import org.apache.fineract.cn.rhythm.service.ServiceConstants;
 import org.apache.fineract.cn.rhythm.service.internal.mapper.BeatMapper;
@@ -31,7 +32,7 @@ import org.apache.fineract.cn.rhythm.service.internal.repository.ClockOffsetEnti
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.dao.InvalidDataAccessResourceUsageException;
+import org.springframework.dao.DataAccessException;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -73,20 +74,20 @@ public class Drummer {
       final Stream<BeatEntity> beats = beatRepository.findByNextBeatBefore(now);
       beats.forEach((beat) -> {
         final boolean applicationHasRequestForAccessPermission
-                = identityPermittableGroupService.checkThatApplicationHasRequestForAccessPermission(
-                beat.getTenantIdentifier(), beat.getApplicationIdentifier());
+             = identityPermittableGroupService.checkThatApplicationHasRequestForAccessPermission(
+             beat.getTenantIdentifier(), beat.getApplicationIdentifier());
         if (!applicationHasRequestForAccessPermission) {
           logger.info("Not checking if beat {} needs publishing, because application access needed to publish is not available.", beat);
         }
         else {
           logger.info("Checking if beat {} needs publishing.", beat);
           final LocalDateTime nextBeat = checkBeatForPublish(
-                  now,
-                  beat.getBeatIdentifier(),
-                  beat.getTenantIdentifier(),
-                  beat.getApplicationIdentifier(),
-                  beat.getAlignmentHour(),
-                  beat.getNextBeat());
+               now,
+               beat.getBeatIdentifier(),
+               beat.getTenantIdentifier(),
+               beat.getApplicationIdentifier(),
+               beat.getAlignmentHour(),
+               beat.getNextBeat());
           if (!nextBeat.equals(beat.getNextBeat())) {
             beat.setNextBeat(nextBeat);
             beatRepository.save(beat);
@@ -95,10 +96,13 @@ public class Drummer {
         }
       });
 
-    }
-    catch (final InvalidDataAccessResourceUsageException e) {
-      logger.info("InvalidDataAccessResourceUsageException in check for scheduled beats, probably " +
-              "because initialize hasn't been called yet. {}", e);
+    } catch (final DataAccessException e) {
+      if (e.getMessage() != null && e.getMessage().contains("relation \"khepri_beats\" does not exist")) {
+        logger.info("Exception in check for scheduled beats as table khepri_beats does not exist. Probably cause initialize hasn't been called yet.");
+      }
+      else {
+        logger.warn("DataAccessException in check for scheduled beats", e);
+      }
     }
     logger.info("checkForBeatsNeeded end.");
   }
