@@ -32,7 +32,7 @@ import org.apache.fineract.cn.rhythm.service.internal.repository.ClockOffsetEnti
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.dao.DataAccessException;
+import org.springframework.dao.PessimisticLockingFailureException;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -96,12 +96,12 @@ public class Drummer {
         }
       });
 
-    } catch (final DataAccessException e) {
+    } catch (final PessimisticLockingFailureException e) {
       if (e.getMessage() != null && e.getMessage().contains("relation \"khepri_beats\" does not exist")) {
         logger.info("Exception in check for scheduled beats as table khepri_beats does not exist. Probably cause initialize hasn't been called yet.");
       }
       else {
-        logger.warn("DataAccessException in check for scheduled beats", e);
+        logger.warn("PessimisticLockingFailureException in check for scheduled beats", e);
       }
     }
     logger.info("checkForBeatsNeeded end.");
