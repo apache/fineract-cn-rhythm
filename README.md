@@ -1,6 +1,7 @@
-# Apache Fineract CN Rhythm [![Build Status](https://api.travis-ci.com/apache/fineract-cn-rhythm.svg?branch=develop)](https://travis-ci.com/apache/fineract-cn-rhythm)
+# Apache Fineract CN Rhythm [![Build Status](https://api.travis-ci.com/apache/fineract-cn-rhythm.svg?branch=develop)](https://travis-ci.com/apache/fineract-cn-rhythm)  [![Docker Cloud Build Status](https://img.shields.io/docker/cloud/build/apache/fineract-cn-rhythm)](https://hub.docker.com/r/apache/fineract-cn-rhythm/builds)
 
 This project provides a heart beatPublish for other services which need to start jobs to be executed once and only once at a defined time.
+[Read more](https://cwiki.apache.org/confluence/display/FINERACT/Fineract+CN+Project+Structure#FineractCNProjectStructure-rhythm).
 
 ## Abstract
 Apache Fineract CN is an application framework for digital financial services, a system to support nationwide and cross-national financial transactions and help to level and speed the creation of an inclusive, interconnected digital economy for every nation in the world.
