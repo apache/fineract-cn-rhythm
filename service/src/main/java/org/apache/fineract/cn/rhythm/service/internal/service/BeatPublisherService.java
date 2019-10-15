@@ -22,6 +22,7 @@ import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+
 import org.apache.fineract.cn.anubis.api.v1.domain.AllowedOperation;
 import org.apache.fineract.cn.api.context.AutoUserContext;
 import org.apache.fineract.cn.api.util.ApiFactory;
@@ -163,7 +164,7 @@ public class BeatPublisherService {
     }
     catch (final Throwable e) {
       logger.warn("Unable to publish beat '{}' to application '{}' for tenant '{}', " +
-              "because exception was thrown in publish {}.", beatIdentifier, applicationIdentifier, tenantIdentifier, e);
+              "because exception was thrown in publish.", beatIdentifier, applicationIdentifier, tenantIdentifier, e);
       return false;
     }
   }
