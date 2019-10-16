@@ -22,6 +22,9 @@ import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+
+import com.netflix.appinfo.InstanceInfo;
+import com.netflix.discovery.EurekaClient;
 import org.apache.fineract.cn.anubis.api.v1.domain.AllowedOperation;
 import org.apache.fineract.cn.api.context.AutoUserContext;
 import org.apache.fineract.cn.api.util.ApiFactory;
@@ -41,7 +44,6 @@ import org.apache.fineract.cn.rhythm.spi.v1.domain.BeatPublish;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.cloud.client.ServiceInstance;
 import org.springframework.cloud.client.discovery.DiscoveryClient;
 import org.springframework.stereotype.Service;
 
@@ -52,6 +54,8 @@ import org.springframework.stereotype.Service;
 @Service
 public class BeatPublisherService {
   private final DiscoveryClient discoveryClient;
+
+  private final EurekaClient eurekaClient;
   private final ApplicationPermissionRequestCreator applicationPermissionRequestCreator;
   private final ApplicationAccessTokenService applicationAccessTokenService;
   private final ApplicationName rhythmApplicationName;
@@ -61,14 +65,16 @@ public class BeatPublisherService {
 
   @Autowired
   public BeatPublisherService(
-          @SuppressWarnings("SpringJavaAutowiringInspection") final DiscoveryClient discoveryClient,
-          @SuppressWarnings("SpringJavaAutowiringInspection") final ApplicationPermissionRequestCreator applicationPermissionRequestCreator,
-          @SuppressWarnings("SpringJavaAutowiringInspection") final ApplicationAccessTokenService applicationAccessTokenService,
-          final ApplicationName rhythmApplicationName,
-          final ApiFactory apiFactory,
-          final RhythmProperties properties,
-          @Qualifier(ServiceConstants.LOGGER_NAME) final Logger logger) {
+       @SuppressWarnings("SpringJavaAutowiringInspection") final DiscoveryClient discoveryClient,
+       @SuppressWarnings("SpringJavaAutowiringInspection") final EurekaClient eurekaClient,
+       @SuppressWarnings("SpringJavaAutowiringInspection") final ApplicationPermissionRequestCreator applicationPermissionRequestCreator,
+       @SuppressWarnings("SpringJavaAutowiringInspection") final ApplicationAccessTokenService applicationAccessTokenService,
+       final ApplicationName rhythmApplicationName,
+       final ApiFactory apiFactory,
+       final RhythmProperties properties,
+       @Qualifier(ServiceConstants.LOGGER_NAME) final Logger logger) {
     this.discoveryClient = discoveryClient;
+    this.eurekaClient = eurekaClient;
     this.applicationPermissionRequestCreator = applicationPermissionRequestCreator;
     this.applicationAccessTokenService = applicationAccessTokenService;
     this.rhythmApplicationName = rhythmApplicationName;
@@ -137,12 +143,12 @@ public class BeatPublisherService {
     final BeatPublish beatPublish = new BeatPublish(beatIdentifier, DateConverter.toIsoString(timestamp));
     logger.info("Attempting publish {} with timestamp {} under user {}.", beatPublish, timestamp, properties.getUser());
 
-    final List<ServiceInstance> applicationsByName = discoveryClient.getInstances(applicationIdentifier);
+    final List<InstanceInfo> applicationsByName = eurekaClient.getApplication(applicationIdentifier).getInstances();
     if (applicationsByName.isEmpty())
       return false;
 
-    final ServiceInstance beatListenerService = applicationsByName.get(0);
-    final BeatListener beatListener = apiFactory.create(BeatListener.class, beatListenerService.getUri().toString());
+    final InstanceInfo beatListenerService = applicationsByName.get(0);
+    final BeatListener beatListener = apiFactory.create(BeatListener.class, beatListenerService.getHomePageUrl());
 
     try (final AutoTenantContext ignored = new AutoTenantContext(tenantIdentifier)) {
       final String accessToken;
@@ -162,8 +168,8 @@ public class BeatPublisherService {
       }
     }
     catch (final Throwable e) {
-      logger.warn("Unable to publish beat '{}' to application '{}' for tenant '{}', " +
-              "because exception was thrown in publish {}.", beatIdentifier, applicationIdentifier, tenantIdentifier, e);
+      logger.warn("Unable to publish beat '{}' to application '{}' (uri: '{}') for tenant '{}' with user '{}'" +
+              "because exception was thrown in publish", beatIdentifier, applicationIdentifier,beatListenerService.getHomePageUrl(), tenantIdentifier, properties.getUser(), e);
       return false;
     }
   }
