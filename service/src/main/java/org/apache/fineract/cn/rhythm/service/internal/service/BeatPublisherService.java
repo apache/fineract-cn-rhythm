@@ -44,7 +44,6 @@ import org.apache.fineract.cn.rhythm.spi.v1.domain.BeatPublish;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.cloud.client.discovery.DiscoveryClient;
 import org.springframework.stereotype.Service;
 
 /**
@@ -53,8 +52,6 @@ import org.springframework.stereotype.Service;
 @SuppressWarnings("WeakerAccess")
 @Service
 public class BeatPublisherService {
-  private final DiscoveryClient discoveryClient;
-
   private final EurekaClient eurekaClient;
   private final ApplicationPermissionRequestCreator applicationPermissionRequestCreator;
   private final ApplicationAccessTokenService applicationAccessTokenService;
@@ -65,7 +62,6 @@ public class BeatPublisherService {
 
   @Autowired
   public BeatPublisherService(
-       @SuppressWarnings("SpringJavaAutowiringInspection") final DiscoveryClient discoveryClient,
        @SuppressWarnings("SpringJavaAutowiringInspection") final EurekaClient eurekaClient,
        @SuppressWarnings("SpringJavaAutowiringInspection") final ApplicationPermissionRequestCreator applicationPermissionRequestCreator,
        @SuppressWarnings("SpringJavaAutowiringInspection") final ApplicationAccessTokenService applicationAccessTokenService,
@@ -73,7 +69,6 @@ public class BeatPublisherService {
        final ApiFactory apiFactory,
        final RhythmProperties properties,
        @Qualifier(ServiceConstants.LOGGER_NAME) final Logger logger) {
-    this.discoveryClient = discoveryClient;
     this.eurekaClient = eurekaClient;
     this.applicationPermissionRequestCreator = applicationPermissionRequestCreator;
     this.applicationAccessTokenService = applicationAccessTokenService;
