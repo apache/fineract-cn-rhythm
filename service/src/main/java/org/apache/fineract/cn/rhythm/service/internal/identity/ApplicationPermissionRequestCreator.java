@@ -25,7 +25,7 @@ import org.apache.fineract.cn.identity.api.v1.client.ApplicationPermissionAlread
 import org.apache.fineract.cn.identity.api.v1.domain.Permission;
 import org.apache.fineract.cn.permittedfeignclient.annotation.EndpointSet;
 import org.apache.fineract.cn.permittedfeignclient.annotation.PermittedFeignClientsConfiguration;
-import org.springframework.cloud.netflix.feign.FeignClient;
+import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.PathVariable;
