@@ -26,7 +26,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.mockito.Matchers;
+import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
 import org.mockito.internal.stubbing.answers.Returns;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -82,10 +82,10 @@ public class RhythmApiDocumentation extends AbstractRhythmTest {
     final LocalDateTime expectedBeatTimestamp = getExpectedBeatTimestamp(now, alignmentHour);
 
     Mockito.doAnswer(new Returns(true)).when(super.beatPublisherServiceMock).publishBeat(
-            Matchers.eq(oldBeatId),
-            Matchers.eq(tenantDataStoreContext.getTenantName()),
-            Matchers.eq(applicationIdentifier),
-            Matchers.eq(expectedBeatTimestamp));
+            ArgumentMatchers.eq(oldBeatId),
+            ArgumentMatchers.eq(tenantDataStoreContext.getTenantName()),
+            ArgumentMatchers.eq(applicationIdentifier),
+            ArgumentMatchers.eq(expectedBeatTimestamp));
 
     Beat newBeat = new Beat();
     newBeat.setIdentifier(oldBeatId);
@@ -117,10 +117,10 @@ public class RhythmApiDocumentation extends AbstractRhythmTest {
     final LocalDateTime expectedBeatTimestamp = getExpectedBeatTimestamp(now, alignmentHour);
 
     Mockito.doAnswer(new Returns(true)).when(super.beatPublisherServiceMock).publishBeat(
-            Matchers.eq(oldBeatId),
-            Matchers.eq(tenantDataStoreContext.getTenantName()),
-            Matchers.eq(applicationIdentifier),
-            Matchers.eq(expectedBeatTimestamp));
+            ArgumentMatchers.eq(oldBeatId),
+            ArgumentMatchers.eq(tenantDataStoreContext.getTenantName()),
+            ArgumentMatchers.eq(applicationIdentifier),
+            ArgumentMatchers.eq(expectedBeatTimestamp));
 
     final Beat createdBeat = createBeat(applicationIdentifier, oldBeatId, alignmentHour, expectedBeatTimestamp);
 
@@ -157,10 +157,10 @@ public class RhythmApiDocumentation extends AbstractRhythmTest {
     final LocalDateTime beatTimestamp = getExpectedBeatTimestamp(nowTwo, alignmentHourTwo);
 
     Mockito.doAnswer(new Returns(true)).when(super.beatPublisherServiceMock).publishBeat(
-            Matchers.eq(oldBeatId),
-            Matchers.eq(tenantDataStoreContext.getTenantName()),
-            Matchers.eq(applicationIdentifier),
-            Matchers.eq(expectedBeatTimestamp));
+            ArgumentMatchers.eq(oldBeatId),
+            ArgumentMatchers.eq(tenantDataStoreContext.getTenantName()),
+            ArgumentMatchers.eq(applicationIdentifier),
+            ArgumentMatchers.eq(expectedBeatTimestamp));
 
     final Beat firstBeat = createBeat(applicationIdentifier, oldBeatId, alignmentHourOne, expectedBeatTimestamp);
     final Beat secondBeat = createBeat(applicationIdentifier, newBeatId, alignmentHourTwo, beatTimestamp);
@@ -195,10 +195,10 @@ public class RhythmApiDocumentation extends AbstractRhythmTest {
     final LocalDateTime expectedBeatTimestamp = getExpectedBeatTimestamp(now, alignmentHour);
 
     Mockito.doAnswer(new Returns(true)).when(super.beatPublisherServiceMock).publishBeat(
-            Matchers.eq(oldBeatId),
-            Matchers.eq(tenantDataStoreContext.getTenantName()),
-            Matchers.eq(applicationIdentifier),
-            Matchers.eq(expectedBeatTimestamp));
+            ArgumentMatchers.eq(oldBeatId),
+            ArgumentMatchers.eq(tenantDataStoreContext.getTenantName()),
+            ArgumentMatchers.eq(applicationIdentifier),
+            ArgumentMatchers.eq(expectedBeatTimestamp));
 
     final Beat createdBeat = createBeat(applicationIdentifier, oldBeatId, alignmentHour, expectedBeatTimestamp);
 

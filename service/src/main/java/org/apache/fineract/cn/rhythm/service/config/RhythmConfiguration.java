@@ -42,7 +42,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.web.servlet.config.annotation.PathMatchConfigurer;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 /**
  * @author Myrle Krantz
@@ -74,7 +74,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter
 @EnableJpaRepositories({
     "org.apache.fineract.cn.rhythm.service.internal.repository"
 })
-public class RhythmConfiguration extends WebMvcConfigurerAdapter {
+public class RhythmConfiguration implements WebMvcConfigurer {
 
   public RhythmConfiguration() {
     super();
@@ -83,10 +83,5 @@ public class RhythmConfiguration extends WebMvcConfigurerAdapter {
   @Bean(name = ServiceConstants.LOGGER_NAME)
   public Logger logger() {
     return LoggerFactory.getLogger(ServiceConstants.LOGGER_NAME);
-  }
-
-  @Override
-  public void configurePathMatch(final PathMatchConfigurer configurer) {
-    configurer.setUseSuffixPatternMatch(Boolean.FALSE);
   }
 }
