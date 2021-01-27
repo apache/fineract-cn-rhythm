@@ -49,7 +49,7 @@ import org.junit.rules.RuleChain;
 import org.junit.rules.TestRule;
 import org.junit.runner.RunWith;
 import org.mockito.AdditionalMatchers;
-import org.mockito.Matchers;
+import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
 import org.mockito.internal.stubbing.answers.Returns;
 import org.mockito.invocation.InvocationOnMock;
@@ -158,10 +158,10 @@ public class AbstractRhythmTest {
     final LocalDateTime expectedBeatTimestamp = getExpectedBeatTimestamp(now, alignmentHour);
 
     Mockito.doAnswer(new Returns(true)).when(beatPublisherServiceMock).publishBeat(
-            Matchers.eq(beatIdentifier),
-            Matchers.eq(tenantDataStoreContext.getTenantName()),
-            Matchers.eq(applicationIdentifier),
-            Matchers.eq(expectedBeatTimestamp));
+            ArgumentMatchers.eq(beatIdentifier),
+            ArgumentMatchers.eq(tenantDataStoreContext.getTenantName()),
+            ArgumentMatchers.eq(applicationIdentifier),
+            ArgumentMatchers.eq(expectedBeatTimestamp));
 
     final Beat ret = createBeat(applicationIdentifier, beatIdentifier, alignmentHour, expectedBeatTimestamp);
 
@@ -198,9 +198,9 @@ public class AbstractRhythmTest {
     beat.setIdentifier(beatIdentifier);
     beat.setAlignmentHour(alignmentHour);
 
-    Mockito.doAnswer(new AnswerWithDelay<>(2_000, new Returns(Optional.of(PermittableGroupIds.forApplication(applicationIdentifier))))).when(beatPublisherServiceMock).requestPermissionForBeats(Matchers.eq(tenantIdentifier), Matchers.eq(applicationIdentifier));
-    Mockito.doAnswer(new AnswerWithDelay<>(2_000, new Returns(true))).when(beatPublisherServiceMock).publishBeat(Matchers.eq(beatIdentifier), Matchers.eq(tenantIdentifier), Matchers.eq(applicationIdentifier),
-            AdditionalMatchers.or(Matchers.eq(expectedBeatTimestamp), Matchers.eq(getNextTimeStamp(expectedBeatTimestamp))));
+    Mockito.doAnswer(new AnswerWithDelay<>(2_000, new Returns(Optional.of(PermittableGroupIds.forApplication(applicationIdentifier))))).when(beatPublisherServiceMock).requestPermissionForBeats(ArgumentMatchers.eq(tenantIdentifier), ArgumentMatchers.eq(applicationIdentifier));
+    Mockito.doAnswer(new AnswerWithDelay<>(2_000, new Returns(true))).when(beatPublisherServiceMock).publishBeat(ArgumentMatchers.eq(beatIdentifier), ArgumentMatchers.eq(tenantIdentifier), ArgumentMatchers.eq(applicationIdentifier),
+            AdditionalMatchers.or(ArgumentMatchers.eq(expectedBeatTimestamp), ArgumentMatchers.eq(getNextTimeStamp(expectedBeatTimestamp))));
 
     this.testSubject.createBeat(applicationIdentifier, beat);
 

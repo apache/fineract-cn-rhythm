@@ -36,7 +36,7 @@ import org.apache.fineract.cn.rhythm.service.internal.repository.BeatEntity;
 import org.apache.fineract.cn.rhythm.service.internal.repository.BeatRepository;
 import org.junit.Assert;
 import org.junit.Test;
-import org.mockito.Matchers;
+import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
 import org.mockito.internal.stubbing.answers.Returns;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -106,7 +106,7 @@ public class TestBeats extends AbstractRhythmTest {
 
     final LocalDateTime expectedBeatTimestamp = getExpectedBeatTimestamp(now, beat.getAlignmentHour());
 
-    Mockito.doReturn(Optional.of("boop")).when(beatPublisherServiceMock).requestPermissionForBeats(Matchers.eq(tenantIdentifier), Matchers.eq(applicationIdentifier));
+    Mockito.doReturn(Optional.of("boop")).when(beatPublisherServiceMock).requestPermissionForBeats(ArgumentMatchers.eq(tenantIdentifier), ArgumentMatchers.eq(applicationIdentifier));
     Mockito.when(beatPublisherServiceMock.publishBeat(beatId, tenantIdentifier, applicationIdentifier, expectedBeatTimestamp)).thenReturn(false, false, true);
 
     this.testSubject.createBeat(applicationIdentifier, beat);
@@ -182,7 +182,7 @@ public class TestBeats extends AbstractRhythmTest {
     final LocalDateTime expectedBeatTimestamp = getExpectedBeatTimestamp(now, 0, offsetToNow);
 
     Mockito.doReturn(Optional.of("boop")).when(beatPublisherServiceMock)
-        .requestPermissionForBeats(Matchers.eq(tenantIdentifier), Matchers.eq(applicationIdentifier));
+        .requestPermissionForBeats(ArgumentMatchers.eq(tenantIdentifier), ArgumentMatchers.eq(applicationIdentifier));
     Mockito.when(beatPublisherServiceMock
         .publishBeat(beatIdentifier, tenantIdentifier, applicationIdentifier, expectedBeatTimestamp))
         .thenReturn(true);
@@ -213,10 +213,10 @@ public class TestBeats extends AbstractRhythmTest {
     Mockito.reset(beatPublisherServiceMock);
     Mockito.doAnswer(new Returns(true)).when(beatPublisherServiceMock)
         .publishBeat(
-            Matchers.eq(beatIdentifier),
-            Matchers.eq(tenantDataStoreContext.getTenantName()),
-            Matchers.eq(applicationIdentifier),
-            Matchers.any(LocalDateTime.class));
+            ArgumentMatchers.eq(beatIdentifier),
+            ArgumentMatchers.eq(tenantDataStoreContext.getTenantName()),
+            ArgumentMatchers.eq(applicationIdentifier),
+            ArgumentMatchers.any(LocalDateTime.class));
     final LocalDateTime nextBeat = beatEntity.getNextBeat();
 
     beatEntity.setNextBeat(nextBeat.minusDays(daysAgo));
