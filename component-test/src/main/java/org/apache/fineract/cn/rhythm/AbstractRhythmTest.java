@@ -85,7 +85,7 @@ public class AbstractRhythmTest {
   @Configuration
   @EnableEventRecording
   @EnableFeignClients(basePackages = {"org.apache.fineract.cn.rhythm.api.v1.client"})
-  @RibbonClient(name = APP_NAME)
+  // @RibbonClient(name = APP_NAME)
   @Import({RhythmConfiguration.class})
   @ComponentScan("org.apache.fineract.cn.rhythm.listener")
   public static class TestConfiguration {
