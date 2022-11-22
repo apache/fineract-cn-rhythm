@@ -50,7 +50,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter
 @SuppressWarnings("WeakerAccess")
 @Configuration
 @EnableAutoConfiguration
-@EnableDiscoveryClient
+// @EnableDiscoveryClient
 @EnableApiFactory
 @EnableAsync
 @EnableCassandra
@@ -61,7 +61,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter
 @EnableScheduling
 @EnableTenantContext
 @EnablePermissionRequestingFeignClient(feignClasses = {ApplicationPermissionRequestCreator.class})
-@RibbonClient(name = "rhythm-v1")
+// @RibbonClient(name = "rhythm-v1")
 @EnableApplicationName
 @EnableFeignClients(clients = {ApplicationPermissionRequestCreator.class})
 @ComponentScan({

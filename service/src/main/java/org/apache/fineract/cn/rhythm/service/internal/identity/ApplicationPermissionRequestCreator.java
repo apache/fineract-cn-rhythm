@@ -37,7 +37,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
  * @author Myrle Krantz
  */
 @EndpointSet(identifier = "rhythm__v1__identity__v1")
-@FeignClient(name="identity-v1", path="/identity/v1", configuration=PermittedFeignClientsConfiguration.class)
+@FeignClient(name = "identity-service", path="/identity/v1", url = "http://${kubernetes.identity.service.name}:${kubernetes.identity.server.port}", configuration=PermittedFeignClientsConfiguration.class)
 public interface ApplicationPermissionRequestCreator {
 
   @RequestMapping(value = "/applications/{applicationidentifier}/permissions", method = RequestMethod.POST,

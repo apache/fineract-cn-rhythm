@@ -32,7 +32,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
  * @author Myrle Krantz
  */
 @SuppressWarnings("unused")
-@FeignClient(value="rhythm-v1", path="/rhythm/v1", configuration = CustomFeignClientsConfiguration.class)
+@FeignClient(path="/rhythm/v1", url = "http://${kubernetes.rhythm.service.name}:${kubernetes.rhythm.server.port}", configuration = CustomFeignClientsConfiguration.class)
 public interface RhythmManager {
   @RequestMapping(
       value = "/clockoffset",
